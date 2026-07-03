@@ -2,6 +2,7 @@ import { NextResponse }              from 'next/server';
 import { getDb, Q }                  from '../../../lib/d1-db';
 import { sendNotification }          from '../../../lib/notify';
 import { createHmac }                from 'crypto';
+import { reportError }               from '../../../lib/observability';
 
 /**
  * POST /api/payment-webhook
@@ -37,7 +38,7 @@ export async function POST(request) {
     }
 
   } catch (err) {
-    console.error('[/api/payment-webhook] Fatal:', err);
+    reportError(err, { route: 'POST /api/payment-webhook' });
     return NextResponse.json({ error: 'Webhook processing failed' }, { status: 500 });
   }
 }

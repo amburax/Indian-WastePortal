@@ -1,8 +1,25 @@
 'use client';
 import Link from 'next/link';
+import { useEffect } from 'react';
 import { AlertTriangle } from 'lucide-react';
 
 export default function Error({ error, reset }) {
+  // Report the crash so it's visible in logs / alerts (best-effort, never throws).
+  useEffect(() => {
+    try {
+      fetch('/api/client-error', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: error?.message,
+          stack:   error?.stack,
+          digest:  error?.digest,
+          url:     typeof location !== 'undefined' ? location.href : '',
+        }),
+      }).catch(() => {});
+    } catch { /* noop */ }
+  }, [error]);
+
   return (
     <div className="min-h-screen bg-mesh flex items-center justify-center px-4">
       <div className="max-w-md w-full glass-frosted rounded-2xl p-8 text-center">

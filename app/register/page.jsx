@@ -4,7 +4,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {
   ArrowLeft, ArrowRight, Loader2,
-  User, Building2, MapPin, BarChart3, ShieldCheck, CheckCircle
+  User, Building2, MapPin, BarChart3, ShieldCheck, CheckCircle,
+  Recycle, Battery
 } from 'lucide-react';
 import GlassCard          from '../../components/GlassCard';
 import StepProgress       from '../../components/StepProgress';
@@ -362,6 +363,7 @@ function Step3Address({ data, onChange, errors }) {
                   onChange={e => onChange('full_address', e.target.value)}
                   className="form-input resize-none"
                   placeholder="Plot 12, Sector 4, Near Bus Stand, Bopal" />
+        <p className="text-xs text-slate-400 mt-1">Letters, numbers, spaces and commas only — the CPCB portal rejects symbols like <code>#</code> <code>/</code> <code>&amp;</code>.</p>
       </div>
 
       {/* Local body + Pincode */}
@@ -456,6 +458,85 @@ function ConsentGate({ consent, onChange }) {
 }
 
 // ────────────────────────────────────────────────────────────
+//  SERVICE SELECTOR — one account, multiple services
+// ────────────────────────────────────────────────────────────
+function ServiceSelector({ service, onSelect }) {
+  const opts = [
+    { id: 'solid_waste', label: 'Solid Waste', desc: 'Bulk Waste Generator registration — SWM Rules 2026', icon: Recycle, live: true },
+    { id: 'ewaste',      label: 'E-Waste',     desc: 'EPR registration under the E-Waste Rules', icon: Battery, live: false },
+  ];
+  return (
+    <div className="mb-5">
+      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Choose a service</p>
+      <div className="grid grid-cols-2 gap-3">
+        {opts.map(o => {
+          const active = service === o.id;
+          return (
+            <button key={o.id} type="button" onClick={() => onSelect(o.id)}
+                    className={`text-left rounded-2xl p-4 border transition-all ${active ? 'border-ruby-500 bg-ruby-50/60 shadow-sm' : 'border-slate-200 bg-white/60 hover:border-slate-300'}`}>
+              <div className="flex items-center gap-2 mb-1">
+                <o.icon size={18} className={active ? 'text-ruby-700' : 'text-slate-500'} />
+                <span className="font-semibold text-slate-800 text-sm">{o.label}</span>
+                <span className={`ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full ${o.live ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                  {o.live ? 'Available' : 'Coming soon'}
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 leading-snug">{o.desc}</p>
+            </button>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+// ── E-Waste: not live yet → waitlist capture ──────────────────
+function EWasteWaitlistCard() {
+  const [email, setEmail] = useState('');
+  const [state, setState] = useState('idle');   // idle | loading | done | error
+  const [msg, setMsg]     = useState('');
+  const [code, setCode]   = useState('');
+  async function join(e) {
+    e.preventDefault();
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setState('error'); setMsg('Enter a valid email'); return; }
+    setState('loading'); setMsg('');
+    try {
+      const res = await fetch('/api/ewaste-waitlist', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
+      const d = await res.json();
+      if (!res.ok) { setState('error'); setMsg(d.error || 'Something went wrong'); return; }
+      setState('done'); setMsg(d.message || "You're on the list!"); setCode(d.discount_code || '');
+    } catch { setState('error'); setMsg('Network error — please try again.'); }
+  }
+  return (
+    <GlassCard variant="frosted" className="p-8 text-center">
+      <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center mx-auto mb-4">
+        <Battery size={26} className="text-amber-600" />
+      </div>
+      <h2 className="font-display text-xl font-bold text-slate-800">E-Waste registration is launching soon</h2>
+      <p className="text-sm text-slate-500 mt-2 max-w-md mx-auto">
+        We're building EPR registration under the E-Waste (Management) Rules with the same one-login,
+        agent-filed experience. Join the waitlist for <strong className="text-amber-700">20% off</strong> at launch.
+      </p>
+      {state === 'done' ? (
+        <div className="mt-5 p-4 rounded-xl bg-emerald-50 border border-emerald-200 max-w-md mx-auto">
+          <p className="text-sm font-semibold text-emerald-800 flex items-center justify-center gap-2"><CheckCircle size={16} /> {msg}</p>
+          {code && <p className="text-xs text-emerald-700 mt-1">Your launch discount code: <span className="font-mono font-bold">{code}</span></p>}
+        </div>
+      ) : (
+        <form onSubmit={join} className="mt-5 flex flex-col sm:flex-row gap-2 max-w-md mx-auto">
+          <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@company.in" className="form-input flex-1" />
+          <button type="submit" disabled={state === 'loading'} className="btn-ruby px-5 py-2.5 text-sm gap-2 disabled:opacity-50">
+            {state === 'loading' ? <><Loader2 size={15} className="animate-spin" />Joining…</> : 'Join waitlist'}
+          </button>
+        </form>
+      )}
+      {state === 'error' && <p className="text-xs text-red-600 mt-2">{msg}</p>}
+      <p className="text-xs text-slate-400 mt-4">Want Solid Waste instead? Switch the service above.</p>
+    </GlassCard>
+  );
+}
+
+// ────────────────────────────────────────────────────────────
 //  MAIN REGISTER PAGE
 // ────────────────────────────────────────────────────────────
 function RegisterContent() {
@@ -464,6 +545,7 @@ function RegisterContent() {
   const planFromUrl  = searchParams.get('plan') || 'standard';
 
   const [step,     setStep]     = useState(1);
+  const [service,  setService]  = useState('solid_waste');   // solid_waste (live) | ewaste (waitlist)
   const [loading,  setLoading]  = useState(false);
   const [apiError, setApiError] = useState('');
   const [errors,   setErrors]   = useState({});
@@ -600,6 +682,11 @@ function RegisterContent() {
       </header>
 
       <main className="max-w-2xl mx-auto px-4 py-10 page-transition">
+        {step === 1 && <ServiceSelector service={service} onSelect={setService} />}
+
+        {service === 'ewaste' && <EWasteWaitlistCard />}
+
+        {service !== 'ewaste' && (<>
         <div className="glass-frosted rounded-2xl p-6 mb-5">
           <StepProgress currentStep={step} />
         </div>
@@ -662,6 +749,7 @@ function RegisterContent() {
             </p>
           )}
         </GlassCard>
+        </>)}
 
         <p className="text-center text-xs text-slate-400 mt-4">
           🔒 Indian Waste Portal handles only your CPCB SWM 2026 registration filing. Not affiliated with any government body.

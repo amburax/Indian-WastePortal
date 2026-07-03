@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getDb, Q }     from '../../../../lib/d1-db';
 import { rateLimit }    from '../../../../lib/ratelimit';
+import { reportError }  from '../../../../lib/observability';
 
 /**
  * POST /api/intercept/submit
@@ -51,7 +52,7 @@ export async function POST(request) {
     return NextResponse.json({ success: true, attemptsLeft });
 
   } catch (err) {
-    console.error('[/api/intercept/submit] Error:', err);
+    reportError(err, { route: 'POST /api/intercept/submit' });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

@@ -6,6 +6,7 @@ import { sendEmail, receiptEmail, verifyEmail } from '../../../lib/email';
 import { sendNotification }        from '../../../lib/notify';
 import { requireUser, hashPassword, signToken, signVerify, CLIENT_COOKIE, sessionCookieOptions } from '../../../lib/client-auth';
 import { rateLimit, clientIp } from '../../../lib/ratelimit';
+import { reportError }         from '../../../lib/observability';
 
 /**
  * POST /api/register
@@ -122,7 +123,7 @@ export async function POST(request) {
     return res;
 
   } catch (err) {
-    console.error('[/api/register] Error:', err);
+    reportError(err, { route: 'POST /api/register' });
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
 }

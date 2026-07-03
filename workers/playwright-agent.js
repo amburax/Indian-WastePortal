@@ -526,6 +526,17 @@ async function clickNextOrRegister(page, log) {
 //  STEP 2: Organisation Details + LGD Address
 //  Category, sub-category, waste metrics, full LGD address
 // ══════════════════════════════════════════════════════════════
+// ── Address sanitisers for CPCB's strict Step-2 validation ────
+// City/Full-Address reject special characters (# / & etc.). sanitizeAddr keeps
+// letters/digits/space/comma/hyphen/period; lettersOnly is the strict fallback
+// used only if the portal still rejects the value (some fields are letters-only).
+function sanitizeAddr(s) {
+  return String(s || '').replace(/[^A-Za-z0-9\s,.\-]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+function lettersOnly(s) {
+  return String(s || '').replace(/[^A-Za-z\s]/g, ' ').replace(/\s+/g, ' ').trim();
+}
+
 async function step2OrgAndAddress(page, p, log, orgId) {
   log('step2', 'success', 'Filling Step 2 — Organisation & address');
 
@@ -551,9 +562,9 @@ async function step2OrgAndAddress(page, p, log, orgId) {
   // Sub-district exact label varies (and some districts have none) → fuzzy, else first.
   await smartSelect(page, ['#sub_district_id', 'select[id*="sub_district" i]', 'select[name*="taluka" i]'], p.sub_district, 'Sub-district / Taluka', true);
 
-  await safeFill(page, ['#city_name', 'input[placeholder*="City" i]', 'input[name*="city"]'], p.city_name, 'City / Village');
-  if (p.zone_ward) await safeFill(page, ['#zone_board', 'input[placeholder*="Zone" i]'], p.zone_ward, 'Zone / Ward');
-  await safeFill(page, ['#fullAddress', 'input[placeholder*="Full Address" i]', 'textarea[name*="address"]'], p.full_address, 'Full Address');
+  await safeFill(page, ['#city_name', 'input[placeholder*="City" i]', 'input[name*="city"]'], sanitizeAddr(p.city_name), 'City / Village');
+  if (p.zone_ward) await safeFill(page, ['#zone_board', 'input[placeholder*="Zone" i]'], sanitizeAddr(p.zone_ward), 'Zone / Ward');
+  await safeFill(page, ['#fullAddress', 'input[placeholder*="Full Address" i]', 'textarea[name*="address"]'], sanitizeAddr(p.full_address), 'Full Address');
 
   // Local body: ULB/RLB radio → reveals the #panchayat (local-body name) dropdown.
   const isRLB = /rlb|rural/i.test(p.local_body_type || '');
@@ -569,7 +580,18 @@ async function step2OrgAndAddress(page, p, log, orgId) {
   const ss = await snap(page, orgId, '03_step2_filled');
   log('step2', 'success', 'Step 2 fields filled', ss);
 
+  // Proceed. If CPCB's strict City/Address validation blocks the advance (we're
+  // still on Step 2, i.e. #category_id is still visible), retry once with a
+  // letters-only version of those fields so a real filing isn't left stuck.
   await clickNext(page, log, 'Step 2 → Step 3');
+  await page.waitForTimeout(1500);
+  if (await page.locator('#category_id').isVisible().catch(() => false)) {
+    log('step2', 'error', 'Step 2 did not advance (address/city validation) — retrying as letters-only');
+    await safeFill(page, ['#city_name'], lettersOnly(p.city_name), 'City (letters-only)');
+    await safeFill(page, ['#fullAddress'], lettersOnly(p.full_address) || lettersOnly(p.city_name), 'Full Address (letters-only)');
+    await snap(page, orgId, '03b_step2_retry');
+    await clickNext(page, log, 'Step 2 → Step 3 (retry)');
+  }
 }
 
 // ══════════════════════════════════════════════════════════════

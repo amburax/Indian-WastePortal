@@ -27,6 +27,7 @@
  */
 
 import { runFilingAgent }  from './playwright-agent.js';
+import { reportError }     from '../lib/observability.js';
 import Database            from 'better-sqlite3';
 import path                from 'path';
 import fs                  from 'fs';
@@ -244,6 +245,7 @@ async function processJob(db, orgId, jobId, payload, attemptCount) {
                'Your CPCB filing hit an error and needs review. Our consultant will contact you shortly.');
       } catch { /* non-fatal */ }
       logger.log('error', 'error', `❌ Max retries (${MAX_RETRIES}) exceeded — status → Failed`);
+      reportError(err, { route: 'worker/processJob', orgId, org: payload?.org_name, attempts: newAttempt });
     } else {
       // Revert to Queued for retry
       db.prepare("UPDATE organizations SET status = 'Queued' WHERE id = ?").run(orgId);
