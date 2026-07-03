@@ -1,0 +1,56 @@
+# ═══════════════════════════════════════════════════════════
+#  Wasteebank — Cloudflare Workers + D1 + Queues Config
+#  wrangler.toml
+#
+#  Deploy: wrangler pages deploy
+#  NOTE: Deployment was paused in V1. This file activates it.
+#        Fill in account_id, database_id, and queue names
+#        from your Cloudflare dashboard before running.
+# ═══════════════════════════════════════════════════════════
+
+name        = "wasteebank"
+compatibility_date = "2024-09-23"
+pages_build_output_dir = ".vercel/output/static"
+
+# ── Cloudflare Account ────────────────────────────────────
+# Fill in from: https://dash.cloudflare.com → Right sidebar
+account_id = "REPLACE_WITH_YOUR_CF_ACCOUNT_ID"
+
+# ── D1 SQLite Database ────────────────────────────────────
+# Create with: wrangler d1 create wasteebank-db
+# Then paste the database_id here.
+[[d1_databases]]
+binding      = "DB"                      # accessed as env.DB in Workers
+database_name = "wasteebank-db"
+database_id  = "REPLACE_WITH_D1_DB_ID"
+
+# ── Cloudflare Queues ─────────────────────────────────────
+# Create with: wrangler queues create wasteebank-filing-queue
+# The PRODUCER binding lets Workers push messages to the queue.
+# The CONSUMER binding is handled externally (VPS Node.js worker via HTTP pull API).
+
+[[queues.producers]]
+binding       = "FILING_QUEUE"           # accessed as env.FILING_QUEUE in Workers
+queue         = "wasteebank-filing-queue"
+
+# ── KV for Queue Counters ─────────────────────────────────
+# Used to track queue position counts in real-time.
+# Create with: wrangler kv:namespace create QUEUE_COUNTER
+[[kv_namespaces]]
+binding = "QUEUE_KV"
+id      = "REPLACE_WITH_KV_NAMESPACE_ID"
+
+# ── Environment Variables (Production) ───────────────────
+# Set secrets with: wrangler secret put RAZORPAY_KEY_SECRET
+[vars]
+NEXT_PUBLIC_APP_URL         = "https://wasteebank.pages.dev"
+CPCB_PORTAL_URL             = "https://swm.cpcb.gov.in"
+AGENT_DEMO_MODE             = "false"
+
+# ── Local Development Overrides ───────────────────────────
+# These are used when running `wrangler dev` locally.
+# For `npm run dev` (Next.js dev server), the app falls back
+# to better-sqlite3 automatically (see lib/d1-db.js).
+[dev]
+port = 8788
+local_protocol = "http"

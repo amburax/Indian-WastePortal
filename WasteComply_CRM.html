@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WasteComply CRM — BWG Registration System</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  :root{
+    --green:#1a7a4a;--green-light:#e8f5ee;--green-mid:#2ecc71;
+    --blue:#1a5fa8;--blue-light:#e8f0fb;
+    --amber:#b8860b;--amber-light:#fff8e1;
+    --red:#c0392b;--red-light:#fdf0ef;
+    --purple:#6c3fc5;--purple-light:#f0ebff;
+    --bg:#f4f6f8;--surface:#ffffff;--surface2:#f8f9fb;
+    --border:#e2e6ea;--border2:#c8cdd5;
+    --text:#1a1d23;--text2:#4a5568;--text3:#8a96a3;
+    --radius:8px;--radius-lg:12px;
+    --nav-h:56px;
+  }
+  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:14px;min-height:100vh}
+
+  /* NAV */
+  .nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 1.5rem;gap:8px;z-index:100}
+  .nav-logo{display:flex;align-items:center;gap:8px;font-weight:700;font-size:16px;color:var(--green);margin-right:auto}
+  .nav-logo svg{width:28px;height:28px}
+  .nav-tag{font-size:10px;background:var(--green-light);color:var(--green);padding:2px 8px;border-radius:20px;font-weight:600;letter-spacing:0.04em}
+  .nav-btn{padding:7px 16px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--surface);color:var(--text2);font-size:13px;cursor:pointer;font-weight:500;display:flex;align-items:center;gap:6px;transition:all 0.15s}
+  .nav-btn:hover{background:var(--bg);border-color:var(--border2)}
+  .nav-btn.active{background:var(--green);color:#fff;border-color:var(--green)}
+  .nav-btn svg{width:15px;height:15px}
+
+  /* LAYOUT */
+  .main{margin-top:var(--nav-h);padding:1.5rem}
+  .view{display:none}
+  .view.active{display:block}
+
+  /* STATS */
+  .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:1.5rem}
+  .stat-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1rem 1.25rem}
+  .stat-label{font-size:11px;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px}
+  .stat-val{font-size:28px;font-weight:700;line-height:1}
+  .stat-sub{font-size:11px;color:var(--text3);margin-top:4px}
+  .stat-card.c-green .stat-val{color:var(--green)}
+  .stat-card.c-blue .stat-val{color:var(--blue)}
+  .stat-card.c-amber .stat-val{color:var(--amber)}
+  .stat-card.c-purple .stat-val{color:var(--purple)}
+
+  /* SECTION HEAD */
+  .sec-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+  .sec-title{font-size:15px;font-weight:600;color:var(--text)}
+  .filter-row{display:flex;gap:6px}
+  .fchip{padding:5px 12px;border-radius:20px;border:1px solid var(--border2);background:var(--surface);color:var(--text2);font-size:12px;cursor:pointer;font-weight:500;transition:all 0.15s}
+  .fchip:hover{border-color:var(--green);color:var(--green)}
+  .fchip.active{background:var(--green);color:#fff;border-color:var(--green)}
+
+  /* TABLE */
+  .table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden}
+  table{width:100%;border-collapse:collapse;table-layout:fixed}
+  th{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.05em;padding:10px 14px;background:var(--surface2);text-align:left;border-bottom:1px solid var(--border)}
+  td{padding:10px 14px;border-bottom:1px solid var(--border);font-size:13px;color:var(--text);vertical-align:middle}
+  tr:last-child td{border-bottom:none}
+  tr:hover td{background:var(--surface2)}
+  .empty-state{text-align:center;padding:3rem 1rem;color:var(--text3)}
+  .empty-icon{font-size:40px;margin-bottom:8px}
+  .empty-msg{font-size:14px}
+  .empty-sub{font-size:12px;margin-top:4px}
+
+  /* BADGES */
+  .badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:20px;font-size:11px;font-weight:600}
+  .badge-new{background:var(--purple-light);color:var(--purple)}
+  .badge-progress{background:var(--blue-light);color:var(--blue)}
+  .badge-done{background:var(--green-light);color:var(--green)}
+  .badge-pending{background:var(--amber-light);color:var(--amber)}
+
+  /* ACTION BUTTONS */
+  .act-btn{padding:5px 10px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--surface);color:var(--text2);font-size:12px;cursor:pointer;font-weight:500;display:inline-flex;align-items:center;gap:4px;transition:all 0.15s;margin-right:4px}
+  .act-btn:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-light)}
+  .act-btn.danger:hover{border-color:var(--red);color:var(--red);background:var(--red-light)}
+  .act-btn.success:hover{border-color:var(--green);color:var(--green);background:var(--green-light)}
+
+  /* FORM */
+  .form-wrap{max-width:860px}
+  .form-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:1.5rem;margin-bottom:1rem}
+  .form-card-title{font-size:15px;font-weight:600;color:var(--text);margin-bottom:4px;display:flex;align-items:center;gap:8px}
+  .step-badge{width:22px;height:22px;border-radius:50%;background:var(--green);color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+  .form-card-sub{font-size:12px;color:var(--text3);margin-bottom:1.25rem;margin-left:30px}
+  .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+  .form-grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px}
+  .form-grid-4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:12px}
+  .field{display:flex;flex-direction:column;gap:5px}
+  .field label{font-size:12px;font-weight:500;color:var(--text2)}
+  .field label span{color:var(--red)}
+  .field input,.field select,.field textarea{font-family:inherit;font-size:13px;padding:8px 11px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface);color:var(--text);width:100%;transition:border-color 0.15s}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--green);box-shadow:0 0 0 3px rgba(26,122,74,0.1)}
+  .field input.error,.field select.error{border-color:var(--red)}
+  .field textarea{resize:vertical;min-height:70px}
+  .field .hint{font-size:11px;color:var(--text3);margin-top:2px}
+  .field .err-msg{font-size:11px;color:var(--red);margin-top:2px;display:none}
+  .field.has-error .err-msg{display:block}
+
+  /* ELIGIBILITY INDICATOR */
+  .eli-bar{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:1rem;padding:12px;background:var(--surface2);border-radius:var(--radius);border:1px solid var(--border)}
+  .eli-item{text-align:center}
+  .eli-label{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px}
+  .eli-val{font-size:16px;font-weight:700;color:var(--text3)}
+  .eli-thresh{font-size:10px;color:var(--text3);margin-top:2px}
+  .eli-item.met .eli-val{color:var(--green)}
+  .eli-item.met .eli-label{color:var(--green)}
+  .eli-result{padding:8px 12px;border-radius:var(--radius);font-size:12px;font-weight:500;margin-top:8px;display:none}
+  .eli-result.yes{background:var(--green-light);color:var(--green);display:block}
+  .eli-result.no{background:var(--amber-light);color:var(--amber);display:block}
+
+  /* SUBMIT ROW */
+  .submit-row{display:flex;gap:8px;justify-content:flex-end;padding-top:1rem;border-top:1px solid var(--border);margin-top:1rem}
+  .btn{padding:9px 20px;border-radius:var(--radius);font-size:13px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:6px;transition:all 0.15s}
+  .btn-primary{background:var(--green);color:#fff;border:none}
+  .btn-primary:hover{background:#155e38}
+  .btn-secondary{background:var(--surface);color:var(--text2);border:1px solid var(--border2)}
+  .btn-secondary:hover{background:var(--bg)}
+  .btn-danger{background:var(--red);color:#fff;border:none}
+  .btn-danger:hover{background:#a93226}
+  .btn-blue{background:var(--blue);color:#fff;border:none}
+  .btn-blue:hover{background:#154e8c}
+
+  /* COPY PANEL */
+  .copy-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;margin-top:1.5rem}
+  .copy-panel-header{padding:12px 16px;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:space-between}
+  .copy-panel-title{font-size:14px;font-weight:600}
+  .copy-panel-sub{font-size:11px;opacity:0.85;margin-top:2px}
+  .copy-body{padding:1rem}
+  .copy-section{margin-bottom:1rem}
+  .copy-section-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:8px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+  .copy-row{display:flex;align-items:center;padding:6px 0;border-bottom:1px solid var(--border)}
+  .copy-row:last-child{border-bottom:none}
+  .copy-label{font-size:11px;color:var(--text3);width:160px;flex-shrink:0}
+  .copy-val{font-size:13px;font-weight:500;color:var(--text);flex:1;padding:0 10px;word-break:break-all}
+  .copy-btn{padding:4px 10px;border-radius:var(--radius);border:1px solid var(--border2);background:var(--surface2);color:var(--text2);font-size:11px;cursor:pointer;font-weight:500;white-space:nowrap;transition:all 0.15s}
+  .copy-btn:hover{background:var(--green-light);border-color:var(--green);color:var(--green)}
+  .copy-btn.copied{background:var(--green-light);border-color:var(--green);color:var(--green)}
+  .copy-actions{display:flex;gap:8px;padding-top:1rem;border-top:1px solid var(--border);margin-top:0.5rem;flex-wrap:wrap}
+
+  /* DETAIL MODAL */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.45);z-index:200;align-items:center;justify-content:center}
+  .modal-overlay.active{display:flex}
+  .modal{background:var(--surface);border-radius:var(--radius-lg);width:600px;max-width:95vw;max-height:90vh;overflow-y:auto}
+  .modal-head{padding:1.25rem 1.5rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surface);z-index:1}
+  .modal-title{font-size:16px;font-weight:600}
+  .modal-close{width:30px;height:30px;border-radius:50%;border:1px solid var(--border2);background:var(--surface2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--text2)}
+  .modal-close:hover{background:var(--red-light);color:var(--red);border-color:var(--red)}
+  .modal-body{padding:1.25rem 1.5rem}
+  .detail-section{margin-bottom:1.25rem}
+  .detail-section-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+  .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+  .detail-row{display:flex;flex-direction:column;gap:2px}
+  .detail-label{font-size:11px;color:var(--text3)}
+  .detail-val{font-size:13px;font-weight:500;color:var(--text)}
+
+  /* ACK SECTION */
+  .ack-box{background:var(--green-light);border:1px solid #a3d9b8;border-radius:var(--radius);padding:12px;margin-bottom:1rem}
+  .ack-label{font-size:11px;color:var(--green);font-weight:600;margin-bottom:6px;text-transform:uppercase;letter-spacing:0.04em}
+  .ack-input-row{display:flex;gap:8px;align-items:center}
+  .ack-input-row input{flex:1;font-family:inherit;font-size:13px;padding:7px 11px;border:1px solid #a3d9b8;border-radius:var(--radius);background:#fff;color:var(--text);font-weight:600}
+  .ack-input-row input:focus{outline:none;border-color:var(--green)}
+
+  /* TOAST */
+  #toast{position:fixed;bottom:1.5rem;right:1.5rem;background:#1a1d23;color:#fff;padding:10px 18px;border-radius:var(--radius);font-size:13px;font-weight:500;opacity:0;transition:opacity 0.25s;z-index:999;pointer-events:none}
+  #toast.show{opacity:1}
+
+  /* SEARCH */
+  .search-row{display:flex;gap:10px;margin-bottom:1rem}
+  .search-input{flex:1;font-family:inherit;font-size:13px;padding:8px 12px;border:1px solid var(--border2);border-radius:var(--radius);background:var(--surface);color:var(--text)}
+  .search-input:focus{outline:none;border-color:var(--green)}
+
+  /* PRINT */
+  @media print{.nav,.nav-btn,.act-btn,.copy-actions,.submit-row{display:none!important}.modal{box-shadow:none}}
+
+  /* RESPONSIVE */
+  @media(max-width:768px){
+    .stats-grid{grid-template-columns:1fr 1fr}
+    .form-grid,.form-grid-3,.form-grid-4{grid-template-columns:1fr}
+    .detail-grid{grid-template-columns:1fr}
+    .copy-label{width:110px}
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav class="nav">
+  <div class="nav-logo">
+    <svg viewBox="0 0 28 28" fill="none"><circle cx="14" cy="14" r="14" fill="#e8f5ee"/><path d="M8 16c2-4 6-6 10-4" stroke="#1a7a4a" stroke-width="2" stroke-linecap="round"/><circle cx="14" cy="10" r="3" fill="#1a7a4a"/><path d="M9 20h10" stroke="#1a7a4a" stroke-width="2" stroke-linecap="round"/></svg>
+    WasteComply CRM
+    <span class="nav-tag">GPCB · SWM 2026</span>
+  </div>
+  <button class="nav-btn active" id="btn-dashboard" onclick="showView('dashboard')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    Dashboard
+  </button>
+  <button class="nav-btn" id="btn-newclient" onclick="showView('newclient')">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+    New client
+  </button>
+  <button class="nav-btn" id="btn-export" onclick="exportCSV()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+    Export CSV
+  </button>
+</nav>
+
+<main class="main">
+
+  <!-- DASHBOARD -->
+  <div class="view active" id="view-dashboard">
+    <div class="stats-grid">
+      <div class="stat-card c-green">
+        <div class="stat-label">Total clients</div>
+        <div class="stat-val" id="st-total">0</div>
+        <div class="stat-sub">All registrations</div>
+      </div>
+      <div class="stat-card c-purple">
+        <div class="stat-label">New</div>
+        <div class="stat-val" id="st-new">0</div>
+        <div class="stat-sub">Awaiting action</div>
+      </div>
+      <div class="stat-card c-blue">
+        <div class="stat-label">In progress</div>
+        <div class="stat-val" id="st-prog">0</div>
+        <div class="stat-sub">Filing on CPCB portal</div>
+      </div>
+      <div class="stat-card c-amber">
+        <div class="stat-label">Completed</div>
+        <div class="stat-val" id="st-done">0</div>
+        <div class="stat-sub">Acknowledgement sent</div>
+      </div>
+    </div>
+
+    <div class="sec-head">
+      <div class="sec-title">All clients</div>
+      <div class="filter-row">
+        <div class="fchip active" onclick="setFilter('all',this)">All</div>
+        <div class="fchip" onclick="setFilter('New',this)">New</div>
+        <div class="fchip" onclick="setFilter('In progress',this)">In progress</div>
+        <div class="fchip" onclick="setFilter('Completed',this)">Completed</div>
+      </div>
+    </div>
+
+    <div class="search-row">
+      <input class="search-input" id="search-input" placeholder="Search by name, email, city, category..." oninput="renderTable()">
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:5%">#</th>
+            <th style="width:20%">Organisation</th>
+            <th style="width:11%">Category</th>
+            <th style="width:17%">Contact</th>
+            <th style="width:8%">Waste/day</th>
+            <th style="width:8%">Fee paid</th>
+            <th style="width:11%">Status</th>
+            <th style="width:20%">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="client-tbody"></tbody>
+      </table>
+    </div>
+
+    <!-- COPY PANEL (shown below table when a client is selected) -->
+    <div class="copy-panel" id="copy-panel" style="display:none">
+      <div class="copy-panel-header">
+        <div>
+          <div class="copy-panel-title">&#128203; Semi-automation panel — <span id="cp-orgname"></span></div>
+          <div class="copy-panel-sub">Copy each field and paste into swm.cpcb.gov.in · Follow steps 1 → 5 in order</div>
+        </div>
+        <button class="btn" style="background:rgba(255,255,255,0.2);color:#fff;border:1px solid rgba(255,255,255,0.4);font-size:12px;padding:6px 14px" onclick="window.open('https://swm.cpcb.gov.in','_blank')">
+          Open CPCB portal ↗
+        </button>
+      </div>
+      <div class="copy-body" id="cp-body"></div>
+    </div>
+  </div>
+
+  <!-- NEW CLIENT FORM -->
+  <div class="view" id="view-newclient">
+    <div class="form-wrap">
+
+      <div class="form-card">
+        <div class="form-card-title"><div class="step-badge">1</div> Account details <span style="font-size:12px;font-weight:400;color:var(--text3);margin-left:4px">— CPCB portal Step 1</span></div>
+        <div class="form-card-sub">These details create the login on swm.cpcb.gov.in</div>
+        <div class="form-grid">
+          <div class="field" id="fld-orgname">
+            <label>Organisation / entity name <span>*</span></label>
+            <input id="f-orgname" placeholder="Sunrise Residency RWA" type="text" oninput="validate('orgname')">
+            <div class="err-msg">Enter the organisation name (min 3 characters).</div>
+          </div>
+          <div class="field" id="fld-authname">
+            <label>Authorised person (full name) <span>*</span></label>
+            <input id="f-authname" placeholder="Rajesh Mehta" type="text" oninput="validate('authname')">
+            <div class="err-msg">Enter the authorised person's full name.</div>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="field" id="fld-email">
+            <label>Official email address <span>*</span></label>
+            <input id="f-email" placeholder="info@sunriserwa.org" type="email" oninput="validate('email')">
+            <div class="hint">Used for portal correspondence and OTP.</div>
+            <div class="err-msg">Enter a valid email address.</div>
+          </div>
+          <div class="field" id="fld-mobile">
+            <label>Mobile number <span>*</span></label>
+            <input id="f-mobile" placeholder="9876543210" type="tel" maxlength="10" oninput="validate('mobile')">
+            <div class="hint">10 digits, verified via OTP on portal.</div>
+            <div class="err-msg">Enter a valid 10-digit mobile number.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-card-title"><div class="step-badge">2</div> Organisation details <span style="font-size:12px;font-weight:400;color:var(--text3);margin-left:4px">— CPCB portal Step 2 (Part A)</span></div>
+        <div class="form-card-sub">Category, sub-category and waste criteria values</div>
+        <div class="form-grid">
+          <div class="field" id="fld-cat">
+            <label>Category <span>*</span></label>
+            <select id="f-cat" onchange="updateSubcat();validate('cat')">
+              <option value="">Select category</option>
+              <option>Institutional</option>
+              <option>Commercial</option>
+              <option>Residential</option>
+            </select>
+            <div class="err-msg">Select a category.</div>
+          </div>
+          <div class="field" id="fld-subcat">
+            <label>Sub-category <span>*</span></label>
+            <select id="f-subcat" onchange="validate('subcat')">
+              <option value="">Select category first</option>
+            </select>
+            <div class="err-msg">Select a sub-category.</div>
+          </div>
+        </div>
+
+        <div class="eli-bar" id="eli-bar">
+          <div class="eli-item" id="eli-area">
+            <div class="eli-label">Floor area</div>
+            <div class="eli-val" id="eli-area-val">—</div>
+            <div class="eli-thresh">Threshold: ≥ 20,000 sq.m.</div>
+          </div>
+          <div class="eli-item" id="eli-waste">
+            <div class="eli-label">Waste generated</div>
+            <div class="eli-val" id="eli-waste-val">—</div>
+            <div class="eli-thresh">Threshold: ≥ 100 kg/day</div>
+          </div>
+          <div class="eli-item" id="eli-water">
+            <div class="eli-label">Water consumption</div>
+            <div class="eli-val" id="eli-water-val">—</div>
+            <div class="eli-thresh">Threshold: ≥ 40,000 L/day</div>
+          </div>
+        </div>
+        <div class="eli-result" id="eli-result"></div>
+
+        <div class="form-grid-3">
+          <div class="field" id="fld-area">
+            <label>Floor area (sq.m.) <span>*</span></label>
+            <input id="f-area" type="number" placeholder="25000" oninput="updateEligibility();validate('area')">
+            <div class="err-msg">Enter floor area in sq.m.</div>
+          </div>
+          <div class="field" id="fld-waste">
+            <label>Waste generated (kg/day) <span>*</span></label>
+            <input id="f-waste" type="number" placeholder="150" oninput="updateEligibility();validate('waste')">
+            <div class="err-msg">Enter waste generated in kg/day.</div>
+          </div>
+          <div class="field" id="fld-water">
+            <label>Water consumption (L/day) <span>*</span></label>
+            <input id="f-water" type="number" placeholder="50000" oninput="updateEligibility();validate('water')">
+            <div class="err-msg">Enter water consumption in L/day.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-card-title"><div class="step-badge">2</div> Address details <span style="font-size:12px;font-weight:400;color:var(--text3);margin-left:4px">— CPCB portal Step 2 (Part B)</span></div>
+        <div class="form-card-sub">LGD-linked address fields as required by the portal</div>
+        <div class="form-grid">
+          <div class="field" id="fld-addr">
+            <label>Full address <span>*</span></label>
+            <input id="f-addr" placeholder="Plot 12, Sector 4, Near Bus Stand" oninput="validate('addr')">
+            <div class="err-msg">Enter the full address.</div>
+          </div>
+          <div class="field" id="fld-city">
+            <label>City / village name <span>*</span></label>
+            <input id="f-city" placeholder="Gandhinagar" oninput="validate('city')">
+            <div class="err-msg">Enter city or village name.</div>
+          </div>
+        </div>
+        <div class="form-grid-3">
+          <div class="field" id="fld-dist">
+            <label>District <span>*</span></label>
+            <input id="f-dist" placeholder="Gandhinagar" oninput="validate('dist')">
+            <div class="err-msg">Enter district name.</div>
+          </div>
+          <div class="field" id="fld-taluka">
+            <label>Sub-district / Taluka <span>*</span></label>
+            <input id="f-taluka" placeholder="Gandhinagar" oninput="validate('taluka')">
+            <div class="err-msg">Enter taluka name.</div>
+          </div>
+          <div class="field" id="fld-pin">
+            <label>Pincode <span>*</span></label>
+            <input id="f-pin" placeholder="382010" type="text" maxlength="6" oninput="validate('pin')">
+            <div class="err-msg">Enter a valid 6-digit pincode.</div>
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="field" id="fld-localbody">
+            <label>Local body type <span>*</span></label>
+            <select id="f-localbody" onchange="validate('localbody')">
+              <option value="">Select</option>
+              <option>Urban Local Body (ULB)</option>
+              <option>Rural Local Body (RLB)</option>
+            </select>
+            <div class="err-msg">Select local body type.</div>
+          </div>
+          <div class="field">
+            <label>Zone / contaminant board (optional)</label>
+            <input id="f-zone" placeholder="Zone 3 / Ward 7">
+          </div>
+        </div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Latitude (optional)</label>
+            <input id="f-lat" type="number" step="0.0001" placeholder="23.2156">
+            <div class="hint">Find on Google Maps — right click your location.</div>
+          </div>
+          <div class="field">
+            <label>Longitude (optional)</label>
+            <input id="f-lng" type="number" step="0.0001" placeholder="72.6369">
+          </div>
+        </div>
+      </div>
+
+      <div class="form-card">
+        <div class="form-card-title"><div class="step-badge">&#9998;</div> Internal tracking</div>
+        <div class="form-card-sub">Your team's notes — not submitted to CPCB</div>
+        <div class="form-grid">
+          <div class="field">
+            <label>Consultation fee paid (&#8377;)</label>
+            <input id="f-fee" type="number" placeholder="2500">
+          </div>
+          <div class="field">
+            <label>Acknowledgement number (fill after filing)</label>
+            <input id="f-ack" placeholder="SWM/BWG-I/GJ/2026/...">
+          </div>
+        </div>
+        <div class="field">
+          <label>Notes / remarks</label>
+          <textarea id="f-notes" placeholder="Client called on 28 Jun. Urgent — deadline approaching. Hotel with 3 floors."></textarea>
+        </div>
+      </div>
+
+      <div class="submit-row">
+        <button class="btn btn-secondary" onclick="clearForm()">Clear form</button>
+        <button class="btn btn-secondary" onclick="showView('dashboard')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveClient()">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+          Save client
+        </button>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<!-- DETAIL MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modal-title">Client details</div>
+      <button class="modal-close" onclick="closeModal()">&#215;</button>
+    </div>
+    <div class="modal-body" id="modal-body"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+const SUBCATS = {
+  Institutional:['Central/State Govt. department','Local body','PSU','University / college / school','Research institute','Hospital / community place','Other institutional'],
+  Commercial:['Industry / industrial area','Hotel / restaurant / mall','Hospital / nursing home','Airport / railway station / bus depot / port','Convention centre / auditorium / exhibition area','Other commercial'],
+  Residential:['Residential society / RWA','Group housing society','Other residential']
+};
+
+let clients = [];
+let filterStatus = 'all';
+let activeIdx = null;
+
+function loadClients(){
+  try{ clients = JSON.parse(localStorage.getItem('wastecomplyCRM') || '[]'); }catch(e){ clients=[]; }
+  renderTable(); renderStats();
+}
+
+function saveClients(){
+  localStorage.setItem('wastecomplyCRM', JSON.stringify(clients));
+}
+
+function showView(v){
+  document.querySelectorAll('.view').forEach(el=>el.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(el=>el.classList.remove('active'));
+  document.getElementById('view-'+v).classList.add('active');
+  if(v==='dashboard'){ document.getElementById('btn-dashboard').classList.add('active'); renderTable(); renderStats(); }
+  else if(v==='newclient'){ document.getElementById('btn-newclient').classList.add('active'); }
+}
+
+function updateSubcat(){
+  const cat = document.getElementById('f-cat').value;
+  const sub = document.getElementById('f-subcat');
+  sub.innerHTML = '<option value="">Select sub-category</option>';
+  if(cat && SUBCATS[cat]) SUBCATS[cat].forEach(s=>{ const o=document.createElement('option'); o.value=o.textContent=s; sub.appendChild(o); });
+}
+
+function updateEligibility(){
+  const area = parseFloat(document.getElementById('f-area').value)||0;
+  const waste = parseFloat(document.getElementById('f-waste').value)||0;
+  const water = parseFloat(document.getElementById('f-water').value)||0;
+  const setEli = (id,valId,val,thresh,unit)=>{
+    const el=document.getElementById(id);
+    document.getElementById(valId).textContent = val?val+' '+unit:'—';
+    val>=thresh ? el.classList.add('met') : el.classList.remove('met');
+  };
+  setEli('eli-area','eli-area-val',area,20000,'sq.m.');
+  setEli('eli-waste','eli-waste-val',waste,100,'kg/day');
+  setEli('eli-water','eli-water-val',water,40000,'L/day');
+  const res = document.getElementById('eli-result');
+  if(!area&&!waste&&!water){ res.className='eli-result'; return; }
+  if(area>=20000||waste>=100||water>=40000){
+    res.className='eli-result yes';
+    res.textContent='✓ This entity qualifies as a Bulk Waste Generator — registration is mandatory.';
+  } else {
+    res.className='eli-result no';
+    res.textContent='⚠ Based on values entered, this entity may not meet BWG thresholds yet. Verify with client.';
+  }
+}
+
+const VALIDATORS = {
+  orgname: v=>v.trim().length>=3,
+  authname: v=>v.trim().length>=2,
+  email: v=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.trim()),
+  mobile: v=>/^\d{10}$/.test(v.trim()),
+  cat: v=>v!=='',
+  subcat: v=>v!==''&&v!=='Select category first'&&v!=='Select sub-category',
+  area: v=>parseFloat(v)>0,
+  waste: v=>parseFloat(v)>0,
+  water: v=>parseFloat(v)>0,
+  addr: v=>v.trim().length>=5,
+  city: v=>v.trim().length>=2,
+  dist: v=>v.trim().length>=2,
+  taluka: v=>v.trim().length>=2,
+  pin: v=>/^\d{6}$/.test(v.trim()),
+  localbody: v=>v!==''
+};
+
+function validate(field){
+  const el = document.getElementById('fld-'+field);
+  const inp = document.getElementById('f-'+field);
+  if(!el||!inp) return true;
+  const ok = VALIDATORS[field](inp.value);
+  el.classList.toggle('has-error',!ok);
+  inp.classList.toggle('error',!ok);
+  return ok;
+}
+
+function validateAll(){
+  const fields = ['orgname','authname','email','mobile','cat','subcat','area','waste','water','addr','city','dist','taluka','pin','localbody'];
+  let ok=true;
+  fields.forEach(f=>{ if(!validate(f)) ok=false; });
+  return ok;
+}
+
+function saveClient(){
+  if(!validateAll()){ showToast('Fill all required fields before saving.','error'); return; }
+  const g = id=>document.getElementById(id).value.trim();
+  const c = {
+    id:Date.now(), status:'New',
+    createdAt:new Date().toLocaleDateString('en-IN'),
+    org:g('f-orgname'), auth:g('f-authname'), email:g('f-email'), mobile:g('f-mobile'),
+    cat:g('f-cat'), subcat:g('f-subcat'),
+    area:parseFloat(g('f-area')), waste:parseFloat(g('f-waste')), water:parseFloat(g('f-water')),
+    addr:g('f-addr'), city:g('f-city'), dist:g('f-dist'), taluka:g('f-taluka'), pin:g('f-pin'),
+    localbody:g('f-localbody'), zone:g('f-zone'), lat:g('f-lat'), lng:g('f-lng'),
+    fee:g('f-fee'), ack:g('f-ack'), notes:g('f-notes')
+  };
+  clients.unshift(c);
+  saveClients();
+  clearForm();
+  showToast('Client saved — '+c.org);
+  showView('dashboard');
+}
+
+function clearForm(){
+  document.querySelectorAll('#view-newclient input,#view-newclient select,#view-newclient textarea').forEach(el=>el.value='');
+  document.getElementById('f-subcat').innerHTML='<option value="">Select category first</option>';
+  document.querySelectorAll('.eli-item').forEach(el=>{el.classList.remove('met')});
+  document.querySelectorAll('#view-newclient .eli-val').forEach(el=>el.textContent='—');
+  document.getElementById('eli-result').className='eli-result';
+  document.querySelectorAll('.field.has-error').forEach(el=>{el.classList.remove('has-error')});
+  document.querySelectorAll('.field input.error,.field select.error').forEach(el=>el.classList.remove('error'));
+}
+
+function setFilter(s,el){
+  filterStatus=s;
+  document.querySelectorAll('.fchip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  renderTable();
+}
+
+function renderStats(){
+  document.getElementById('st-total').textContent=clients.length;
+  document.getElementById('st-new').textContent=clients.filter(c=>c.status==='New').length;
+  document.getElementById('st-prog').textContent=clients.filter(c=>c.status==='In progress').length;
+  document.getElementById('st-done').textContent=clients.filter(c=>c.status==='Completed').length;
+}
+
+function renderTable(){
+  const q=(document.getElementById('search-input')||{}).value||'';
+  let list = clients.map((c,i)=>({...c,_i:i}));
+  if(filterStatus!=='all') list=list.filter(c=>c.status===filterStatus);
+  if(q.trim()) list=list.filter(c=>[c.org,c.email,c.city,c.cat,c.mobile,c.dist].join(' ').toLowerCase().includes(q.toLowerCase()));
+  const tbody=document.getElementById('client-tbody');
+  if(!list.length){
+    tbody.innerHTML=`<tr><td colspan="8"><div class="empty-state"><div class="empty-icon">📋</div><div class="empty-msg">No clients found.</div><div class="empty-sub">Add your first client using "New client" above.</div></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML=list.map((c,n)=>{
+    const bc=c.status==='New'?'badge-new':c.status==='In progress'?'badge-progress':'badge-done';
+    return `<tr>
+      <td style="color:var(--text3);font-size:12px">${n+1}</td>
+      <td><div style="font-weight:600;font-size:13px">${c.org}</div><div style="font-size:11px;color:var(--text3);margin-top:2px">${c.createdAt}</div></td>
+      <td><div style="font-size:12px">${c.cat}</div><div style="font-size:11px;color:var(--text3)">${c.subcat||''}</div></td>
+      <td><div style="font-size:12px">${c.email}</div><div style="font-size:11px;color:var(--text3)">${c.mobile}</div></td>
+      <td style="font-weight:600">${c.waste} kg</td>
+      <td style="font-size:12px">${c.fee?'₹'+Number(c.fee).toLocaleString('en-IN'):'—'}</td>
+      <td><span class="badge ${bc}">${c.status}</span>${c.ack?'<div style="font-size:10px;color:var(--green);margin-top:3px;word-break:break-all">'+c.ack+'</div>':''}</td>
+      <td>
+        <button class="act-btn" onclick="openCopyPanel(${c._i})" title="File on CPCB portal">&#128203; File on CPCB</button>
+        <button class="act-btn" onclick="openDetail(${c._i})" title="View full details">&#128065; View</button>
+        <button class="act-btn danger" onclick="deleteClient(${c._i})" title="Delete client">&#128465;</button>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+function openCopyPanel(idx){
+  activeIdx=idx;
+  const c=clients[idx];
+  document.getElementById('cp-orgname').textContent=c.org;
+  const steps=[
+    {title:'Step 1 — Account creation',fields:[
+      {l:'Organisation / entity name',v:c.org},
+      {l:'Authorised person',v:c.auth},
+      {l:'Email address',v:c.email},
+      {l:'Mobile number',v:'+91'+c.mobile},
+    ]},
+    {title:'Step 2 — Organisation and waste details',fields:[
+      {l:'Category',v:c.cat},
+      {l:'Sub-category',v:c.subcat||'—'},
+      {l:'Floor area (sq.m.)',v:c.area},
+      {l:'Waste generated (kg/day)',v:c.waste},
+      {l:'Water consumption (L/day)',v:c.water},
+    ]},
+    {title:'Step 2 — Address (LGD-linked)',fields:[
+      {l:'State / UT',v:'Gujarat'},
+      {l:'District',v:c.dist},
+      {l:'Sub-district / taluka',v:c.taluka},
+      {l:'City / village',v:c.city},
+      {l:'Full address',v:c.addr},
+      {l:'Zone / ward',v:c.zone||'—'},
+      {l:'Pincode',v:c.pin},
+      {l:'Latitude',v:c.lat||'—'},
+      {l:'Longitude',v:c.lng||'—'},
+      {l:'Local body type',v:c.localbody},
+    ]},
+  ];
+  document.getElementById('cp-body').innerHTML=steps.map(s=>`
+    <div class="copy-section">
+      <div class="copy-section-title">${s.title}</div>
+      ${s.fields.map(f=>`
+        <div class="copy-row">
+          <div class="copy-label">${f.l}</div>
+          <div class="copy-val">${f.v}</div>
+          <button class="copy-btn" onclick="copyToClipboard('${String(f.v).replace(/'/g,"\\'")}',this)">&#128203; Copy</button>
+        </div>`).join('')}
+    </div>`).join('')+`
+    <div class="copy-actions">
+      <button class="btn btn-blue" onclick="setStatus(${idx},'In progress')">&#9654; Mark as in progress</button>
+      <button class="btn btn-primary" onclick="setStatus(${idx},'Completed')">&#10003; Mark as completed</button>
+      <button class="btn btn-secondary" onclick="openAckInput(${idx})">&#35; Enter acknowledgement number</button>
+      <button class="btn btn-secondary" onclick="closeCopyPanel()">&#215; Close panel</button>
+    </div>`;
+  document.getElementById('copy-panel').style.display='block';
+  setTimeout(()=>document.getElementById('copy-panel').scrollIntoView({behavior:'smooth'}),100);
+}
+
+function closeCopyPanel(){
+  document.getElementById('copy-panel').style.display='none';
+  activeIdx=null;
+}
+
+function copyToClipboard(val,btn){
+  navigator.clipboard.writeText(String(val)).then(()=>{
+    btn.textContent='✓ Copied!';
+    btn.classList.add('copied');
+    setTimeout(()=>{ btn.innerHTML='&#128203; Copy'; btn.classList.remove('copied'); },1500);
+  }).catch(()=>{
+    const ta=document.createElement('textarea');
+    ta.value=String(val); document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    btn.textContent='✓ Copied!';
+    setTimeout(()=>{ btn.innerHTML='&#128203; Copy'; },1500);
+  });
+}
+
+function setStatus(idx,status){
+  clients[idx].status=status;
+  saveClients(); renderTable(); renderStats();
+  showToast(clients[idx].org+' → '+status);
+  if(status==='Completed') closeCopyPanel();
+  else openCopyPanel(idx);
+}
+
+function openAckInput(idx){
+  const ack=prompt('Enter acknowledgement number for '+clients[idx].org+':',clients[idx].ack||'SWM/BWG-I/GJ/2026/');
+  if(ack!==null){ clients[idx].ack=ack.trim(); saveClients(); renderTable(); showToast('Acknowledgement number saved.'); openCopyPanel(idx); }
+}
+
+function deleteClient(idx){
+  if(!confirm('Remove "'+clients[idx].org+'" from the CRM? This cannot be undone.')){ return; }
+  clients.splice(idx,1);
+  saveClients(); renderTable(); renderStats();
+  closeCopyPanel();
+  showToast('Client removed.');
+}
+
+function openDetail(idx){
+  const c=clients[idx];
+  document.getElementById('modal-title').textContent=c.org;
+  document.getElementById('modal-body').innerHTML=`
+    <div class="detail-section">
+      <div class="detail-section-title">Status and tracking</div>
+      <div class="detail-grid">
+        <div class="detail-row"><div class="detail-label">Status</div><div class="detail-val"><span class="badge ${c.status==='New'?'badge-new':c.status==='In progress'?'badge-progress':'badge-done'}">${c.status}</span></div></div>
+        <div class="detail-row"><div class="detail-label">Added on</div><div class="detail-val">${c.createdAt}</div></div>
+        <div class="detail-row"><div class="detail-label">Consultation fee</div><div class="detail-val">${c.fee?'₹'+Number(c.fee).toLocaleString('en-IN'):'Not recorded'}</div></div>
+        <div class="detail-row"><div class="detail-label">Acknowledgement no.</div><div class="detail-val" style="color:var(--green);font-size:12px">${c.ack||'Not yet filed'}</div></div>
+      </div>
+      ${c.notes?`<div style="margin-top:10px;padding:10px;background:var(--bg);border-radius:var(--radius);font-size:13px;color:var(--text2)"><strong style="color:var(--text3);font-size:11px;text-transform:uppercase;letter-spacing:0.04em">Notes</strong><br><br>${c.notes}</div>`:''}
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">Account details (CPCB step 1)</div>
+      <div class="detail-grid">
+        <div class="detail-row"><div class="detail-label">Organisation</div><div class="detail-val">${c.org}</div></div>
+        <div class="detail-row"><div class="detail-label">Authorised person</div><div class="detail-val">${c.auth}</div></div>
+        <div class="detail-row"><div class="detail-label">Email</div><div class="detail-val">${c.email}</div></div>
+        <div class="detail-row"><div class="detail-label">Mobile</div><div class="detail-val">+91 ${c.mobile}</div></div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">Organisation and waste details (CPCB step 2)</div>
+      <div class="detail-grid">
+        <div class="detail-row"><div class="detail-label">Category</div><div class="detail-val">${c.cat}</div></div>
+        <div class="detail-row"><div class="detail-label">Sub-category</div><div class="detail-val">${c.subcat||'—'}</div></div>
+        <div class="detail-row"><div class="detail-label">Floor area</div><div class="detail-val">${c.area} sq.m. ${c.area>=20000?'<span style="color:var(--green)">✓ BWG</span>':''}</div></div>
+        <div class="detail-row"><div class="detail-label">Waste generated</div><div class="detail-val">${c.waste} kg/day ${c.waste>=100?'<span style="color:var(--green)">✓ BWG</span>':''}</div></div>
+        <div class="detail-row"><div class="detail-label">Water consumption</div><div class="detail-val">${c.water} L/day ${c.water>=40000?'<span style="color:var(--green)">✓ BWG</span>':''}</div></div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">Address (CPCB step 2)</div>
+      <div class="detail-grid">
+        <div class="detail-row"><div class="detail-label">Full address</div><div class="detail-val">${c.addr}</div></div>
+        <div class="detail-row"><div class="detail-label">City / village</div><div class="detail-val">${c.city}</div></div>
+        <div class="detail-row"><div class="detail-label">District</div><div class="detail-val">${c.dist}</div></div>
+        <div class="detail-row"><div class="detail-label">Taluka</div><div class="detail-val">${c.taluka}</div></div>
+        <div class="detail-row"><div class="detail-label">Pincode</div><div class="detail-val">${c.pin}</div></div>
+        <div class="detail-row"><div class="detail-label">Local body type</div><div class="detail-val">${c.localbody}</div></div>
+        ${c.zone?`<div class="detail-row"><div class="detail-label">Zone / ward</div><div class="detail-val">${c.zone}</div></div>`:''}
+        ${c.lat?`<div class="detail-row"><div class="detail-label">Coordinates</div><div class="detail-val">${c.lat}, ${c.lng}</div></div>`:''}
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:1rem">
+      <button class="btn btn-blue" onclick="closeModal();openCopyPanel(${idx})">&#128203; Open copy panel</button>
+      <button class="btn btn-secondary" onclick="closeModal()">Close</button>
+    </div>`;
+  document.getElementById('modal-overlay').classList.add('active');
+}
+
+function closeModal(){
+  document.getElementById('modal-overlay').classList.remove('active');
+}
+
+function exportCSV(){
+  if(!clients.length){ showToast('No clients to export.','error'); return; }
+  const headers=['#','Organisation','Authorised Person','Email','Mobile','Category','Sub-category','Floor Area (sqm)','Waste (kg/day)','Water (L/day)','Full Address','City','District','Taluka','Pincode','Local Body','Zone','Latitude','Longitude','Fee (INR)','Acknowledgement No.','Status','Notes','Date Added'];
+  const rows=clients.map((c,i)=>[i+1,c.org,c.auth,c.email,c.mobile,c.cat,c.subcat||'',c.area,c.waste,c.water,c.addr,c.city,c.dist,c.taluka,c.pin,c.localbody,c.zone||'',c.lat||'',c.lng||'',c.fee||'',c.ack||'',c.status,c.notes||'',c.createdAt].map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(','));
+  const csv=[headers.join(','),...rows].join('\n');
+  const blob=new Blob([csv],{type:'text/csv'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='WasteComply_Clients_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+  showToast('CSV exported — '+clients.length+' clients.');
+}
+
+function showToast(msg,type){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.style.background=type==='error'?'#c0392b':'#1a1d23';
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2800);
+}
+
+document.getElementById('modal-overlay').addEventListener('click',function(e){
+  if(e.target===this) closeModal();
+});
+
+loadClients();
+</script>
+</body>
+</html>

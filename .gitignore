@@ -1,0 +1,53 @@
+# ── Dependencies ──
+node_modules/
+.pnp
+.pnp.js
+
+# ── Next.js build output ──
+.next/
+out/
+build/
+dist/
+
+# ── Secrets & env (NEVER commit real values) ──
+.env
+.env.local
+.env*.local
+.env.development
+.env.production
+
+# ── Databases (test data / PII) ──
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+*.sqlite
+*.sqlite3
+
+# ── Live CPCB run data (PII: mobile, email, OTP, session, screenshots) ──
+.cpcb/
+agent-screenshots/
+cpcb-*.png
+cpcb-*.txt
+
+# ── Playwright / test artifacts ──
+playwright-report/
+test-results/
+coverage/
+
+# ── Deploy / platform ──
+.vercel/
+.wrangler/
+
+# ── Logs & OS ──
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.DS_Store
+Thumbs.db
+
+# ── Editor ──
+.vscode/
+.idea/
+*.swp
