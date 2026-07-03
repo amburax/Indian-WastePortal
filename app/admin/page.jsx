@@ -25,6 +25,9 @@ const chip = (s) => STATUS_STYLES[s] || 'bg-gray-100 text-gray-700 border-gray-2
 const fmt  = (d) => d ? new Date(d.includes('Z') || d.includes('T') ? d : d.replace(' ', 'T') + 'Z').toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }) : '—';
 const inr  = (paise) => `₹${((paise || 0) / 100).toLocaleString('en-IN')}`;
 const LIMIT = 25;
+// Manual filing is the default. Set NEXT_PUBLIC_ENABLE_AUTO_FILING=true only when
+// the Playwright worker is running and you want the automated "Start Filing" path.
+const AUTO_FILING = process.env.NEXT_PUBLIC_ENABLE_AUTO_FILING === 'true';
 
 export default function AdminDashboard() {
   const router = useRouter();
@@ -48,6 +51,9 @@ export default function AdminDashboard() {
   const [noteText, setNoteText] = useState('');
   const [editForm, setEditForm] = useState(null);
   const [rules, setRules]       = useState([]);
+  const [showAck, setShowAck]   = useState(false);
+  const [ackNum, setAckNum]     = useState('');
+  const [ackStatus, setAckStatus] = useState('Pending Verification at ULB');
 
   const loadStats = useCallback(async () => {
     try {
@@ -102,7 +108,7 @@ export default function AdminDashboard() {
       });
       const d = await res.json();
       if (!res.ok) { alert(d.error || 'Action failed'); return; }
-      setShowCall(false); setCallAt(''); setCallNotes(''); setShowNote(false); setNoteText(''); setEditForm(null);
+      setShowCall(false); setCallAt(''); setCallNotes(''); setShowNote(false); setNoteText(''); setEditForm(null); setShowAck(false);
       await openDetail(body.orgId);
       await loadSubs(); loadStats();
     } catch { alert('Network error'); }
@@ -290,10 +296,18 @@ export default function AdminDashboard() {
                         </button>
                       </>
                     )}
-                    {(detail.org.payment_verified && ['Paid', 'Scheduled'].includes(detail.org.status)) && (
+                    {/* Automated path — only when the worker is running (opt-in) */}
+                    {AUTO_FILING && (detail.org.payment_verified && ['Paid', 'Scheduled'].includes(detail.org.status)) && (
                       <button disabled={acting} onClick={() => runAction('start-filing', { orgId: detail.org.id })}
                         className="text-xs px-3 py-1.5 rounded-lg bg-ruby-700 text-white hover:bg-ruby-800 disabled:opacity-50">
-                        ▶ Start Filing
+                        ▶ Start Filing (automated)
+                      </button>
+                    )}
+                    {/* Manual path — record the ACK after you file on CPCB yourself */}
+                    {detail.org.payment_verified && detail.org.status !== 'Completed' && (
+                      <button disabled={acting} onClick={() => { setShowAck(v => !v); setShowInvoice(false); setShowNote(false); setShowCall(false); setEditForm(null); }}
+                        className="text-xs px-3 py-1.5 rounded-lg bg-emerald-700 text-white hover:bg-emerald-800 disabled:opacity-50">
+                        ✅ Record ACK &amp; Complete
                       </button>
                     )}
                     {['NeedsAttention', 'Failed'].includes(detail.org.status) && (
@@ -394,6 +408,21 @@ export default function AdminDashboard() {
                       </button>
                     </form>
                   )}
+                  {showAck && (
+                    <form onSubmit={e => { e.preventDefault(); runAction('record-ack', { orgId: detail.org.id, ackNumber: ackNum, portalStatus: ackStatus }); setAckNum(''); }}
+                      className="mt-3 space-y-2 border-t border-emerald-200 pt-3">
+                      <label className="block text-[11px] font-medium text-gray-600">CPCB Acknowledgement number (from the portal)</label>
+                      <input value={ackNum} onChange={e => setAckNum(e.target.value)} required placeholder="SWM/BWG-C/MH/2026/0000563"
+                        className="w-full text-xs px-3 py-2 rounded-lg border border-gray-300 font-mono" />
+                      <label className="block text-[11px] font-medium text-gray-600">Portal status</label>
+                      <input value={ackStatus} onChange={e => setAckStatus(e.target.value)} placeholder="Pending Verification at ULB"
+                        className="w-full text-xs px-3 py-2 rounded-lg border border-gray-300" />
+                      <button type="submit" disabled={acting}
+                        className="text-xs px-3 py-1.5 rounded-lg bg-emerald-700 text-white hover:bg-emerald-800 disabled:opacity-50">
+                        Save ACK &amp; mark Completed
+                      </button>
+                    </form>
+                  )}
                   {acting && <p className="text-[11px] text-gray-400 mt-2">Working…</p>}
                 </div>
 
@@ -419,12 +448,15 @@ export default function AdminDashboard() {
 
                 {detail.address && (
                   <Section title="Location">
-                    <Row k="State"    v={detail.address.state_name} />
-                    <Row k="District" v={detail.address.district_name} />
-                    <Row k="City"     v={detail.address.city_name} />
-                    <Row k="Body type" v={detail.address.local_body_type} />
-                    <Row k="Pincode"  v={detail.address.pincode} />
-                    <Row k="Address"  v={detail.address.full_address} />
+                    <Row k="State"        v={detail.address.state_name} />
+                    <Row k="District"     v={detail.address.district_name} />
+                    <Row k="Sub-district" v={detail.address.sub_district} />
+                    <Row k="City"         v={detail.address.city_name} />
+                    <Row k="Body type"    v={detail.address.local_body_type} />
+                    {detail.address.zone_ward && <Row k="Zone/Ward" v={detail.address.zone_ward} />}
+                    <Row k="Pincode"      v={detail.address.pincode} />
+                    <Row k="Address"      v={detail.address.full_address} />
+                    <Row k="Lat, Long"    v={detail.address.latitude != null ? `${detail.address.latitude}, ${detail.address.longitude}` : '—'} />
                   </Section>
                 )}
 
