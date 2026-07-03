@@ -4,35 +4,35 @@
   "description": "Indian Waste Portal V2 — CPCB SWM Bulk Waste Generator Compliance Middleware (Edge + Queue Architecture)",
   "private": true,
   "scripts": {
-    "dev":         "next dev",
-    "build":       "next build",
-    "start":       "next start",
-    "lint":        "next lint",
-    "init-db":     "node --env-file=.env.local scripts/init-db.js",
-
-    "worker":      "node --env-file=.env.local workers/queue-consumer.js",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "init-db": "node --env-file=.env.local scripts/init-db.js",
+    "init-turso": "node --env-file=.env.local scripts/init-turso.mjs",
+    "worker": "node --env-file=.env.local workers/queue-consumer.js",
     "worker:demo": "cross-env AGENT_DEMO_MODE=true node --env-file=.env.local workers/queue-consumer.js",
-    "worker:vis":  "cross-env AGENT_HEADLESS=false node --env-file=.env.local workers/queue-consumer.js",
-
-    "pw:install":  "npx playwright install chromium"
+    "worker:vis": "cross-env AGENT_HEADLESS=false node --env-file=.env.local workers/queue-consumer.js",
+    "pw:install": "npx playwright install chromium"
   },
   "dependencies": {
-    "next":             "14.2.5",
-    "react":            "^18.3.1",
-    "react-dom":        "^18.3.1",
-    "better-sqlite3":   "^11.9.1",
-    "razorpay":         "^2.9.2",
-    "lucide-react":     "^0.414.0",
-    "clsx":             "^2.1.1",
-    "cross-env":        "^7.0.3"
+    "@libsql/client": "^0.14.0",
+    "better-sqlite3": "^11.9.1",
+    "clsx": "^2.1.1",
+    "cross-env": "^7.0.3",
+    "lucide-react": "^0.414.0",
+    "next": "14.2.5",
+    "razorpay": "^2.9.2",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "tailwindcss":        "^3.4.6",
-    "autoprefixer":       "^10.4.20",
-    "postcss":            "^8.4.40",
-    "eslint":             "^8.57.0",
+    "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.0",
     "eslint-config-next": "14.2.5",
-    "playwright":         "^1.45.3"
+    "playwright": "^1.45.3",
+    "postcss": "^8.4.40",
+    "tailwindcss": "^3.4.6"
   },
   "engines": {
     "node": ">=18.0.0"

@@ -13,7 +13,7 @@ const scriptSrc = [
 
 const nextConfig = {
   experimental: {
-    serverComponentsExternalPackages: ['better-sqlite3'],
+    serverComponentsExternalPackages: ['better-sqlite3', '@libsql/client'],
   },
   async headers() {
     return [
