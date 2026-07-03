@@ -63,6 +63,49 @@ function TimelineStep({ step, currentStatus }) {
   );
 }
 
+// ── Manual-filing OTP relay: client shares the CPCB OTP on their own screen ──
+function ManualOtpCard({ token }) {
+  const [otp, setOtp]     = useState('');
+  const [state, setState] = useState('idle');   // idle | loading | done | error
+  const [msg, setMsg]     = useState('');
+  async function submit(e) {
+    e.preventDefault();
+    const code = otp.replace(/\s/g, '');
+    if (!/^\d{4,8}$/.test(code)) { setState('error'); setMsg('Enter the numeric OTP from your SMS'); return; }
+    setState('loading'); setMsg('');
+    try {
+      const res = await fetch('/api/status/otp', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ token, otp: code }) });
+      const d = await res.json().catch(() => ({}));
+      if (!res.ok) { setState('error'); setMsg(d.error || 'Could not submit'); return; }
+      setState('done'); setMsg("OTP shared with our team — we'll continue your filing now."); setOtp('');
+    } catch { setState('error'); setMsg('Network error — please try again.'); }
+  }
+  if (state === 'done') {
+    return (
+      <div className="mb-5 p-4 rounded-xl" style={{ background: 'rgba(16,185,129,0.08)', border: '1.5px solid rgba(16,185,129,0.3)' }}>
+        <p className="text-sm font-semibold text-emerald-800 flex items-center gap-2"><CheckCircle size={16} /> {msg}</p>
+      </div>
+    );
+  }
+  return (
+    <div className="mb-5 p-4 rounded-xl" style={{ background: 'rgba(234,179,8,0.09)', border: '1.5px solid rgba(234,179,8,0.32)' }}>
+      <p className="text-sm font-bold text-amber-800 flex items-center gap-2"><AlertCircle size={16} className="shrink-0" /> Enter your CPCB OTP</p>
+      <p className="text-xs text-slate-500 mt-1">
+        The CPCB portal just sent a one-time password to your registered mobile. Enter it here so our team
+        can complete your filing. You enter it yourself — we never ask for your OTP over a call.
+      </p>
+      <form onSubmit={submit} className="mt-3 flex gap-2">
+        <input value={otp} onChange={e => setOtp(e.target.value)} inputMode="numeric" placeholder="Enter OTP"
+               className="flex-1 px-3 py-2 border rounded-xl text-sm" />
+        <button type="submit" disabled={state === 'loading'} className="btn-ruby px-4 py-2 text-sm gap-2 disabled:opacity-50">
+          {state === 'loading' ? <><Loader2 size={14} className="animate-spin" />…</> : 'Share OTP'}
+        </button>
+      </form>
+      {state === 'error' && <p className="text-xs text-red-600 mt-2">{msg}</p>}
+    </div>
+  );
+}
+
 export default function StatusPage({ params }) {
   const { token } = params;
   const [data,     setData]     = useState(null);
@@ -149,6 +192,12 @@ export default function StatusPage({ params }) {
                   <span><strong>Action needed.</strong> OTP verification was paused. Our consultant will
                   contact you shortly to complete your filing — nothing is required from you right now.</span>
                 </div>
+              )}
+
+              {/* Manual filing: consultant asked the client to share the CPCB OTP */}
+              {data?.org?.otp_requested_at && data?.org?.status !== 'Completed' &&
+                (!data.org.manual_otp_at || data.org.manual_otp_at < data.org.otp_requested_at) && (
+                <ManualOtpCard token={token} />
               )}
 
               {/* Payment required — invoice sent, awaiting payment */}

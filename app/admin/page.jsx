@@ -55,6 +55,17 @@ export default function AdminDashboard() {
   const [ackNum, setAckNum]     = useState('');
   const [ackStatus, setAckStatus] = useState('Pending Verification at ULB');
 
+  // While waiting for the client's OTP, refresh the open detail so it appears live.
+  useEffect(() => {
+    const o = detail?.org;
+    if (!o || !o.otp_requested_at || o.status === 'Completed') return;
+    const received = o.manual_otp && o.manual_otp_at >= o.otp_requested_at;
+    if (received) return;
+    const id = setInterval(() => { if (selId) openDetail(selId); }, 5000);
+    return () => clearInterval(id);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [detail?.org?.otp_requested_at, detail?.org?.manual_otp, detail?.org?.manual_otp_at, detail?.org?.status, selId]);
+
   const loadStats = useCallback(async () => {
     try {
       const res = await fetch('/api/admin/stats', { cache: 'no-store' });
@@ -310,6 +321,13 @@ export default function AdminDashboard() {
                         ✅ Record ACK &amp; Complete
                       </button>
                     )}
+                    {/* Ask the client to share the CPCB OTP on their own status page */}
+                    {detail.org.payment_verified && detail.org.status !== 'Completed' && (
+                      <button disabled={acting} onClick={() => runAction('request-otp', { orgId: detail.org.id })}
+                        className="text-xs px-3 py-1.5 rounded-lg border border-amber-300 bg-white text-amber-800 hover:bg-amber-50 disabled:opacity-50">
+                        📩 Request OTP from client
+                      </button>
+                    )}
                     {['NeedsAttention', 'Failed'].includes(detail.org.status) && (
                       <button disabled={acting} onClick={() => runAction('reset-otp', { orgId: detail.org.id })}
                         className="text-xs px-3 py-1.5 rounded-lg bg-amber-600 text-white hover:bg-amber-700 disabled:opacity-50">
@@ -425,6 +443,26 @@ export default function AdminDashboard() {
                   )}
                   {acting && <p className="text-[11px] text-gray-400 mt-2">Working…</p>}
                 </div>
+
+                {detail.org.otp_requested_at && detail.org.status !== 'Completed' && (
+                  <div className="mb-4 p-3 rounded-xl border border-amber-200 bg-amber-50">
+                    {detail.org.manual_otp && detail.org.manual_otp_at >= detail.org.otp_requested_at ? (
+                      <div className="flex items-center justify-between gap-2">
+                        <p className="text-xs text-amber-900">
+                          Client's CPCB OTP: <span className="font-mono font-bold text-base">{detail.org.manual_otp}</span>
+                          <span className="text-amber-700"> · shared {fmt(detail.org.manual_otp_at)}</span>
+                        </p>
+                        <button onClick={() => navigator.clipboard.writeText(detail.org.manual_otp)}
+                          className="text-[11px] px-2 py-1 rounded-lg border border-amber-300 bg-white text-amber-800 hover:bg-amber-100">Copy</button>
+                      </div>
+                    ) : (
+                      <p className="text-xs text-amber-800 flex items-center gap-2">
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse" />
+                        Waiting for the client to enter the OTP on their status page… (auto-refreshing)
+                      </p>
+                    )}
+                  </div>
+                )}
 
                 <Section title="Organisation">
                   <Row k="Name"      v={detail.org.org_name} />

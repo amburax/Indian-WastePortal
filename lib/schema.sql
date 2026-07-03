@@ -48,6 +48,11 @@ CREATE TABLE IF NOT EXISTS organizations (
   consultant_notes  TEXT,                          -- internal notes from the call
   assigned_admin    TEXT,                          -- admin email handling this case
 
+  -- Manual-filing OTP relay [V3] — client shares the CPCB OTP on their own screen
+  otp_requested_at  TEXT,                          -- admin asked the client to share the OTP
+  manual_otp        TEXT,                          -- OTP the client entered on their status page
+  manual_otp_at     TEXT,                          -- when the client shared it
+
   -- Timestamps
   created_at        TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at        TEXT NOT NULL DEFAULT (datetime('now')),
