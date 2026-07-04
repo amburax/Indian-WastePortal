@@ -37,7 +37,7 @@ export default function CapabilityMosaic() {
             <figure key={t.key}
               className={`relative overflow-hidden rounded-2xl hairline group ${t.span}`}>
               <img
-                src={`/mosaic/${t.key}.png`}
+                src={`/mosaic/${t.key}.webp`}
                 alt={t.label}
                 loading="lazy"
                 onError={(e) => { if (e.currentTarget.src !== t.fallback) e.currentTarget.src = t.fallback; }}
