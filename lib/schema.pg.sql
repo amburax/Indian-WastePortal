@@ -1,19 +1,19 @@
 -- ============================================================================
---  Indian Waste Portal — PostgreSQL schema (production: DigitalOcean Managed PG)
+--  Indian Waste Portal - PostgreSQL schema (production: DigitalOcean Managed PG)
 -- ----------------------------------------------------------------------------
 --  This mirrors lib/schema.sql (SQLite, used for local dev) with all migrations
 --  already folded in. Differences vs. SQLite are dialect-only:
---    • datetime('now')  →  TIMESTAMPTZ columns with DEFAULT NOW()
---    • AUTOINCREMENT    →  SERIAL / GENERATED identity
---    • updated_at trigger  →  a shared PL/pgSQL trigger function
---    • INSERT OR IGNORE (seed)  →  ON CONFLICT DO NOTHING
+--    * datetime('now')  ->  TIMESTAMPTZ columns with DEFAULT NOW()
+--    * AUTOINCREMENT    ->  SERIAL / GENERATED identity
+--    * updated_at trigger  ->  a shared PL/pgSQL trigger function
+--    * INSERT OR IGNORE (seed)  ->  ON CONFLICT DO NOTHING
 --  The runtime SQL translator in lib/d1-db.js (toPg) handles the query-side
---  gaps (?→$n, datetime('now',…) intervals), so app code stays dialect-agnostic.
+--  gaps (?->$n, datetime('now',...) intervals), so app code stays dialect-agnostic.
 --
 --  Idempotent: safe to run repeatedly (CREATE TABLE IF NOT EXISTS, etc.).
 -- ============================================================================
 
--- ── Shared updated_at trigger function ──────────────────────────────────────
+-- -- Shared updated_at trigger function --------------------------------------
 CREATE OR REPLACE FUNCTION set_updated_at() RETURNS trigger AS $$
 BEGIN
   NEW.updated_at = NOW();
@@ -21,7 +21,7 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
--- ── organizations ───────────────────────────────────────────────────────────
+-- -- organizations -----------------------------------------------------------
 CREATE TABLE IF NOT EXISTS organizations (
   id                TEXT PRIMARY KEY,
 
@@ -90,7 +90,7 @@ DROP TRIGGER IF EXISTS trg_orgs_updated_at ON organizations;
 CREATE TRIGGER trg_orgs_updated_at BEFORE UPDATE ON organizations
   FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
--- ── metrics ─────────────────────────────────────────────────────────────────
+-- -- metrics -----------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS metrics (
   id                      TEXT PRIMARY KEY,
   org_id                  TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
@@ -112,7 +112,7 @@ DROP TRIGGER IF EXISTS trg_metrics_updated_at ON metrics;
 CREATE TRIGGER trg_metrics_updated_at BEFORE UPDATE ON metrics
   FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 
--- ── lgd_addresses ───────────────────────────────────────────────────────────
+-- -- lgd_addresses -----------------------------------------------------------
 CREATE TABLE IF NOT EXISTS lgd_addresses (
   id                TEXT PRIMARY KEY,
   org_id            TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
@@ -133,7 +133,7 @@ CREATE TABLE IF NOT EXISTS lgd_addresses (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- ── payments ────────────────────────────────────────────────────────────────
+-- -- payments ----------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS payments (
   id                    TEXT PRIMARY KEY,
   org_id                TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
@@ -151,7 +151,7 @@ CREATE TABLE IF NOT EXISTS payments (
 
 CREATE INDEX IF NOT EXISTS idx_payments_org ON payments(org_id);
 
--- ── ewaste_waitlist ─────────────────────────────────────────────────────────
+-- -- ewaste_waitlist ---------------------------------------------------------
 CREATE TABLE IF NOT EXISTS ewaste_waitlist (
   id            TEXT PRIMARY KEY,
   email         TEXT NOT NULL UNIQUE,
@@ -161,7 +161,7 @@ CREATE TABLE IF NOT EXISTS ewaste_waitlist (
   created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- ── queue_jobs ──────────────────────────────────────────────────────────────
+-- -- queue_jobs --------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS queue_jobs (
   id                   TEXT PRIMARY KEY,
   org_id               TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
@@ -183,7 +183,7 @@ CREATE TABLE IF NOT EXISTS queue_jobs (
 CREATE INDEX IF NOT EXISTS idx_queue_jobs_org    ON queue_jobs(org_id);
 CREATE INDEX IF NOT EXISTS idx_queue_jobs_status ON queue_jobs(status);
 
--- ── agent_logs ──────────────────────────────────────────────────────────────
+-- -- agent_logs --------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS agent_logs (
   id          TEXT PRIMARY KEY,
   org_id      TEXT NOT NULL REFERENCES organizations(id) ON DELETE CASCADE,
@@ -197,7 +197,7 @@ CREATE TABLE IF NOT EXISTS agent_logs (
 
 CREATE INDEX IF NOT EXISTS idx_agent_logs_org ON agent_logs(org_id);
 
--- ── queue_counter (single-row global counter) ───────────────────────────────
+-- -- queue_counter (single-row global counter) -------------------------------
 CREATE TABLE IF NOT EXISTS queue_counter (
   key   TEXT PRIMARY KEY DEFAULT 'global',
   value INTEGER NOT NULL DEFAULT 0
@@ -205,7 +205,7 @@ CREATE TABLE IF NOT EXISTS queue_counter (
 INSERT INTO queue_counter (key, value) VALUES ('global', 0)
   ON CONFLICT (key) DO NOTHING;
 
--- ── admin_users ─────────────────────────────────────────────────────────────
+-- -- admin_users -------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS admin_users (
   id            TEXT PRIMARY KEY,
   email         TEXT NOT NULL UNIQUE,
@@ -214,7 +214,7 @@ CREATE TABLE IF NOT EXISTS admin_users (
   created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
--- ── audit_log ───────────────────────────────────────────────────────────────
+-- -- audit_log ---------------------------------------------------------------
 CREATE TABLE IF NOT EXISTS audit_log (
   id          TEXT PRIMARY KEY,
   admin_email TEXT,
@@ -226,7 +226,7 @@ CREATE TABLE IF NOT EXISTS audit_log (
 
 CREATE INDEX IF NOT EXISTS idx_audit_org ON audit_log(org_id);
 
--- ── notifications ───────────────────────────────────────────────────────────
+-- -- notifications -----------------------------------------------------------
 CREATE TABLE IF NOT EXISTS notifications (
   id          TEXT PRIMARY KEY,
   org_id      TEXT NOT NULL,
@@ -239,7 +239,7 @@ CREATE TABLE IF NOT EXISTS notifications (
 
 CREATE INDEX IF NOT EXISTS idx_notifications_org ON notifications(org_id);
 
--- ── pricing_rules ───────────────────────────────────────────────────────────
+-- -- pricing_rules -----------------------------------------------------------
 CREATE TABLE IF NOT EXISTS pricing_rules (
   id           TEXT PRIMARY KEY,
   est_type     TEXT NOT NULL,
@@ -251,7 +251,7 @@ CREATE TABLE IF NOT EXISTS pricing_rules (
 
 CREATE INDEX IF NOT EXISTS idx_pricing_active ON pricing_rules(active);
 
--- ── users (client login identity) ───────────────────────────────────────────
+-- -- users (client login identity) -------------------------------------------
 CREATE TABLE IF NOT EXISTS users (
   id             TEXT PRIMARY KEY,
   email          TEXT NOT NULL UNIQUE,
@@ -265,7 +265,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
 
--- ── pincode_directory (LGD reference data, ~155k rows) ───────────────────────
+-- -- pincode_directory (LGD reference data, ~155k rows) -----------------------
 CREATE TABLE IF NOT EXISTS pincode_directory (
   id           SERIAL PRIMARY KEY,
   statename    TEXT NOT NULL,
