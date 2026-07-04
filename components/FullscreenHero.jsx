@@ -4,46 +4,46 @@ import Link from 'next/link';
 import { ShieldCheck, ArrowRight, ChevronLeft, ChevronRight, Activity, Clock } from 'lucide-react';
 import { useI18n } from '../lib/i18n';
 
-const SLIDES = [
+const getSlides = (t) => [
   {
     id: 'liability',
     image: '/mosaic/fleet.webp',
-    badge: 'RULE 6 • ARE YOU A BWG?',
-    headline: 'One threshold is all it takes to be liable.',
+    badge: t('hero.slide1.badge'),
+    headline: t('hero.slide1.h'),
     metrics: [
-      { value: '≥ 20,000', unit: 'sq.m', label: 'Built-up area' },
-      { value: '≥ 40,000', unit: 'L/day', label: 'Water use' },
-      { value: '≥ 100', unit: 'kg/day', label: 'Waste output' },
+      { value: '≥ 20,000', unit: 'sq.m', label: t('hero.slide1.m1') },
+      { value: '≥ 40,000', unit: 'L/day', label: t('hero.slide1.m2') },
+      { value: '≥ 100', unit: 'kg/day', label: t('hero.slide1.m3') },
     ],
-    cta: 'Run the 60-second eligibility check',
+    cta: t('hero.slide1.cta'),
     ctaLink: '#eligibility-check',
     countdown: true,
   },
   {
     id: 'streams',
     image: '/mosaic/mrf.webp',
-    badge: '4-STREAM SEGREGATION',
-    headline: 'Mandatory source segregation from day one.',
+    badge: t('hero.slide2.badge'),
+    headline: t('hero.slide2.h'),
     metrics: [
-      { value: 'Wet', unit: 'Green', label: 'Organic' },
-      { value: 'Dry', unit: 'Blue', label: 'Recyclables' },
-      { value: 'Sanitary', unit: 'Red', label: 'Special care' },
+      { value: t('hero.slide2.m1'), unit: 'Green', label: t('hero.slide2.m1') },
+      { value: t('hero.slide2.m2'), unit: 'Blue', label: t('hero.slide2.m2') },
+      { value: t('hero.slide2.m3'), unit: 'Red', label: t('hero.slide2.m3') },
     ],
-    cta: 'View compliance requirements',
+    cta: t('hero.slide2.cta'),
     ctaLink: '/register',
     countdown: false,
   },
   {
     id: 'legal',
     image: '/mosaic/compost.webp',
-    badge: 'SWM 2026 • NON-COMPLIANCE',
-    headline: 'Non-compliance can trigger Environmental Compensation.',
+    badge: t('hero.slide3.badge'),
+    headline: t('hero.slide3.h'),
     metrics: [
-      { value: 'CPCB', unit: 'Portal', label: 'Official filing' },
-      { value: 'LGD', unit: 'Linked', label: 'Address verified' },
-      { value: 'EC', unit: 'Penalty', label: 'For non-compliance' },
+      { value: 'CPCB', unit: 'Portal', label: t('hero.slide3.m1') },
+      { value: 'LGD', unit: 'Linked', label: t('hero.slide3.m2') },
+      { value: 'EC', unit: 'Penalty', label: t('hero.slide3.m3') },
     ],
-    cta: 'Protect your organisation today',
+    cta: t('hero.slide3.cta'),
     ctaLink: '/register',
     countdown: true,
   }
@@ -52,7 +52,8 @@ const SLIDES = [
 export default function FullscreenHero() {
   const { t } = useI18n();
   const [idx, setIdx] = useState(0);
-  const slide = SLIDES[idx];
+  const slides = getSlides(t);
+  const slide = slides[idx];
 
   // Countdown logic
   const DEADLINE = new Date('2027-06-30T00:00:00+05:30').getTime();
@@ -65,14 +66,14 @@ export default function FullscreenHero() {
 
   const days = now ? Math.ceil((DEADLINE - now) / 86_400_000) : 362;
 
-  const nextSlide = () => setIdx((i) => (i + 1) % SLIDES.length);
-  const prevSlide = () => setIdx((i) => (i - 1 + SLIDES.length) % SLIDES.length);
+  const nextSlide = () => setIdx((i) => (i + 1) % slides.length);
+  const prevSlide = () => setIdx((i) => (i - 1 + slides.length) % slides.length);
 
   return (
     <div className="relative w-full min-h-screen flex flex-col justify-between overflow-hidden bg-slate-900">
       
       {/* Background Images */}
-      {SLIDES.map((s, i) => (
+      {slides.map((s, i) => (
         <div
           key={s.id}
           className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${i === idx ? 'opacity-100' : 'opacity-0'}`}
@@ -127,12 +128,12 @@ export default function FullscreenHero() {
           <div className="lg:col-span-4 flex justify-center lg:justify-end animate-fade-in-up delay-100">
             {slide.countdown && (
               <div className="border border-white/10 bg-black/40 backdrop-blur-2xl rounded-3xl p-8 shadow-2xl max-w-sm w-full text-center">
-                <p className="text-xs font-bold uppercase tracking-widest text-white/50 mb-3">Annual Return Closes In</p>
+                <p className="text-xs font-bold uppercase tracking-widest text-white/50 mb-3">{t('hero.timer.badge')}</p>
                 
                 <div className="font-display text-7xl font-black text-white mb-2 drop-shadow-md tabular-nums tracking-tighter">
                   {days}
                 </div>
-                <p className="text-sm font-bold text-white/70 mb-8">days • 30 JUN 2027</p>
+                <p className="text-sm font-bold text-white/70 mb-8">{t('hero.timer.days')}</p>
 
                 {/* Progress bar line */}
                 <div className="relative w-full h-1 bg-white/10 rounded-full mb-6 overflow-hidden">
@@ -140,7 +141,7 @@ export default function FullscreenHero() {
                 </div>
                 
                 <p className="text-xs font-medium text-white/60 leading-relaxed">
-                  Environmental Compensation applies to late filings
+                  {t('hero.timer.sub')}
                 </p>
               </div>
             )}
@@ -158,7 +159,7 @@ export default function FullscreenHero() {
           </button>
           
           <div className="flex gap-2">
-            {SLIDES.map((_, i) => (
+            {slides.map((_, i) => (
               <button key={i} onClick={() => setIdx(i)} className={`h-1.5 rounded-full transition-all duration-300 ${i === idx ? 'w-8 bg-brass' : 'w-4 bg-white/30 hover:bg-white/50'}`} />
             ))}
           </div>
