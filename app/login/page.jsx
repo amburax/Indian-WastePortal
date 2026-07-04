@@ -3,9 +3,11 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ShieldCheck, ArrowLeft, Loader2, LogIn } from 'lucide-react';
+import { useI18n } from '../../lib/i18n';
 
 export default function ClientLogin() {
   const router = useRouter();
+  const { t } = useI18n();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -20,9 +22,9 @@ export default function ClientLogin() {
         body: JSON.stringify({ email, password }),
       });
       const d = await res.json();
-      if (!res.ok) { setError(d.error || 'Login failed'); setLoading(false); return; }
+      if (!res.ok) { setError(d.error || t('login.failed')); setLoading(false); return; }
       router.push('/dashboard');
-    } catch { setError('Network error'); setLoading(false); }
+    } catch { setError(t('login.neterr')); setLoading(false); }
   }
 
   return (
@@ -44,29 +46,29 @@ export default function ClientLogin() {
           <div className="w-12 h-12 rounded-xl bg-ruby-50 flex items-center justify-center mb-4">
             <LogIn size={22} className="text-ruby-800" />
           </div>
-          <h1 className="font-display text-2xl font-bold text-slate-800">Sign in</h1>
-          <p className="text-sm text-slate-500 mt-1 mb-6">Access your registrations, invoices and filing status.</p>
+          <h1 className="font-display text-2xl font-bold text-slate-800">{t('login.title')}</h1>
+          <p className="text-sm text-slate-500 mt-1 mb-6">{t('login.sub')}</p>
 
           <form onSubmit={submit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Email</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">{t('login.email')}</label>
               <input type="email" required value={email} onChange={e => setEmail(e.target.value)} autoComplete="username"
                 className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-ruby-400 focus:border-ruby-400 outline-none" placeholder="you@company.in" />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1">Password</label>
+              <label className="block text-sm font-medium text-slate-700 mb-1">{t('login.password')}</label>
               <input type="password" required value={password} onChange={e => setPassword(e.target.value)} autoComplete="current-password"
                 className="w-full px-4 py-2.5 rounded-lg border border-slate-300 focus:ring-2 focus:ring-ruby-400 focus:border-ruby-400 outline-none" placeholder="••••••••" />
             </div>
             {error && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</p>}
             <button type="submit" disabled={loading} className="btn-ruby w-full py-2.5 rounded-lg font-semibold disabled:opacity-60 flex items-center justify-center gap-2">
-              {loading ? <><Loader2 size={16} className="animate-spin" /> Signing in…</> : 'Sign in'}
+              {loading ? <><Loader2 size={16} className="animate-spin" /> {t('login.submitting')}</> : t('login.submit')}
             </button>
           </form>
 
           <div className="flex justify-between text-xs text-slate-400 mt-6">
-            <Link href="/register" className="text-ruby-800 underline">New here? Register</Link>
-            <Link href="/forgot" className="hover:text-slate-600">Forgot password?</Link>
+            <Link href="/register" className="text-ruby-800 underline">{t('login.register')}</Link>
+            <Link href="/forgot" className="hover:text-slate-600">{t('login.forgot')}</Link>
           </div>
         </div>
       </main>

@@ -10,6 +10,7 @@ import {
 import GlassCard          from '../../components/GlassCard';
 import StepProgress       from '../../components/StepProgress';
 import { INDIAN_STATES } from '../../lib/lgdData';
+import { useI18n } from '../../lib/i18n';
 
 // ── Sub-categories from WasteComply_CRM (exact CPCB portal values) ─
 const SUBCATS = {
@@ -60,40 +61,40 @@ const SUBCATS = {
 // ── Validation ────────────────────────────────────────────────
 const validate = {
   // Step 1 — Account
-  step1: (d) => {
+  step1: (d, t) => {
     const e = {};
     if (!d.org_name?.trim() || d.org_name.trim().length < 3)
-      e.org_name    = 'Organisation name (min 3 characters)';
+      e.org_name    = t('reg.v.orgName');
     if (!d.auth_person?.trim() || d.auth_person.trim().length < 2)
-      e.auth_person = 'Authorised person name required';
+      e.auth_person = t('reg.v.authPerson');
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email?.trim()))
-      e.email       = 'Valid email address required';
+      e.email       = t('reg.v.email');
     if (!/^\d{10}$/.test(d.phone?.replace(/\s/g, '')))
-      e.phone       = '10-digit mobile number required';
+      e.phone       = t('reg.v.phone');
     return e;
   },
   // Step 2 — Category
-  step2: (d) => {
+  step2: (d, t) => {
     const e = {};
-    if (!d.category)    e.category    = 'Select a category';
-    if (!d.sub_category) e.sub_category = 'Select a sub-category';
-    if (!(Number(d.floor_area_sqm) > 0))       e.floor_area_sqm       = 'Enter floor area (sq.m.)';
-    if (!(Number(d.waste_kg_per_day) > 0))     e.waste_kg_per_day     = 'Enter waste generation (kg/day)';
-    if (!(Number(d.water_liters_per_day) > 0)) e.water_liters_per_day = 'Enter water consumption (L/day)';
+    if (!d.category)    e.category    = t('reg.v.category');
+    if (!d.sub_category) e.sub_category = t('reg.v.subcat');
+    if (!(Number(d.floor_area_sqm) > 0))       e.floor_area_sqm       = t('reg.v.floor');
+    if (!(Number(d.waste_kg_per_day) > 0))     e.waste_kg_per_day     = t('reg.v.waste');
+    if (!(Number(d.water_liters_per_day) > 0)) e.water_liters_per_day = t('reg.v.water');
     return e;
   },
   // Step 3 — Address
-  step3: (d) => {
+  step3: (d, t) => {
     const e = {};
-    if (!d.state_code)           e.state_code    = 'Select a state';
-    if (!d.district_name?.trim()) e.district_name = 'District name required';
-    if (!d.sub_district?.trim())  e.sub_district  = 'Sub-district / Taluka required';
-    if (!d.city_name?.trim())     e.city_name     = 'City / Village name required';
-    if (!d.local_body_type)       e.local_body_type = 'Select local body type';
-    if (!/^\d{6}$/.test(d.pincode || '')) e.pincode = 'Valid 6-digit pincode required';
+    if (!d.state_code)           e.state_code    = t('reg.v.state');
+    if (!d.district_name?.trim()) e.district_name = t('reg.v.district');
+    if (!d.sub_district?.trim())  e.sub_district  = t('reg.v.subdistrict');
+    if (!d.city_name?.trim())     e.city_name     = t('reg.v.city');
+    if (!d.local_body_type)       e.local_body_type = t('reg.v.localbody');
+    if (!/^\d{6}$/.test(d.pincode || '')) e.pincode = t('reg.v.pincode');
     // CPCB Step 2 requires coordinates (there is no "skip" on the portal).
-    if (!d.latitude  || Number.isNaN(Number(d.latitude)))  e.latitude  = 'Latitude required (from Google Maps)';
-    if (!d.longitude || Number.isNaN(Number(d.longitude))) e.longitude = 'Longitude required (from Google Maps)';
+    if (!d.latitude  || Number.isNaN(Number(d.latitude)))  e.latitude  = t('reg.v.lat');
+    if (!d.longitude || Number.isNaN(Number(d.longitude))) e.longitude = t('reg.v.long');
     return e;
   },
 };
@@ -107,6 +108,7 @@ function FieldError({ msg }) {
 //  STEP 1: Account (CPCB Step 1 fields)
 // ────────────────────────────────────────────────────────────
 function Step1Account({ data, onChange, errors, loggedIn, accountEmail }) {
+  const { t } = useI18n();
   const f = (key) => ({
     value:    data[key],
     onChange: (e) => onChange(key, e.target.value),
@@ -116,26 +118,26 @@ function Step1Account({ data, onChange, errors, loggedIn, accountEmail }) {
     <div className="space-y-4 animate-slide-up">
       {loggedIn ? (
         <div className="p-3 rounded-xl text-xs" style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)' }}>
-          <strong className="text-emerald-700">Adding a facility to your account</strong>
-          <span className="text-slate-500 ml-2">Signed in as {accountEmail}. Give this facility its own contact email below.</span>
+          <strong className="text-emerald-700">{t('reg.a.addFacility')}</strong>
+          <span className="text-slate-500 ml-2">{t('reg.a.addFacilitySub', { email: accountEmail })}</span>
         </div>
       ) : (
         <div className="p-3 rounded-xl text-xs" style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.15)' }}>
-          <strong className="text-indigo-700">Create your account</strong>
-          <span className="text-slate-500 ml-2">You'll use this email + password to sign in and track everything. <Link href="/login" className="text-ruby-800 underline">Already have an account?</Link></span>
+          <strong className="text-indigo-700">{t('reg.a.create')}</strong>
+          <span className="text-slate-500 ml-2">{t('reg.a.createSub')} <Link href="/login" className="text-ruby-800 underline">{t('reg.a.haveAccount')}</Link></span>
         </div>
       )}
 
       {/* Org + Auth person */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="form-label">Organisation / Entity Name *</label>
+          <label className="form-label">{t('reg.a.orgName')}</label>
           <input {...f('org_name')} className={`form-input ${errors.org_name ? 'error' : ''}`}
                  placeholder="Sunrise Residency RWA" id="f-orgname" />
           <FieldError msg={errors.org_name} />
         </div>
         <div>
-          <label className="form-label">Authorised Person (Full Name) *</label>
+          <label className="form-label">{t('reg.a.authPerson')}</label>
           <input {...f('auth_person')} className={`form-input ${errors.auth_person ? 'error' : ''}`}
                  placeholder="Rajesh Mehta" id="f-authname" />
           <FieldError msg={errors.auth_person} />
@@ -145,21 +147,21 @@ function Step1Account({ data, onChange, errors, loggedIn, accountEmail }) {
       {/* Email + Phone */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="form-label">Official Email Address *</label>
+          <label className="form-label">{t('reg.a.email')}</label>
           <input {...f('email')} type="email" className={`form-input ${errors.email ? 'error' : ''}`}
                  placeholder="info@sunriserwa.org" id="f-email" autoComplete="email" />
-          <p className="text-xs text-slate-400 mt-1">Used for CPCB portal account creation.</p>
+          <p className="text-xs text-slate-400 mt-1">{t('reg.a.emailHint')}</p>
           <FieldError msg={errors.email} />
         </div>
         <div>
-          <label className="form-label">Mobile Number (10-digit) *</label>
+          <label className="form-label">{t('reg.a.mobile')}</label>
           <div className="relative">
             <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-medium text-slate-500">+91</span>
             <input {...f('phone')} type="tel" maxLength={10}
                    className={`form-input pl-12 ${errors.phone ? 'error' : ''}`}
                    placeholder="9876543210" id="f-mobile" />
           </div>
-          <p className="text-xs text-slate-400 mt-1">The CPCB portal will send an OTP to this number during filing.</p>
+          <p className="text-xs text-slate-400 mt-1">{t('reg.a.mobileHint')}</p>
           <FieldError msg={errors.phone} />
         </div>
       </div>
@@ -167,10 +169,10 @@ function Step1Account({ data, onChange, errors, loggedIn, accountEmail }) {
       {/* Password (account creation) */}
       {!loggedIn && (
         <div>
-          <label className="form-label">Create a Password *</label>
+          <label className="form-label">{t('reg.a.password')}</label>
           <input value={data.password || ''} onChange={e => onChange('password', e.target.value)} type="password"
-                 className={`form-input ${errors.password ? 'error' : ''}`} placeholder="At least 8 characters" autoComplete="new-password" id="f-password" />
-          <p className="text-xs text-slate-400 mt-1">Use this with your email to sign in to your dashboard.</p>
+                 className={`form-input ${errors.password ? 'error' : ''}`} placeholder={t('reg.a.passwordPh')} autoComplete="new-password" id="f-password" />
+          <p className="text-xs text-slate-400 mt-1">{t('reg.a.passwordHint')}</p>
           <FieldError msg={errors.password} />
         </div>
       )}
@@ -180,9 +182,8 @@ function Step1Account({ data, onChange, errors, loggedIn, accountEmail }) {
            style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)' }}>
         <span className="text-emerald-600 shrink-0">📱</span>
         <span className="text-slate-600">
-          <strong className="text-emerald-700">Keep your phone handy.</strong>{' '}
-          When our agent files on the CPCB portal, it will pause and ask you to enter the OTP sent to your mobile.
-          You'll see this prompt on your status page.
+          <strong className="text-emerald-700">{t('reg.a.otpNotice1')}</strong>{' '}
+          {t('reg.a.otpNotice2')}
         </span>
       </div>
     </div>
@@ -193,25 +194,26 @@ function Step1Account({ data, onChange, errors, loggedIn, accountEmail }) {
 //  STEP 2: Category + Sub-category (CPCB Step 2A)
 // ────────────────────────────────────────────────────────────
 function Step2Category({ data, onChange, errors }) {
+  const { t } = useI18n();
   const subcats = SUBCATS[data.category] || [];
 
   return (
     <div className="space-y-4 animate-slide-up">
       <div className="p-3 rounded-xl text-xs"
            style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.15)' }}>
-        <strong className="text-indigo-700">CPCB SWM Portal — Step 2 (Part A)</strong>
-        <span className="text-slate-500 ml-2">Category, sub-category, and waste metrics</span>
+        <strong className="text-indigo-700">{t('reg.c.banner1')}</strong>
+        <span className="text-slate-500 ml-2">{t('reg.c.banner2')}</span>
       </div>
 
       {/* Category + Sub-category */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="form-label">Category *</label>
+          <label className="form-label">{t('reg.c.category')}</label>
           <select id="f-cat"
                   value={data.category}
                   onChange={e => { onChange('category', e.target.value); onChange('sub_category', ''); }}
                   className={`form-input ${errors.category ? 'error' : ''}`}>
-            <option value="">Select category…</option>
+            <option value="">{t('reg.c.categorySelect')}</option>
             <option>Institutional</option>
             <option>Commercial</option>
             <option>Residential</option>
@@ -219,13 +221,13 @@ function Step2Category({ data, onChange, errors }) {
           <FieldError msg={errors.category} />
         </div>
         <div>
-          <label className="form-label">Sub-category *</label>
+          <label className="form-label">{t('reg.c.subcat')}</label>
           <select id="f-subcat"
                   value={data.sub_category}
                   onChange={e => onChange('sub_category', e.target.value)}
                   disabled={!data.category}
                   className={`form-input ${errors.sub_category ? 'error' : ''}`}>
-            <option value="">{data.category ? 'Select sub-category…' : 'Select category first'}</option>
+            <option value="">{data.category ? t('reg.c.subcatSelect') : t('reg.c.subcatFirst')}</option>
             {subcats.map(s => <option key={s} value={s}>{s}</option>)}
           </select>
           <FieldError msg={errors.sub_category} />
@@ -235,7 +237,7 @@ function Step2Category({ data, onChange, errors }) {
       {/* Waste metrics — required on CPCB Step 2 (they appear under sub-category) */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
-          <label className="form-label">Floor Area (sq.m.) *</label>
+          <label className="form-label">{t('reg.c.floor')}</label>
           <input id="f-floor" type="number" min="0" inputMode="decimal"
                  value={data.floor_area_sqm}
                  onChange={e => onChange('floor_area_sqm', e.target.value)}
@@ -243,7 +245,7 @@ function Step2Category({ data, onChange, errors }) {
           <FieldError msg={errors.floor_area_sqm} />
         </div>
         <div>
-          <label className="form-label">Waste Generation (kg/day) *</label>
+          <label className="form-label">{t('reg.c.waste')}</label>
           <input id="f-waste" type="number" min="0" inputMode="decimal"
                  value={data.waste_kg_per_day}
                  onChange={e => onChange('waste_kg_per_day', e.target.value)}
@@ -251,7 +253,7 @@ function Step2Category({ data, onChange, errors }) {
           <FieldError msg={errors.waste_kg_per_day} />
         </div>
         <div>
-          <label className="form-label">Water Consumption (L/day) *</label>
+          <label className="form-label">{t('reg.c.water')}</label>
           <input id="f-water" type="number" min="0" inputMode="decimal"
                  value={data.water_liters_per_day}
                  onChange={e => onChange('water_liters_per_day', e.target.value)}
@@ -267,6 +269,7 @@ function Step2Category({ data, onChange, errors }) {
 //  STEP 3: LGD Address (CPCB Step 2B — full field set)
 // ────────────────────────────────────────────────────────────
 function Step3Address({ data, onChange, errors }) {
+  const { t } = useI18n();
   const [districts, setDistricts] = useState([]);
   const [subDistricts, setSubDistricts] = useState([]);
   const [villages, setVillages] = useState([]);
@@ -305,14 +308,14 @@ function Step3Address({ data, onChange, errors }) {
     <div className="space-y-4 animate-slide-up">
       <div className="p-3 rounded-xl text-xs"
            style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.15)' }}>
-        <strong className="text-indigo-700">CPCB SWM Portal — Step 2 (Part B)</strong>
-        <span className="text-slate-500 ml-2">LGD-linked address — exact field names as on the portal</span>
+        <strong className="text-indigo-700">{t('reg.ad.banner1')}</strong>
+        <span className="text-slate-500 ml-2">{t('reg.ad.banner2')}</span>
       </div>
 
       {/* State + District */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="form-label">State / UT *</label>
+          <label className="form-label">{t('reg.ad.state')}</label>
           <select id="f-state" value={data.state_code}
                   onChange={e => {
                     onChange('state_code', e.target.value);
@@ -322,13 +325,13 @@ function Step3Address({ data, onChange, errors }) {
                     onChange('city_name', '');
                   }}
                   className={`form-input ${errors.state_code ? 'error' : ''}`}>
-            <option value="">Select state…</option>
+            <option value="">{t('reg.ad.stateSelect')}</option>
             {INDIAN_STATES.map(s => <option key={s.code} value={s.code}>{s.name}</option>)}
           </select>
           <FieldError msg={errors.state_code} />
         </div>
         <div>
-          <label className="form-label">District *</label>
+          <label className="form-label">{t('reg.ad.district')}</label>
           <input id="f-dist" list="dist-list" value={data.district_name}
                  onChange={e => {
                    onChange('district_name', e.target.value);
@@ -349,7 +352,7 @@ function Step3Address({ data, onChange, errors }) {
       {/* Sub-district + City */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="form-label">Sub-District / Tehsil / Taluka *</label>
+          <label className="form-label">{t('reg.ad.subdistrict')}</label>
           <input id="f-taluka" list="taluka-list" value={data.sub_district}
                  onChange={e => {
                    onChange('sub_district', e.target.value);
@@ -365,7 +368,7 @@ function Step3Address({ data, onChange, errors }) {
           <FieldError msg={errors.sub_district} />
         </div>
         <div>
-          <label className="form-label">City / Village Name *</label>
+          <label className="form-label">{t('reg.ad.city')}</label>
           <input id="f-city" list="city-list" value={data.city_name}
                  onChange={e => handleVillageChange(e.target.value)}
                  className={`form-input ${errors.city_name ? 'error' : ''}`}
@@ -381,29 +384,29 @@ function Step3Address({ data, onChange, errors }) {
 
       {/* Full address */}
       <div>
-        <label className="form-label">Full Address</label>
+        <label className="form-label">{t('reg.ad.fulladdr')}</label>
         <textarea id="f-addr" rows={2} value={data.full_address}
                   onChange={e => onChange('full_address', e.target.value)}
                   className="form-input resize-none"
                   placeholder="Plot 12, Sector 4, Near Bus Stand, Bopal" />
-        <p className="text-xs text-slate-400 mt-1">Letters, numbers, spaces and commas only — the CPCB portal rejects symbols like <code>#</code> <code>/</code> <code>&amp;</code>.</p>
+        <p className="text-xs text-slate-400 mt-1">{t('reg.ad.fulladdrHint')}</p>
       </div>
 
       {/* Local body + Pincode */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="form-label">Local Body Type *</label>
+          <label className="form-label">{t('reg.ad.localbody')}</label>
           <select id="f-localbody" value={data.local_body_type}
                   onChange={e => onChange('local_body_type', e.target.value)}
                   className={`form-input ${errors.local_body_type ? 'error' : ''}`}>
-            <option value="">Select…</option>
-            <option value="Urban Local Body (ULB)">Urban Local Body (ULB)</option>
-            <option value="Rural Local Body (RLB)">Rural Local Body (RLB)</option>
+            <option value="">{t('reg.ad.localbodySelect')}</option>
+            <option value="Urban Local Body (ULB)">{t('reg.ad.ulb')}</option>
+            <option value="Rural Local Body (RLB)">{t('reg.ad.rlb')}</option>
           </select>
           <FieldError msg={errors.local_body_type} />
         </div>
         <div>
-          <label className="form-label">Pincode *</label>
+          <label className="form-label">{t('reg.ad.pincode')}</label>
           <input id="f-pin" type="text" maxLength={6} value={data.pincode}
                  onChange={e => onChange('pincode', e.target.value)}
                  className={`form-input ${errors.pincode ? 'error' : ''}`}
@@ -415,13 +418,13 @@ function Step3Address({ data, onChange, errors }) {
       {/* Zone + Block */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="form-label">Zone/Containment Board <span className="text-slate-400 font-normal normal-case">(optional)</span></label>
+          <label className="form-label">{t('reg.ad.zone')} <span className="text-slate-400 font-normal normal-case">{t('reg.ad.optional')}</span></label>
           <input id="f-zone" value={data.zone_board}
                  onChange={e => onChange('zone_board', e.target.value)}
                  className="form-input" placeholder="Enter Zone/Containment Board" />
         </div>
         <div>
-          <label className="form-label">Block/Ward <span className="text-slate-400 font-normal normal-case">(optional)</span></label>
+          <label className="form-label">{t('reg.ad.block')} <span className="text-slate-400 font-normal normal-case">{t('reg.ad.optional')}</span></label>
           <input id="f-block" value={data.block_ward}
                  onChange={e => onChange('block_ward', e.target.value)}
                  className="form-input" placeholder="Enter Block/Ward" />
@@ -431,21 +434,21 @@ function Step3Address({ data, onChange, errors }) {
       {/* Lat/Lng — required by CPCB Step 2 */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
         <div>
-          <label className="form-label">Enter Lattitude *</label>
+          <label className="form-label">{t('reg.ad.lat')}</label>
           <input id="f-lat" type="number" step="0.0001" value={data.latitude}
                  onChange={e => onChange('latitude', e.target.value)}
                  className={`form-input ${errors.latitude ? 'error' : ''}`} placeholder="19.0760" />
           <FieldError msg={errors.latitude} />
         </div>
         <div>
-          <label className="form-label">Enter Longitude *</label>
+          <label className="form-label">{t('reg.ad.long')}</label>
           <input id="f-lng" type="number" step="0.0001" value={data.longitude}
                  onChange={e => onChange('longitude', e.target.value)}
                  className={`form-input ${errors.longitude ? 'error' : ''}`} placeholder="72.8777" />
           <FieldError msg={errors.longitude} />
         </div>
       </div>
-      <p className="text-xs text-slate-400 mt-2">💡 Find lat/lng: right-click your location on Google Maps → "What's here?"</p>
+      <p className="text-xs text-slate-400 mt-2">💡 {t('reg.ad.latHint')}</p>
     </div>
   );
 }
@@ -454,16 +457,17 @@ function Step3Address({ data, onChange, errors }) {
 //  CONSENT — declarations gate (before submit)
 // ────────────────────────────────────────────────────────────
 const CONSENT_ITEMS = [
-  { key: 'terms',   text: <>I have read and agree to the <strong>Terms &amp; Conditions</strong>, including the obligations under the <strong>Solid Waste Management Rules 2026</strong>.</> },
-  { key: 'declare', text: <>I declare that the information submitted is <strong>true and accurate</strong>. I understand that submitting false information is an offence under the <strong>Environment (Protection) Act, 1986</strong>.</> },
-  { key: 'scope',   text: <>I understand <strong>Indian Waste Portal</strong> is an independent consultant responsible <strong>only for my registration filing</strong> — not for any ongoing compliance after the ACK is issued — and is not affiliated with CPCB or GPCB.</> },
+  { key: 'terms',   tkey: 'reg.consent1' },
+  { key: 'declare', tkey: 'reg.consent2' },
+  { key: 'scope',   tkey: 'reg.consent3' },
 ];
 
 function ConsentGate({ consent, onChange }) {
+  const { t } = useI18n();
   return (
     <div className="mt-7 pt-6 border-t border-slate-100 space-y-3 animate-fade-in">
-      <p className="section-label mb-1">Declarations &amp; Consent</p>
-      {CONSENT_ITEMS.map(({ key, text }) => (
+      <p className="section-label mb-1">{t('reg.consentTitle')}</p>
+      {CONSENT_ITEMS.map(({ key, tkey }) => (
         <label key={key}
                className="flex gap-3 items-start p-3 rounded-xl cursor-pointer transition-colors"
                style={{
@@ -473,7 +477,7 @@ function ConsentGate({ consent, onChange }) {
           <input type="checkbox" checked={consent[key]} required
                  onChange={(e) => onChange(key, e.target.checked)}
                  className="mt-0.5 w-4 h-4 accent-emerald-600 shrink-0" />
-          <span className="text-xs text-slate-600 leading-relaxed">{text}</span>
+          <span className="text-xs text-slate-600 leading-relaxed">{t(tkey)}</span>
         </label>
       ))}
     </div>
@@ -484,13 +488,14 @@ function ConsentGate({ consent, onChange }) {
 //  SERVICE SELECTOR — one account, multiple services
 // ────────────────────────────────────────────────────────────
 function ServiceSelector({ service, onSelect }) {
+  const { t } = useI18n();
   const opts = [
-    { id: 'solid_waste', label: 'Solid Waste', desc: 'Bulk Waste Generator registration — SWM Rules 2026', icon: Recycle, live: true },
-    { id: 'ewaste',      label: 'E-Waste',     desc: 'EPR registration under the E-Waste Rules', icon: Battery, live: false },
+    { id: 'solid_waste', label: t('reg.svc.solid'), desc: t('reg.svc.solidDesc'), icon: Recycle, live: true },
+    { id: 'ewaste',      label: t('reg.svc.ewaste'), desc: t('reg.svc.ewasteDesc'), icon: Battery, live: false },
   ];
   return (
     <div className="mb-5">
-      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">Choose a service</p>
+      <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">{t('reg.svc.choose')}</p>
       <div className="grid grid-cols-2 gap-3">
         {opts.map(o => {
           const active = service === o.id;
@@ -501,7 +506,7 @@ function ServiceSelector({ service, onSelect }) {
                 <o.icon size={18} className={active ? 'text-ruby-700' : 'text-slate-500'} />
                 <span className="font-semibold text-slate-800 text-sm">{o.label}</span>
                 <span className={`ml-auto text-[10px] font-bold px-2 py-0.5 rounded-full ${o.live ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
-                  {o.live ? 'Available' : 'Coming soon'}
+                  {o.live ? t('reg.svc.available') : t('reg.svc.soon')}
                 </span>
               </div>
               <p className="text-xs text-slate-500 leading-snug">{o.desc}</p>
@@ -515,13 +520,14 @@ function ServiceSelector({ service, onSelect }) {
 
 // ── E-Waste: not live yet → waitlist capture ──────────────────
 function EWasteWaitlistCard() {
+  const { t } = useI18n();
   const [email, setEmail] = useState('');
   const [state, setState] = useState('idle');   // idle | loading | done | error
   const [msg, setMsg]     = useState('');
   const [code, setCode]   = useState('');
   async function join(e) {
     e.preventDefault();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setState('error'); setMsg('Enter a valid email'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setState('error'); setMsg(t('reg.ew.invalidEmail')); return; }
     setState('loading'); setMsg('');
     try {
       const res = await fetch('/api/ewaste-waitlist', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
@@ -535,11 +541,8 @@ function EWasteWaitlistCard() {
       <div className="w-14 h-14 rounded-2xl bg-amber-50 border border-amber-200 flex items-center justify-center mx-auto mb-4">
         <Battery size={26} className="text-amber-600" />
       </div>
-      <h2 className="font-display text-xl font-bold text-slate-800">E-Waste registration is launching soon</h2>
-      <p className="text-sm text-slate-500 mt-2 max-w-md mx-auto">
-        We're building EPR registration under the E-Waste (Management) Rules with the same one-login,
-        agent-filed experience. Join the waitlist for <strong className="text-amber-700">20% off</strong> at launch.
-      </p>
+      <h2 className="font-display text-xl font-bold text-slate-800">{t('reg.ew.h')}</h2>
+      <p className="text-sm text-slate-500 mt-2 max-w-md mx-auto">{t('reg.ew.p')}</p>
       {state === 'done' ? (
         <div className="mt-5 p-4 rounded-xl bg-emerald-50 border border-emerald-200 max-w-md mx-auto">
           <p className="text-sm font-semibold text-emerald-800 flex items-center justify-center gap-2"><CheckCircle size={16} /> {msg}</p>
@@ -549,12 +552,12 @@ function EWasteWaitlistCard() {
         <form onSubmit={join} className="mt-5 flex flex-col sm:flex-row gap-2 max-w-md mx-auto">
           <input type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@company.in" className="form-input flex-1" />
           <button type="submit" disabled={state === 'loading'} className="btn-ruby px-5 py-2.5 text-sm gap-2 disabled:opacity-50">
-            {state === 'loading' ? <><Loader2 size={15} className="animate-spin" />Joining…</> : 'Join waitlist'}
+            {state === 'loading' ? <><Loader2 size={15} className="animate-spin" />{t('reg.ew.joining')}</> : t('reg.ew.join')}
           </button>
         </form>
       )}
       {state === 'error' && <p className="text-xs text-red-600 mt-2">{msg}</p>}
-      <p className="text-xs text-slate-400 mt-4">Want Solid Waste instead? Switch the service above.</p>
+      <p className="text-xs text-slate-400 mt-4">{t('reg.ew.switch')}</p>
     </GlassCard>
   );
 }
@@ -569,6 +572,7 @@ function RegisterContent() {
 
   const [step,     setStep]     = useState(1);
   const [service,  setService]  = useState('solid_waste');   // solid_waste (live) | ewaste (waitlist)
+  const { t } = useI18n();
   const [loading,  setLoading]  = useState(false);
   const [apiError, setApiError] = useState('');
   const [errors,   setErrors]   = useState({});
@@ -607,12 +611,12 @@ function RegisterContent() {
   function validateCurrentStep() {
     let errs = {};
     if (step === 1) {
-      errs = validate.step1(account);
+      errs = validate.step1(account, t);
       if (!loggedIn && (!account.password || account.password.length < 8))
-        errs.password = 'Choose a password (at least 8 characters)';
+        errs.password = t('reg.v.password');
     }
-    if (step === 2) errs = validate.step2(category);
-    if (step === 3) errs = validate.step3(address);
+    if (step === 2) errs = validate.step2(category, t);
+    if (step === 3) errs = validate.step3(address, t);
     setErrors(errs);
     return Object.keys(errs).length === 0;
   }
@@ -681,12 +685,8 @@ function RegisterContent() {
   }
 
   const ICONS    = [User, Building2, MapPin];
-  const TITLES   = ['Account Details', 'Category & Sub-category', 'LGD Address'];
-  const SUBTITLES = [
-    'CPCB Step 1 — organisation & authorised person details',
-    'CPCB Step 2A — category & sub-category',
-    'CPCB Step 2B — LGD-linked administrative address',
-  ];
+  const TITLES   = [t('reg.t1'), t('reg.t2'), t('reg.t3')];
+  const SUBTITLES = [t('reg.s1'), t('reg.s2'), t('reg.s3')];
   const StepIcon = ICONS[step - 1];
 
   return (
@@ -700,7 +700,7 @@ function RegisterContent() {
               <span className="font-display font-bold text-sm">Indian Waste<span className="text-ruby-800">Portal</span></span>
             </div>
           </Link>
-          <span className="text-xs text-slate-400">CPCB SWM Registration — {planFromUrl} plan</span>
+          <span className="text-xs text-slate-400">{t('reg.chrome')} — {planFromUrl}</span>
         </div>
       </header>
 
@@ -745,21 +745,21 @@ function RegisterContent() {
           <div className="flex items-center justify-between mt-8 gap-4">
             <button type="button" onClick={back} disabled={step === 1 || loading}
                     className="btn-ghost flex items-center gap-2 py-2.5 px-5 text-sm disabled:opacity-40">
-              <ArrowLeft size={15} /> Back
+              <ArrowLeft size={15} /> {t('reg.back')}
             </button>
             <div className="flex items-center gap-2">
               <span className="text-xs text-slate-400">{step} / 3</span>
               {step < 3 ? (
                 <button type="button" id={`register-next-${step}`} onClick={next}
                         className="btn-ruby py-2.5 px-6 text-sm gap-2">
-                  Continue <ArrowRight size={15} />
+                  {t('reg.continue')} <ArrowRight size={15} />
                 </button>
               ) : (
                 <button type="button" id="register-submit" onClick={handleSubmit} disabled={loading || !allConsent}
                         className="btn-ruby py-2.5 px-6 text-sm gap-2">
                   {loading
-                    ? <><Loader2 size={15} className="animate-spin" />Submitting…</>
-                    : <><CheckCircle size={15} />Submit &amp; Continue to Filing</>
+                    ? <><Loader2 size={15} className="animate-spin" />{t('reg.submitting')}</>
+                    : <><CheckCircle size={15} />{t('reg.submit')}</>
                   }
                 </button>
               )}
@@ -768,14 +768,14 @@ function RegisterContent() {
 
           {step === 3 && !allConsent && (
             <p className="text-right text-xs text-slate-400 mt-2">
-              Please accept all three declarations above to submit.
+              {t('reg.consentReq')}
             </p>
           )}
         </GlassCard>
         </>)}
 
         <p className="text-center text-xs text-slate-400 mt-4">
-          🔒 Indian Waste Portal handles only your CPCB SWM 2026 registration filing. Not affiliated with any government body.
+          🔒 {t('reg.disclaimer')}
         </p>
       </main>
     </div>
