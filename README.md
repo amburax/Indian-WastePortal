@@ -1,190 +1,100 @@
-# Wasteebank 🏦♻️
-### GPCB/CPCB Bulk Waste Generator Compliance Middleware
+# Indian Waste Portal ♻️
+### CPCB SWM 2026 — Bulk Waste Generator registration, done for you
+
+Indian Waste Portal is a **consultant-assisted compliance service**. Businesses that
+qualify as **Bulk Waste Generators (BWG)** under India's **Solid Waste Management (SWM)
+Rules 2026** must register on the government **CPCB SWM portal**. This app collects their
+details, takes payment, and our consultant **files the registration on CPCB for them** —
+then records the official **Acknowledgement (ACK) number** back to the client.
+
+> ⚖️ We are an **independent consultant — not a government body** and not affiliated with
+> CPCB. The official record is always the CPCB ACK number (verifiable on swm.cpcb.gov.in).
+
+📖 **Full documentation: [PROJECT-GUIDE.md](PROJECT-GUIDE.md)** — architecture, how it all
+works, run/deploy instructions, and the go-live checklist. This README is the short version.
 
 ---
 
-## What is Wasteebank?
+## How it works
 
-Wasteebank is an end-to-end compliance middleware platform that automates mandatory **CPCB Solid Waste Management (SWM)** registration for Bulk Waste Generators in India.
+```
+Client registers → Admin sends invoice → Client pays →
+Consultant files on CPCB (with the client's data) → Client shares the CPCB OTP
+on their own status page → Consultant records the ACK → Client sees "Completed".
+```
 
-It handles:
-- Real-time BWG threshold eligibility checks
-- Multi-step registration with LGD-verified addresses
-- Secure Razorpay payment processing
-- **Autonomous Playwright agent** that files on the CPCB portal and retrieves the Acknowledgement Number
+**Filing has two modes:**
+- **Manual (default):** the consultant files on the CPCB portal by hand and presses
+  **Record ACK & Complete**. An **OTP relay** lets the client enter their CPCB OTP on their
+  own status page — we never read it aloud.
+- **Automated (opt-in):** a background **Playwright** robot files CPCB automatically. Enabled
+  only via `NEXT_PUBLIC_ENABLE_AUTO_FILING=true` + running the worker.
 
 ---
 
-## Tech Stack
+## Tech stack
 
 | Layer | Technology |
 |---|---|
-| Frontend | Next.js 14 (App Router) + React 18 |
-| Styling | TailwindCSS 3.4 + Custom Glassmorphism Design System |
-| Database | SQLite via `better-sqlite3` (local dev) |
-| Payments | Razorpay |
-| Automation | Playwright (Chromium headless) |
-| Deployment | ⏸️ Paused — Cloudflare Pages + D1 (planned) |
+| Frontend | Next.js 14 (App Router) + React 18 + Tailwind CSS |
+| i18n | English · हिंदी · ગુજરાતી |
+| Backend | Next.js API routes; scrypt + HMAC signed-cookie auth |
+| Database | SQLite (dev) · Turso/libSQL (serverless) · Cloudflare D1 (prod) — one code path |
+| Payments | Razorpay (single fee from an admin price book) |
+| Notifications | MSG91 (WhatsApp/SMS) · Resend (email) |
+| Automation (optional) | Playwright (Chromium) |
+| Hosting | Cloudflare Pages + D1 (planned) |
 
 ---
 
-## Project Structure
+## Quick start
 
-```
-d:\anti-swaste\
-├── app/
-│   ├── globals.css              ← Design system (glassmorphism, ruby tokens)
-│   ├── layout.jsx               ← Root layout with metadata
-│   ├── page.jsx                 ← Landing page
-│   ├── register/page.jsx        ← 4-step registration flow
-│   ├── portal/page.jsx          ← Freemium lock + payment gate
-│   ├── status/[token]/page.jsx  ← Live status tracker
-│   └── api/
-│       ├── register/route.js    ← POST: Create org account
-│       ├── metrics/route.js     ← POST: Save BWG metrics
-│       ├── address/route.js     ← POST: Save LGD address
-│       ├── payment/create-order/route.js   ← POST: Create Razorpay order
-│       ├── payment-webhook/route.js        ← POST: Verify payment + update status
-│       ├── ewaste-waitlist/route.js        ← POST: E-Waste email capture
-│       └── status/[token]/route.js        ← GET: Status lookup
-├── components/
-│   ├── GlassCard.jsx            ← Reusable glassmorphism panel
-│   ├── ThresholdCalculator.jsx  ← Real-time BWG threshold widget
-│   ├── EWasteModal.jsx          ← E-Waste waitlist modal
-│   ├── PricingSection.jsx       ← 3-tier pricing cards
-│   ├── StepProgress.jsx         ← Multi-step form progress
-│   └── PaymentButton.jsx        ← Razorpay checkout wrapper
-├── lib/
-│   ├── db.js                    ← SQLite singleton + prepared statements
-│   └── schema.sql               ← Full DB schema (5 tables + indexes + triggers)
-├── scripts/
-│   ├── agent.js                 ← Playwright CPCB automation agent
-│   └── init-db.js               ← DB initializer
-├── .env.local                   ← Environment variables
-├── next.config.js
-├── tailwind.config.js
-└── package.json
-```
-
----
-
-## Quick Start
-
-### 1. Install dependencies
 ```bash
 npm install
+cp .env.example .env.local          # then fill in the values
+
+npm run init-db                     # create the local SQLite DB
+node --env-file=.env.local scripts/migrate-accounts.mjs
+node --env-file=.env.local scripts/migrate-pricing.mjs
+node --env-file=.env.local scripts/migrate-otp-relay.mjs
+
+npm run dev                         # → http://localhost:3000
 ```
 
-### 2. Install Playwright browsers
-```bash
-npx playwright install chromium
-```
+- Admin console: `http://localhost:3000/admin/login` (uses `ADMIN_EMAIL` / `ADMIN_PASSWORD`).
+- ⚠️ **Don't run `npm run build` while `npm run dev` is running** — they share `.next` and it
+  corrupts the dev server. Stop dev first.
 
-### 3. Configure environment
-```bash
-# Edit .env.local and fill in:
-# RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET, RAZORPAY_WEBHOOK_SECRET
-```
-
-### 4. Initialize the database
-```bash
-npm run init-db
-```
-
-### 5. Start development server
-```bash
-npm run dev
-```
-
-Open [http://localhost:3000](http://localhost:3000)
+**Test the whole flow in dev** (no real payment, no real portal): register → admin
+**Send Invoice** → **Mark Balance Paid** → **Record ACK & Complete**. For the automated path,
+set `NEXT_PUBLIC_ENABLE_AUTO_FILING=true` and run `npm run worker:demo`.
 
 ---
 
-## BWG Thresholds (CPCB SWM Rules 2016)
+## Key features
+- Multi-step registration: account → category + waste metrics → **LGD-linked address**
+  (real cascading State → District → Sub-district → Village/pincode picker).
+- Unified **client accounts** — one login manages every registration and future services.
+- **Admin console** — submissions, invoicing, price book, Record-ACK, and the OTP relay.
+- **E-Waste waitlist** (future service, same account).
+- Honest, translated marketing site with live SWM-2026 deadline framing.
 
-Meeting **any one** of these thresholds triggers mandatory Bulk Waste Generator registration:
+---
 
+## BWG thresholds (meeting **any one** triggers registration)
 | Metric | Threshold |
 |---|---|
-| Floor Area | ≥ 20,000 sq.m |
-| Waste Generation | ≥ 100 kg/day |
-| Water Consumption | ≥ 40,000 L/day |
+| Floor area | ≥ 20,000 sq.m |
+| Waste generation | ≥ 100 kg/day |
+| Water consumption | ≥ 40,000 L/day |
 
 ---
 
-## Pricing
-
-| Plan | Target | Fee |
-|---|---|---|
-| Standard | Residential Complexes | ₹2,999 |
-| Professional | Commercial / Institutional | ₹7,499 |
-| Enterprise | Multi-site Corporations | ₹24,999/site |
+## Deployment & go-live
+See **[PROJECT-GUIDE.md](PROJECT-GUIDE.md)** §8–9 for the Cloudflare Pages + D1 path and the
+full go-live checklist (production DB + pincode seed, Razorpay keys, MSG91/Resend keys,
+domain, and legal review). A Vercel + Turso path is in `DEPLOY-VERCEL.md`.
 
 ---
 
-## Running the Automation Agent
-
-After a payment is verified (status = `Paid`), run:
-
-```bash
-node scripts/agent.js
-```
-
-The agent will:
-1. Find all `Paid` orgs in the database
-2. Open a headless Chromium browser
-3. Navigate to `https://swm.cpcb.gov.in`
-4. Fill the registration form with org data
-5. Extract the Acknowledgement Number
-6. Update DB status → `Completed`
-
-Screenshots are saved to `./agent-screenshots/` for debugging.
-
-### Demo Mode (testing without real portal)
-```bash
-AGENT_DEMO_MODE=true node scripts/agent.js
-```
-
-This generates a synthetic ACK number without hitting the real portal.
-
----
-
-## Database Schema
-
-Five tables:
-- `organizations` — core org data, status, payment token, ACK number
-- `metrics` — BWG threshold values (floor area, waste, water)
-- `lgd_addresses` — LGD-verified state/district/city
-- `payments` — Razorpay order & payment records
-- `ewaste_waitlist` — E-Waste early access signups
-- `agent_logs` — automation audit trail with screenshots
-
----
-
-## ⏸️ Deployment (Paused)
-
-Deployment configuration for **Cloudflare Pages + D1** is pending.
-
-When ready:
-1. Replace `better-sqlite3` with D1 binding in `lib/db.js`
-2. Create `wrangler.toml` with D1 database config
-3. Run `wrangler d1 execute wasteebank-db --file=lib/schema.sql`
-4. Deploy: `wrangler pages deploy`
-
----
-
-## Environment Variables
-
-| Variable | Description |
-|---|---|
-| `DATABASE_PATH` | Path to SQLite file (default: `./wasteebank.db`) |
-| `RAZORPAY_KEY_ID` | Razorpay API Key ID |
-| `RAZORPAY_KEY_SECRET` | Razorpay API Key Secret |
-| `RAZORPAY_WEBHOOK_SECRET` | Razorpay Webhook signing secret |
-| `NEXT_PUBLIC_RAZORPAY_KEY_ID` | Public key for frontend checkout |
-| `CPCB_PORTAL_URL` | CPCB SWM portal URL |
-| `AGENT_DEMO_MODE` | Set to `true` for synthetic ACK generation |
-
----
-
-© 2024 Wasteebank. Not affiliated with GPCB or CPCB.
+© 2026 Indian Waste Portal — an independent compliance consultant. Not affiliated with CPCB or any government body.
