@@ -20,14 +20,27 @@ import { useI18n } from '../lib/i18n';
 
 // ── Top Urgency Banner ────────────────────────────────────
 function TopAlertBanner() {
+  // Real days to the next annual-return deadline (30 June), computed client-side
+  // to stay accurate — no hardcoded/stale number.
+  const [days, setDays] = useState(null);
+  useEffect(() => {
+    const now = new Date();
+    let due = new Date(now.getFullYear(), 5, 30);
+    if (due < now) due = new Date(now.getFullYear() + 1, 5, 30);
+    setDays(Math.max(0, Math.ceil((due - now) / 86_400_000)));
+  }, []);
   return (
     <div className="w-full bg-[#831818] text-white/90 text-xs font-bold py-2.5 px-4 flex items-center justify-center gap-3 relative z-50 shadow-md">
       <div className="w-2 h-2 bg-ruby-400 rounded-full animate-pulse shrink-0" />
       <span className="text-center sm:text-left">
         SWM Rules 2026 are <span className="text-white">IN FORCE</span> — unregistered Bulk Waste Generators risk Environmental Compensation
       </span>
-      <span className="hidden lg:inline mx-1 opacity-40">|</span>
-      <span className="hidden lg:inline text-ruby-200">Next annual return in 362 days</span>
+      {days != null && (
+        <>
+          <span className="hidden lg:inline mx-1 opacity-40">|</span>
+          <span className="hidden lg:inline text-ruby-200">Annual return due in {days} days (30 June)</span>
+        </>
+      )}
       <Link href="/register" className="hidden sm:inline-flex ml-2 bg-white text-ruby-900 px-4 py-1.5 rounded-full hover:bg-ruby-50 transition-colors shadow-sm">
         Register now
       </Link>
@@ -103,39 +116,24 @@ function Header() {
 
 // ── Ticker Tape ──────────────────────────────────────────
 function TickerTape() {
+  // Honest, factual ticker — no fabricated counts or "live activity".
+  const items = [
+    'SWM Rules 2026 · GSR 388(E) — now in force',
+    'Four streams: Wet · Dry · Sanitary · Special-care',
+    'LGD-verified addresses · exact CPCB portal fields',
+    'Your OTP stays on your device — we never read it',
+    'Filed on the official CPCB SWM portal',
+    'Urban & Rural — every ULB, Panchayat & Gram Panchayat',
+  ];
   return (
     <div className="w-full bg-[#16654a] text-white/90 text-[11px] font-semibold py-2.5 overflow-hidden flex items-center shadow-inner relative z-20">
       <div className="animate-marquee whitespace-nowrap flex gap-8">
-        <span className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-          Logistics hub · Bhiwandi — eligibility confirmed
-        </span>
-        <span className="opacity-40">•</span>
-        <span className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-          <strong className="text-white">38 businesses</strong> registered this week
-        </span>
-        <span className="opacity-40">•</span>
-        <span className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-          Textile park · Surat — ACK issued 12 min ago
-        </span>
-        <span className="opacity-40">•</span>
-        <span className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-          Hospital campus · Pune — filing in review
-        </span>
-        {/* Duplicate for seamless loop */}
-        <span className="opacity-40">•</span>
-        <span className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-          Logistics hub · Bhiwandi — eligibility confirmed
-        </span>
-        <span className="opacity-40">•</span>
-        <span className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
-          <strong className="text-white">38 businesses</strong> registered this week
-        </span>
+        {[...items, ...items].map((s, i) => (
+          <span key={i} className="flex items-center gap-2 shrink-0">
+            <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+            {s}
+          </span>
+        ))}
       </div>
     </div>
   );

@@ -36,12 +36,12 @@ const SLIDES = [
   {
     id: 'legal',
     image: '/mosaic/compost.webp',
-    badge: 'RULE 17 • PENALTIES',
-    headline: 'Unregistered generators face daily compensation.',
+    badge: 'SWM 2026 • NON-COMPLIANCE',
+    headline: 'Non-compliance can trigger Environmental Compensation.',
     metrics: [
-      { value: 'Auto', unit: 'Audit', label: 'Centralised Portal' },
-      { value: 'GST', unit: 'Sync', label: 'Cross-verification' },
-      { value: 'Daily', unit: 'Fines', label: 'Non-compliance' },
+      { value: 'CPCB', unit: 'Portal', label: 'Official filing' },
+      { value: 'LGD', unit: 'Linked', label: 'Address verified' },
+      { value: 'EC', unit: 'Penalty', label: 'For non-compliance' },
     ],
     cta: 'Protect your organisation today',
     ctaLink: '/register',

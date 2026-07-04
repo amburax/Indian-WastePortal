@@ -36,8 +36,8 @@ export default async function CertificatePage({ params }) {
             <div className="flex justify-center mb-5 mt-4">
               <ShieldCheck size={64} className="text-emerald-400 drop-shadow-md" />
             </div>
-            <h1 className="text-4xl md:text-5xl font-serif font-bold uppercase tracking-widest text-emerald-50 mb-3 drop-shadow-sm">Registration Certificate</h1>
-            <p className="text-emerald-200 text-lg uppercase tracking-[0.2em] font-medium">Indian Waste Portal Compliance</p>
+            <h1 className="text-4xl md:text-5xl font-serif font-bold uppercase tracking-widest text-emerald-50 mb-3 drop-shadow-sm">Filing Acknowledgement</h1>
+            <p className="text-emerald-200 text-lg uppercase tracking-[0.2em] font-medium">Indian Waste Portal · CPCB SWM 2026 filing record</p>
           </div>
         </div>
 
@@ -45,7 +45,7 @@ export default async function CertificatePage({ params }) {
         <div className="px-8 md:px-16 py-12">
           
           <div className="text-center mb-12">
-            <p className="text-gray-400 uppercase tracking-[0.25em] text-sm font-semibold mb-4">This is to certify that</p>
+            <p className="text-gray-400 uppercase tracking-[0.25em] text-sm font-semibold mb-4">This confirms Indian Waste Portal filed the CPCB SWM registration for</p>
             <h2 className="text-3xl md:text-4xl font-bold text-gray-900 leading-tight mb-3">{org.org_name}</h2>
             <p className="text-lg text-gray-600 font-medium">Represented by <span className="text-gray-800 font-bold">{org.auth_person}</span></p>
           </div>
@@ -98,9 +98,13 @@ export default async function CertificatePage({ params }) {
             <div className="bg-emerald-50 text-emerald-500 p-3 rounded-full mb-5">
               <CheckCircle2 size={40} />
             </div>
-            <p className="text-xl font-bold text-gray-900 mb-1">Valid Registration</p>
-            <p className="text-gray-500 font-medium uppercase tracking-widest text-sm">Compliance Cycle 2024-2025</p>
-            <p className="text-xs text-gray-400 mt-8 font-mono">Issued via Indian Waste Portal on {new Date().toLocaleDateString('en-IN')}</p>
+            <p className="text-xl font-bold text-gray-900 mb-1">Filing Submitted to CPCB</p>
+            <p className="text-gray-500 font-medium uppercase tracking-widest text-sm">{org.portal_status || 'Pending Verification at ULB'}</p>
+            <p className="text-[11px] text-gray-400 mt-8 leading-relaxed max-w-xl mx-auto">
+              This is a filing record issued by Indian Waste Portal — an independent consultant, <strong>not a government body</strong> and not affiliated with CPCB.
+              The official acknowledgement is CPCB No. <span className="font-mono">{org.ack_number}</span>, verifiable at swm.cpcb.gov.in.
+              Generated on {new Date().toLocaleDateString('en-IN')}.
+            </p>
           </div>
 
         </div>
