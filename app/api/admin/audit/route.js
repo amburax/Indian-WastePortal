@@ -26,7 +26,7 @@ export async function GET(request) {
       FROM audit_log a
       LEFT JOIN organizations o ON o.id = a.org_id
       ${where}
-      ORDER BY a.created_at DESC, a.rowid DESC
+      ORDER BY a.created_at DESC
       LIMIT ? OFFSET ?
     `, params);
 

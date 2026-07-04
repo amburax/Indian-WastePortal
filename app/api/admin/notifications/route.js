@@ -24,7 +24,7 @@ export async function GET(request) {
       FROM notifications n
       LEFT JOIN organizations o ON o.id = n.org_id
       ${where}
-      ORDER BY n.created_at DESC, n.rowid DESC
+      ORDER BY n.created_at DESC
       LIMIT ? OFFSET ?
     `, params);
 
