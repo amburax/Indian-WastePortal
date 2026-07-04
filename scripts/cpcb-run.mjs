@@ -3,9 +3,9 @@
  * never closes (the form is a single-page React flow with no server-side draft).
  * Human-in-the-loop via files under .cpcb/:
  *   entity.json  — Step 1 identity        step2.json — Step 2 category+address
- *   otp.txt      — SMS OTP (user)         captcha.txt — captcha solve (Claude)
- *   go2/go3/go4.txt — review gates: I inspect the screenshot, then create the
- *                     file to let the run proceed past that step.
+ *   otp.txt      — SMS OTP (user)         captcha.txt — captcha solve (operator)
+ *   go2/go3/go4.txt — review gates: the operator inspects the screenshot, then
+ *                     creates the file to let the run proceed past that step.
  * Screens land in .cpcb/shots, field dumps in .cpcb/*-fields.txt.
  */
 import { chromium } from 'playwright';

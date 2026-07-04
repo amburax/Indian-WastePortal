@@ -1,6 +1,6 @@
 /**
  * CPCB live filing driver — Step 1 (Account Creation) incl. OTP + captcha.
- * Claude solves the captcha (reads .cpcb/shots/captcha-*.png -> writes .cpcb/captcha.txt);
+ * The operator solves the captcha (reads .cpcb/shots/captcha-*.png -> writes .cpcb/captcha.txt);
  * the user relays the SMS OTP (-> .cpcb/otp.txt). Session persists in .cpcb/session.
  * Entity from .cpcb/entity.json { org_name, auth_person, email, mobile }.
  */

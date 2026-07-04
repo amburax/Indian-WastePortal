@@ -2,7 +2,7 @@
  * CPCB portal RECON — opens a visible browser at swm.cpcb.gov.in so you can walk
  * the real 5-step form manually. At each step, press ENTER in this terminal and
  * it captures every field (name/id/placeholder/label) + a screenshot. Paste the
- * resulting cpcb-recon.txt back to Claude to calibrate the filing agent.
+ * resulting cpcb-recon.txt is used to calibrate the filing agent.
  *
  * Run (in YOUR terminal, needs internet + Edge/Chrome):
  *   node scripts/cpcb-recon.mjs
