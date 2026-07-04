@@ -38,6 +38,7 @@ export default function AdminDashboard() {
   const [query, setQuery]     = useState('');
   const [dq, setDq]           = useState('');
   const [page, setPage]       = useState(0);
+  const [exportState, setExportState] = useState('All');
   const [selId, setSelId]     = useState(null);
   const [detail, setDetail]   = useState(null);
   const [detailLoading, setDL] = useState(false);
@@ -164,7 +165,32 @@ export default function AdminDashboard() {
               <a href="/admin/audit" className="px-3 py-1.5 rounded-lg hover:bg-gray-100 text-gray-600">Audit</a>
               <a href="/admin/users" className="px-3 py-1.5 rounded-lg hover:bg-gray-100 text-gray-600">Users</a>
             </nav>
-            <a href="/api/admin/export" className="text-sm px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-50">Export CSV</a>
+            <select value={exportState} onChange={e => setExportState(e.target.value)} className="text-sm px-2 py-1.5 rounded-lg border border-gray-300 bg-white outline-none">
+              <option value="All">All States (Export)</option>
+              <option value="Andhra Pradesh">Andhra Pradesh</option>
+              <option value="Assam">Assam</option>
+              <option value="Bihar">Bihar</option>
+              <option value="Chhattisgarh">Chhattisgarh</option>
+              <option value="Delhi">Delhi</option>
+              <option value="Gujarat">Gujarat</option>
+              <option value="Haryana">Haryana</option>
+              <option value="Jharkhand">Jharkhand</option>
+              <option value="Karnataka">Karnataka</option>
+              <option value="Kerala">Kerala</option>
+              <option value="Madhya Pradesh">Madhya Pradesh</option>
+              <option value="Maharashtra">Maharashtra</option>
+              <option value="Odisha">Odisha</option>
+              <option value="Punjab">Punjab</option>
+              <option value="Rajasthan">Rajasthan</option>
+              <option value="Tamil Nadu">Tamil Nadu</option>
+              <option value="Telangana">Telangana</option>
+              <option value="Uttar Pradesh">Uttar Pradesh</option>
+              <option value="West Bengal">West Bengal</option>
+            </select>
+            <a href={`/api/admin/export?state=${encodeURIComponent(exportState)}`} className="text-sm px-3 py-1.5 rounded-lg border border-gray-300 bg-white text-gray-800 hover:bg-gray-50 flex items-center gap-1">
+              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+              Export
+            </a>
             <button onClick={() => { loadStats(); loadSubs(); }} className="text-sm px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-50">Refresh</button>
             <button onClick={logout} className="text-sm px-3 py-1.5 rounded-lg border border-gray-300 hover:bg-gray-50 text-red-600">Sign out</button>
           </div>

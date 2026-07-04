@@ -227,3 +227,19 @@ CREATE TRIGGER IF NOT EXISTS trg_metrics_updated_at
   BEGIN
     UPDATE metrics SET updated_at = datetime('now') WHERE id = NEW.id;
   END;
+
+-- ── Pincode Directory (Pan-India Master Data) ─────────────────
+CREATE TABLE IF NOT EXISTS pincode_directory (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  statename TEXT NOT NULL,
+  district TEXT NOT NULL,
+  divisionname TEXT NOT NULL,
+  officename TEXT NOT NULL,
+  pincode TEXT NOT NULL,
+  latitude TEXT,
+  longitude TEXT
+);
+
+CREATE INDEX IF NOT EXISTS idx_pincode_state ON pincode_directory(statename);
+CREATE INDEX IF NOT EXISTS idx_pincode_dist  ON pincode_directory(district);
+CREATE INDEX IF NOT EXISTS idx_pincode_div   ON pincode_directory(divisionname);

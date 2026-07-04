@@ -50,14 +50,20 @@ module.exports = {
         'tile-active': '0 0 0 2px rgba(22,101,74,0.30), 0 20px 60px rgba(14,59,46,0.14)',
       },
       animation: {
+        'marquee': 'marquee 25s linear infinite',
         'pulse-ruby': 'pulseRuby 2.4s ease-in-out infinite',
         'float': 'float 6s ease-in-out infinite',
         'shimmer': 'shimmer 2s linear infinite',
         'fade-in': 'fadeIn 0.4s ease-out',
+        'fade-in-up': 'fadeInUp 0.6s ease-out',
         'slide-up': 'slideUp 0.5s cubic-bezier(0.16,1,0.3,1)',
         'scale-in': 'scaleIn 0.3s cubic-bezier(0.16,1,0.3,1)',
       },
       keyframes: {
+        marquee: {
+          '0%': { transform: 'translateX(0%)' },
+          '100%': { transform: 'translateX(-50%)' },
+        },
         pulseRuby: {
           '0%, 100%': { boxShadow: '0 0 20px rgba(22,101,74,0.28), 0 0 60px rgba(22,101,74,0.10)' },
           '50%':      { boxShadow: '0 0 40px rgba(22,101,74,0.45), 0 0 80px rgba(22,101,74,0.22)' },
@@ -73,6 +79,10 @@ module.exports = {
         fadeIn: {
           from: { opacity: 0 },
           to:   { opacity: 1 },
+        },
+        fadeInUp: {
+          from: { opacity: 0, transform: 'translateY(20px)' },
+          to:   { opacity: 1, transform: 'translateY(0)' },
         },
         slideUp: {
           from: { opacity: 0, transform: 'translateY(24px)' },

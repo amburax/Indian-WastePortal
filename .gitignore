@@ -30,6 +30,12 @@ agent-screenshots/
 cpcb-*.png
 cpcb-*.txt
 
+# ── Raw seed data (large; NOT web assets — seeded into the DB, not served) ──
+public/mosaic/*.csv
+public/mosaic/*.xlsx
+*.csv
+*.xlsx
+
 # ── Playwright / test artifacts ──
 playwright-report/
 test-results/

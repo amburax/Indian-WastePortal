@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import GlassCard          from '../../components/GlassCard';
 import StepProgress       from '../../components/StepProgress';
+import { INDIAN_STATES } from '../../lib/lgdData';
 
 // ── Sub-categories from WasteComply_CRM (exact CPCB portal values) ─
 const SUBCATS = {
@@ -55,43 +56,6 @@ const SUBCATS = {
     'Other'
   ],
 };
-
-// ── LGD Indian States ─────────────────────────────────────────
-const INDIAN_STATES = [
-  { code: 'AN', name: 'Andaman and Nicobar Islands' },
-  { code: 'AP', name: 'Andhra Pradesh' },
-  { code: 'AR', name: 'Arunachal Pradesh' },
-  { code: 'AS', name: 'Assam' },
-  { code: 'BR', name: 'Bihar' },
-  { code: 'CH', name: 'Chandigarh' },
-  { code: 'CG', name: 'Chhattisgarh' },
-  { code: 'DL', name: 'Delhi' },
-  { code: 'GA', name: 'Goa' },
-  { code: 'GJ', name: 'Gujarat' },
-  { code: 'HR', name: 'Haryana' },
-  { code: 'HP', name: 'Himachal Pradesh' },
-  { code: 'JK', name: 'Jammu and Kashmir' },
-  { code: 'JH', name: 'Jharkhand' },
-  { code: 'KA', name: 'Karnataka' },
-  { code: 'KL', name: 'Kerala' },
-  { code: 'MP', name: 'Madhya Pradesh' },
-  { code: 'MH', name: 'Maharashtra' },
-  { code: 'MN', name: 'Manipur' },
-  { code: 'ML', name: 'Meghalaya' },
-  { code: 'MZ', name: 'Mizoram' },
-  { code: 'NL', name: 'Nagaland' },
-  { code: 'OD', name: 'Odisha' },
-  { code: 'PY', name: 'Puducherry' },
-  { code: 'PB', name: 'Punjab' },
-  { code: 'RJ', name: 'Rajasthan' },
-  { code: 'SK', name: 'Sikkim' },
-  { code: 'TN', name: 'Tamil Nadu' },
-  { code: 'TS', name: 'Telangana' },
-  { code: 'TR', name: 'Tripura' },
-  { code: 'UP', name: 'Uttar Pradesh' },
-  { code: 'UK', name: 'Uttarakhand' },
-  { code: 'WB', name: 'West Bengal' },
-];
 
 // ── Validation ────────────────────────────────────────────────
 const validate = {
@@ -303,6 +267,40 @@ function Step2Category({ data, onChange, errors }) {
 //  STEP 3: LGD Address (CPCB Step 2B — full field set)
 // ────────────────────────────────────────────────────────────
 function Step3Address({ data, onChange, errors }) {
+  const [districts, setDistricts] = useState([]);
+  const [subDistricts, setSubDistricts] = useState([]);
+  const [villages, setVillages] = useState([]);
+
+  // Fetch Districts when State changes
+  useEffect(() => {
+    if (!data.state_name) { setDistricts([]); return; }
+    fetch(`/api/lgd?type=districts&state=${encodeURIComponent(data.state_name.toUpperCase())}`)
+      .then(r => r.json()).then(setDistricts).catch(() => setDistricts([]));
+  }, [data.state_name]);
+
+  // Fetch SubDistricts when District changes
+  useEffect(() => {
+    if (!data.state_name || !data.district_name) { setSubDistricts([]); return; }
+    fetch(`/api/lgd?type=subdistricts&state=${encodeURIComponent(data.state_name.toUpperCase())}&district=${encodeURIComponent(data.district_name)}`)
+      .then(r => r.json()).then(setSubDistricts).catch(() => setSubDistricts([]));
+  }, [data.state_name, data.district_name]);
+
+  // Fetch Villages when SubDistrict changes
+  useEffect(() => {
+    if (!data.state_name || !data.district_name || !data.sub_district) { setVillages([]); return; }
+    fetch(`/api/lgd?type=villages&state=${encodeURIComponent(data.state_name.toUpperCase())}&district=${encodeURIComponent(data.district_name)}&subdistrict=${encodeURIComponent(data.sub_district)}`)
+      .then(r => r.json()).then(setVillages).catch(() => setVillages([]));
+  }, [data.state_name, data.district_name, data.sub_district]);
+
+  // Handle village selection (auto-fill pincode)
+  const handleVillageChange = (val) => {
+    onChange('city_name', val);
+    const selected = villages.find(v => v.name === val);
+    if (selected && selected.pincode) {
+      onChange('pincode', selected.pincode);
+    }
+  };
+
   return (
     <div className="space-y-4 animate-slide-up">
       <div className="p-3 rounded-xl text-xs"
@@ -319,6 +317,9 @@ function Step3Address({ data, onChange, errors }) {
                   onChange={e => {
                     onChange('state_code', e.target.value);
                     onChange('state_name', INDIAN_STATES.find(s => s.code === e.target.value)?.name || '');
+                    onChange('district_name', '');
+                    onChange('sub_district', '');
+                    onChange('city_name', '');
                   }}
                   className={`form-input ${errors.state_code ? 'error' : ''}`}>
             <option value="">Select state…</option>
@@ -328,10 +329,19 @@ function Step3Address({ data, onChange, errors }) {
         </div>
         <div>
           <label className="form-label">District *</label>
-          <input id="f-dist" value={data.district_name}
-                 onChange={e => onChange('district_name', e.target.value)}
+          <input id="f-dist" list="dist-list" value={data.district_name}
+                 onChange={e => {
+                   onChange('district_name', e.target.value);
+                   onChange('sub_district', '');
+                   onChange('city_name', '');
+                 }}
                  className={`form-input ${errors.district_name ? 'error' : ''}`}
-                 placeholder="Ahmedabad" />
+                 placeholder="Type or select District..." />
+          {districts && districts.length > 0 && (
+            <datalist id="dist-list">
+              {districts.map(d => <option key={d} value={d} />)}
+            </datalist>
+          )}
           <FieldError msg={errors.district_name} />
         </div>
       </div>
@@ -340,18 +350,31 @@ function Step3Address({ data, onChange, errors }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="form-label">Sub-District / Tehsil / Taluka *</label>
-          <input id="f-taluka" value={data.sub_district}
-                 onChange={e => onChange('sub_district', e.target.value)}
+          <input id="f-taluka" list="taluka-list" value={data.sub_district}
+                 onChange={e => {
+                   onChange('sub_district', e.target.value);
+                   onChange('city_name', '');
+                 }}
                  className={`form-input ${errors.sub_district ? 'error' : ''}`}
-                 placeholder="Bopal Taluka" />
+                 placeholder="Type or select Sub-District..." />
+          {subDistricts && subDistricts.length > 0 && (
+            <datalist id="taluka-list">
+              {subDistricts.map(s => <option key={s} value={s} />)}
+            </datalist>
+          )}
           <FieldError msg={errors.sub_district} />
         </div>
         <div>
           <label className="form-label">City / Village Name *</label>
-          <input id="f-city" value={data.city_name}
-                 onChange={e => onChange('city_name', e.target.value)}
+          <input id="f-city" list="city-list" value={data.city_name}
+                 onChange={e => handleVillageChange(e.target.value)}
                  className={`form-input ${errors.city_name ? 'error' : ''}`}
-                 placeholder="Bopal" />
+                 placeholder="Type or select City/Village..." />
+          {villages && villages.length > 0 && (
+            <datalist id="city-list">
+              {villages.map(v => <option key={v.name} value={v.name} />)}
+            </datalist>
+          )}
           <FieldError msg={errors.city_name} />
         </div>
       </div>

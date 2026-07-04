@@ -12,33 +12,25 @@ import {
 import PricingSection from '../components/PricingSection';
 import EWasteModal   from '../components/EWasteModal';
 import GlassCard     from '../components/GlassCard';
-import HeroSlider    from '../components/HeroSlider';
 import PreScreenWizard from '../components/PreScreenWizard';
 import CapabilityMosaic from '../components/CapabilityMosaic';
 import LanguageSwitcher from '../components/LanguageSwitcher';
+import FullscreenHero from '../components/FullscreenHero';
 import { useI18n } from '../lib/i18n';
 
-// ── Urgency banner: live deadline countdown before 1 Apr 2026,
-//    flips to an "in force / penalties" red alert once the date has passed. ──
-function UrgencyBanner() {
-  const { t } = useI18n();
-  const DEADLINE = new Date('2026-04-01T00:00:00+05:30').getTime();
-  const [now, setNow] = useState(null);
-  useEffect(() => {
-    setNow(Date.now());
-    const id = setInterval(() => setNow(Date.now()), 60_000);
-    return () => clearInterval(id);
-  }, []);
-  if (now === null) return null;            // avoid SSR/CSR hydration mismatch
-  const days = Math.ceil((DEADLINE - now) / 86_400_000);
-  const past = days <= 0;
+// ── Top Urgency Banner ────────────────────────────────────
+function TopAlertBanner() {
   return (
-    <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-bold mb-5 shadow-sm animate-fade-in ${
-      past ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-amber-50 text-amber-800 border border-amber-200'}`}>
-      <AlertTriangle size={15} className={past ? 'text-red-600 animate-pulse' : 'text-amber-600'} />
-      {past
-        ? <span>{t('hero.inforceAlert')}</span>
-        : <span>{t('hero.countPre')} <span className="tabular-nums font-extrabold">{days}</span> {t('hero.countLabel')}</span>}
+    <div className="w-full bg-[#831818] text-white/90 text-xs font-bold py-2.5 px-4 flex items-center justify-center gap-3 relative z-50 shadow-md">
+      <div className="w-2 h-2 bg-ruby-400 rounded-full animate-pulse shrink-0" />
+      <span className="text-center sm:text-left">
+        SWM Rules 2026 are <span className="text-white">IN FORCE</span> — unregistered Bulk Waste Generators risk Environmental Compensation
+      </span>
+      <span className="hidden lg:inline mx-1 opacity-40">|</span>
+      <span className="hidden lg:inline text-ruby-200">Next annual return in 362 days</span>
+      <Link href="/register" className="hidden sm:inline-flex ml-2 bg-white text-ruby-900 px-4 py-1.5 rounded-full hover:bg-ruby-50 transition-colors shadow-sm">
+        Register now
+      </Link>
     </div>
   );
 }
@@ -56,46 +48,52 @@ function Header() {
     { href: '#pricing', label: t('nav.pricing') },
   ];
   return (
-    <header className="sticky top-0 z-40 glass border-b border-white/50">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+    <header className="absolute top-[44px] w-full z-40 bg-transparent">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center"
-               style={{ background: 'linear-gradient(135deg, #16654a, #0e3b2e)' }}>
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-white/10 backdrop-blur-md border border-white/20">
             <ShieldCheck size={16} className="text-white" />
           </div>
-          <span className="font-display text-xl font-bold text-slate-800 tracking-tight">
-            Indian Waste<span className="text-ruby-800">Portal</span>
+          <span className="font-display text-xl font-bold text-white tracking-tight drop-shadow-md">
+            Indian Waste<span className="text-[#c8a24b]">Portal</span>
           </span>
         </div>
 
         {/* Nav (desktop) */}
-        <nav className="hidden md:flex items-center gap-6 text-sm font-medium text-slate-500">
-          {NAV.map(n => <a key={n.href} href={n.href} className="hover:text-slate-800 transition-colors">{n.label}</a>)}
+        <nav className="hidden md:flex items-center gap-7 text-sm font-semibold text-white/90 drop-shadow-sm">
+          {NAV.map(n => <a key={n.href} href={n.href} className="hover:text-white transition-colors">{n.label}</a>)}
         </nav>
 
         {/* CTA */}
-        <div className="flex items-center gap-3">
-          <LanguageSwitcher className="hidden sm:inline-flex" />
+        <div className="flex items-center gap-4">
+          <LanguageSwitcher className="hidden sm:inline-flex text-white border-white/20 hover:bg-white/10" />
           {authed
-            ? <Link href="/dashboard" id="header-register-btn" className="btn-ruby text-sm px-4 sm:px-5 py-2.5 rounded-xl">My Dashboard</Link>
-            : <Link href="/login" className="btn-ruby text-sm px-4 sm:px-5 py-2.5 rounded-xl">Login</Link>}
+            ? <Link href="/dashboard" id="header-register-btn" className="btn-brass text-sm font-bold px-4 sm:px-6 py-2.5 rounded-xl shadow-lg">My Dashboard</Link>
+            : (
+              <>
+                <Link href="/login" className="text-white text-sm font-bold hover:text-white/80 drop-shadow-md hidden sm:block">Login</Link>
+                <Link href="/register" className="bg-[#fde08b] text-slate-900 text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-[#c8a24b] transition-colors shadow-lg">Start registration</Link>
+              </>
+            )}
           <button onClick={() => setMenuOpen(v => !v)} aria-label="Menu"
-            className="md:hidden w-9 h-9 rounded-lg flex items-center justify-center text-slate-600 hover:bg-slate-100">
-            {menuOpen ? <X size={18} /> : <Menu size={18} />}
+            className="md:hidden w-10 h-10 rounded-xl flex items-center justify-center text-white bg-white/10 backdrop-blur-md border border-white/20">
+            {menuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
         </div>
       </div>
 
       {/* Mobile dropdown */}
       {menuOpen && (
-        <div className="md:hidden border-t border-white/50 bg-white/90 backdrop-blur">
-          <nav className="max-w-7xl mx-auto px-4 py-3 flex flex-col gap-1 text-sm font-medium text-slate-600">
+        <div className="md:hidden border-t border-white/20 bg-slate-900/95 backdrop-blur-xl absolute w-full left-0">
+          <nav className="max-w-7xl mx-auto px-4 py-4 flex flex-col gap-2 text-sm font-semibold text-white/80">
             {NAV.map(n => (
-              <a key={n.href} href={n.href} onClick={() => setMenuOpen(false)} className="px-2 py-2 rounded-lg hover:bg-slate-100">{n.label}</a>
+              <a key={n.href} href={n.href} onClick={() => setMenuOpen(false)} className="px-3 py-2.5 rounded-xl hover:bg-white/10 hover:text-white">{n.label}</a>
             ))}
-            <Link href="/register" onClick={() => setMenuOpen(false)} className="px-2 py-2 rounded-lg hover:bg-slate-100 text-ruby-800 font-semibold">Start a registration</Link>
-            <div className="px-2 pt-2"><LanguageSwitcher /></div>
+            <div className="h-px bg-white/10 my-2" />
+            <Link href="/login" onClick={() => setMenuOpen(false)} className="px-3 py-2.5 rounded-xl hover:bg-white/10 hover:text-white">Login</Link>
+            <Link href="/register" onClick={() => setMenuOpen(false)} className="px-3 py-2.5 rounded-xl bg-[#c8a24b] text-slate-900 font-bold text-center mt-2">Start registration</Link>
+            <div className="px-3 pt-4 pb-2"><LanguageSwitcher className="text-white w-full justify-center" /></div>
           </nav>
         </div>
       )}
@@ -103,174 +101,43 @@ function Header() {
   );
 }
 
-// ── Hero — Concept A: Authority Split ────────────────────
-const HERO_BINS = [
-  { name: 'Wet',     color: '#16a34a', icon: Leaf },
-  { name: 'Dry',     color: '#2563eb', icon: Recycle },
-  { name: 'Sanitary',color: '#dc2626', icon: Sparkles },
-  { name: 'Special', color: '#ca8a04', icon: Battery },
-];
-
-function Hero() {
-  const { t } = useI18n();
+// ── Ticker Tape ──────────────────────────────────────────
+function TickerTape() {
   return (
-    <section className="relative pt-10 pb-20 px-4 overflow-hidden">
-      {/* Calm green-tinted canvas */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_bottom,#ffffff,#f6f8f4)] -z-10" />
-      <div className="absolute inset-0 dot-grid opacity-[0.25] -z-10" />
-      {/* Faint waste/eco motif — leaf · recycle · droplet · special-waste (self-contained SVG, stays readable) */}
-      <svg aria-hidden preserveAspectRatio="xMidYMid slice" className="absolute inset-0 w-full h-full -z-10"
-           style={{ color: 'rgba(22,101,74,0.06)' }}>
-        <defs>
-          <pattern id="ecoMotif" width="112" height="112" patternUnits="userSpaceOnUse" patternTransform="rotate(8)">
-            {/* leaf */}
-            <path d="M20 16 c 12 0 19 7 19 19 c -12 0 -19 -7 -19 -19 Z M20 16 c 5 7 10 12 16 15" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
-            {/* recycling triangle */}
-            <path d="M80 20 l 9 16 h -18 z" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinejoin="round" />
-            {/* water droplet */}
-            <path d="M34 74 c 7 9 7 16 0 22 c -7 -6 -7 -13 0 -22 Z" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinejoin="round" />
-            {/* special / e-waste mark */}
-            <circle cx="86" cy="84" r="4.5" fill="currentColor" />
-          </pattern>
-        </defs>
-        <rect width="100%" height="100%" fill="url(#ecoMotif)" />
-      </svg>
-      <div className="absolute -top-[8%] right-[6%] w-[620px] h-[620px] rounded-full blur-[130px] -z-10"
-           style={{ background: 'rgba(22,101,74,0.12)' }} />
-      <div className="absolute bottom-[2%] left-[2%] w-[520px] h-[520px] rounded-full blur-[120px] -z-10"
-           style={{ background: 'rgba(200,162,75,0.10)' }} />
-
-      <div className="relative max-w-7xl mx-auto grid lg:grid-cols-2 gap-12 lg:gap-10 items-center z-10">
-
-        {/* ── LEFT: copy ───────────────────────────── */}
-        <div className="text-center lg:text-left">
-          <UrgencyBanner />
-          {/* Government seal chip */}
-          <div className="inline-flex items-center gap-2.5 px-4 py-2 rounded-full text-xs font-bold mb-7 animate-fade-in bg-white/70 backdrop-blur-md"
-               style={{ border: '1px solid rgba(200,162,75,0.45)', color: '#0e3b2e' }}>
-            <Scale size={15} className="text-brass-dark" />
-            SWM RULES 2026 · GSR 388(E)
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-emerald-700">{t('hero.inforce')}</span>
-          </div>
-
-          {/* Headline */}
-          <h1 className="font-display text-5xl md:text-6xl lg:text-[4.2rem] font-black text-slate-900 leading-[1.08] tracking-tight mb-6 animate-slide-up">
-            {t('hero.h1pre')}{' '}
-            <span className="relative inline-block">
-              <span className="bg-gradient-to-r from-ruby-800 via-ruby-600 to-brass bg-clip-text text-transparent">
-                {t('hero.h1hi')}
-              </span>
-              <span className="absolute -bottom-1 left-0 w-full h-2.5 rounded-full -z-10 -rotate-1"
-                    style={{ background: 'rgba(200,162,75,0.30)' }} />
-            </span>.
-          </h1>
-
-          <p className="text-lg md:text-xl text-slate-600 max-w-xl mx-auto lg:mx-0 leading-relaxed mb-8 animate-slide-up"
-             style={{ animationDelay: '0.1s' }}>
-            {t('hero.sub')}
-          </p>
-
-          {/* CTAs */}
-          <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start mb-6 animate-slide-up"
-               style={{ animationDelay: '0.2s' }}>
-            <Link href="/register" id="hero-primary-cta"
-                  className="btn-ruby text-base px-7 py-4 rounded-2xl gap-2 shadow-lg">
-              {t('hero.cta1')} <ArrowRight size={19} />
-            </Link>
-            <a href="mailto:hello@indianwasteportal.in?subject=Talk%20to%20a%20consultant"
-               className="inline-flex items-center justify-center gap-2 text-base font-semibold text-slate-700 px-7 py-4 rounded-2xl bg-white/70 backdrop-blur-md border border-slate-200 hover:bg-white hover:-translate-y-0.5 shadow-sm transition-all">
-              <Phone size={18} className="text-ruby-700" /> {t('hero.cta2')}
-            </a>
-          </div>
-
-          {/* Urgency microcopy under the CTAs */}
-          <p className="text-sm font-semibold text-ruby-800 mb-5 flex items-center gap-1.5 justify-center lg:justify-start animate-fade-in"
-             style={{ animationDelay: '0.28s' }}>
-            <Zap size={14} className="text-brass-dark shrink-0" /> {t('hero.ctaUrgency')}
-          </p>
-
-          {/* Trust strip */}
-          <div className="flex flex-wrap justify-center lg:justify-start gap-x-6 gap-y-2 text-sm font-medium text-slate-500 animate-fade-in"
-               style={{ animationDelay: '0.35s' }}>
-            {[
-              { icon: BadgeCheck, text: t('hero.trust1') },
-              { icon: Lock,       text: t('hero.trust2') },
-              { icon: MapPin,     text: t('hero.trust3') },
-            ].map(({ icon: Icon, text }) => (
-              <span key={text} className="inline-flex items-center gap-1.5">
-                <Icon size={15} className="text-emerald-600" /> {text}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* ── RIGHT: premium bins visual ───────────── */}
-        <div className="relative animate-scale-in">
-          {/* glow behind */}
-          <div className="absolute inset-6 rounded-[2.5rem] blur-3xl -z-10"
-               style={{ background: 'radial-gradient(circle at 50% 40%, rgba(22,101,74,0.18), transparent 70%)' }} />
-
-          <div className="relative glass-frosted rounded-[2rem] p-8 pb-10 shadow-glass-lg border border-white/70">
-            {/* ACK chip — floating */}
-            <div className="absolute -top-4 -right-3 sm:right-4 flex items-center gap-2 bg-white rounded-2xl px-4 py-2.5 shadow-glass border border-emerald-100">
-              <div className="w-8 h-8 rounded-xl bg-emerald-50 flex items-center justify-center">
-                <BadgeCheck size={17} className="text-emerald-600" />
-              </div>
-              <div className="leading-tight">
-                <p className="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">{t('hero.ack')}</p>
-                <p className="text-xs font-mono font-semibold text-slate-700">SWM/BWG-I/…</p>
-              </div>
-            </div>
-
-            <p className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">{t('hero.mandatory')}</p>
-            <h3 className="font-display text-xl font-bold text-slate-800 mb-6">{t('hero.fourway')}</h3>
-
-            {/* Dustbins on a soft floor */}
-            <div className="relative rounded-2xl px-3 pt-5 pb-4"
-                 style={{ background: 'linear-gradient(180deg, rgba(22,101,74,0.04), rgba(22,101,74,0.10))' }}>
-              <div className="grid grid-cols-4 gap-2 sm:gap-3">
-                {HERO_BINS.map(({ name, color, icon: Icon }) => (
-                  <div key={name} className="bin bin-sm" style={{ '--bin': color }}>
-                    <div className="bin-handle" />
-                    <div className="bin-lid" />
-                    <div className="bin-body">
-                      <Icon size={20} className="mx-auto mb-1" strokeWidth={2.3} />
-                      <span className="text-[9px] font-extrabold uppercase tracking-wide leading-none block">{t('bin.' + name.toLowerCase())}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Capability pills */}
-            <div className="mt-6 flex flex-wrap gap-2">
-              <span className="text-xs font-semibold text-slate-400 w-full mb-0.5">We handle every stream</span>
-              {['Solid', 'Wet / Organic', 'Sanitary', 'Hazardous', 'Industrial'].map(t => (
-                <span key={t} className="px-3 py-1 rounded-lg text-xs font-semibold text-emerald-800"
-                      style={{ background: 'rgba(22,101,74,0.08)' }}>
-                  {t}
-                </span>
-              ))}
-            </div>
-          </div>
-
-          {/* small stat chip */}
-          <div className="absolute -bottom-4 -left-3 sm:left-6 flex items-center gap-3 bg-white rounded-2xl px-4 py-3 shadow-glass border border-slate-100">
-            <Star size={16} className="text-brass-dark" />
-            <p className="text-xs text-slate-600"><strong className="text-slate-800">Gazette-mapped</strong> SWM 2026 filing</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Responsibility note */}
-      <p className="relative z-10 text-center text-sm text-slate-400 mt-14 max-w-3xl mx-auto animate-fade-in" style={{ animationDelay: '0.45s' }}>
-        <span className="inline-flex items-center gap-1.5">
-          <Lock size={13} />
-          Indian Waste Portal is responsible only for your <strong className="text-slate-500 font-semibold">registration</strong> — not for ongoing compliance after the ACK is issued. Independent consultant; not affiliated with CPCB/GPCB.
+    <div className="w-full bg-[#16654a] text-white/90 text-[11px] font-semibold py-2.5 overflow-hidden flex items-center shadow-inner relative z-20">
+      <div className="animate-marquee whitespace-nowrap flex gap-8">
+        <span className="flex items-center gap-2">
+          <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+          Logistics hub · Bhiwandi — eligibility confirmed
         </span>
-      </p>
-    </section>
+        <span className="opacity-40">•</span>
+        <span className="flex items-center gap-2">
+          <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+          <strong className="text-white">38 businesses</strong> registered this week
+        </span>
+        <span className="opacity-40">•</span>
+        <span className="flex items-center gap-2">
+          <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+          Textile park · Surat — ACK issued 12 min ago
+        </span>
+        <span className="opacity-40">•</span>
+        <span className="flex items-center gap-2">
+          <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+          Hospital campus · Pune — filing in review
+        </span>
+        {/* Duplicate for seamless loop */}
+        <span className="opacity-40">•</span>
+        <span className="flex items-center gap-2">
+          <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+          Logistics hub · Bhiwandi — eligibility confirmed
+        </span>
+        <span className="opacity-40">•</span>
+        <span className="flex items-center gap-2">
+          <span className="w-1.5 h-1.5 bg-emerald-400 rounded-full animate-pulse" />
+          <strong className="text-white">38 businesses</strong> registered this week
+        </span>
+      </div>
+    </div>
   );
 }
 
@@ -747,10 +614,11 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen page-transition">
+      <TopAlertBanner />
       <Header />
       <main>
-        <Hero />
-        <HeroSlider />
+        <FullscreenHero />
+        <TickerTape />
         <PreScreenWizard />
         <ThresholdBand />
         <WhatsNew />

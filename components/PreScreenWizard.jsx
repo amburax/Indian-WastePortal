@@ -61,7 +61,7 @@ export default function PreScreenWizard() {
   function submit(e) { e.preventDefault(); setChecked(true); }
 
   return (
-    <section className="px-4 pb-14 -mt-2">
+    <section id="eligibility-check" className="px-4 pb-14 -mt-2">
       <div className="max-w-6xl mx-auto">
         <div className="glass-card hairline rounded-3xl p-6 md:p-8">
           <div className="flex items-center justify-between gap-2 mb-1">

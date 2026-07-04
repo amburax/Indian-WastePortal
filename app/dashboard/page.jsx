@@ -100,12 +100,33 @@ export default function Dashboard() {
           </div>
         )}
 
+        {data && data.registrations.some(r => r.status === 'Completed' || r.ack_number) && (
+          <div className="mb-8 p-5 rounded-2xl bg-gradient-to-br from-emerald-800 to-emerald-950 text-white shadow-lg relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-4 opacity-10">
+              <ShieldCheck size={120} />
+            </div>
+            <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div>
+                <h2 className="text-lg font-bold flex items-center gap-2">
+                  <ShieldCheck size={20} className="text-emerald-400" />
+                  Compliance Active
+                </h2>
+                <p className="text-emerald-100 text-sm mt-1">Your facility is registered for the current compliance cycle.</p>
+              </div>
+              <div className="bg-white/10 backdrop-blur rounded-xl p-3 border border-white/20">
+                <p className="text-xs text-emerald-200 uppercase tracking-wide font-medium">Next Deadline</p>
+                <p className="text-sm font-bold mt-0.5 flex items-center gap-1.5"><Clock size={14} className="text-emerald-300" /> June 30th — Annual Filing</p>
+              </div>
+            </div>
+          </div>
+        )}
+
         <div className="flex items-center justify-between mb-6">
           <div>
             <h1 className="font-display text-2xl font-bold text-slate-800">Your registrations</h1>
             <p className="text-sm text-slate-500">Track status, pay invoices and view your history.</p>
           </div>
-          <Link href="/register" className="btn-ruby px-4 py-2.5 rounded-xl text-sm inline-flex items-center gap-2">
+          <Link href="/register" className="btn-ruby px-4 py-2.5 rounded-xl text-sm inline-flex items-center gap-2 shadow-sm">
             <Plus size={16} /> New registration
           </Link>
         </div>
@@ -141,8 +162,13 @@ export default function Dashboard() {
                   )}
                   {r.ack_number && (
                     <a href="https://swm.cpcb.gov.in" target="_blank" rel="noopener noreferrer" className="text-xs px-3 py-1.5 rounded-lg border border-emerald-300 text-emerald-700 hover:bg-emerald-50 inline-flex items-center gap-1.5">
-                      <FileCheck2 size={13} /> ACK <ExternalLink size={11} />
+                      CPCB Portal <ExternalLink size={11} />
                     </a>
+                  )}
+                  {(r.status === 'Completed' || r.ack_number) && (
+                    <Link href={`/certificate/${r.payment_token}`} className="text-xs px-3 py-1.5 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 inline-flex items-center gap-1.5 font-medium shadow-sm border border-emerald-500">
+                      <FileCheck2 size={13} /> View Certificate
+                    </Link>
                   )}
                 </div>
               </div>
