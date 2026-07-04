@@ -1,19 +1,20 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { CheckCircle, AlertTriangle, Info } from 'lucide-react';
+import { useI18n } from '../lib/i18n';
 
-const THRESHOLDS = {
-  floor_area:  { value: 20000, unit: 'sqm',    label: 'Floor Area',     description: '≥ 20,000 sq.m triggers BWG status' },
-  waste_kg:    { value: 100,   unit: 'kg/day',  label: 'Waste Generated', description: '≥ 100 kg/day triggers BWG status' },
-  water_liters:{ value: 40000, unit: 'L/day',   label: 'Water Consumption',description: '≥ 40,000 L/day triggers BWG status' },
-};
+const getThresholds = (t) => ({
+  floor_area:  { value: 20000, unit: 'sqm',    label: t('tc.fl'),     description: t('tc.fl_d') },
+  waste_kg:    { value: 100,   unit: 'kg/day',  label: t('tc.ws'), description: t('tc.ws_d') },
+  water_liters:{ value: 40000, unit: 'L/day',   label: t('tc.wt'),description: t('tc.wt_d') },
+});
 
 function calcPercent(value, threshold) {
   if (!value || isNaN(value)) return 0;
   return Math.min((parseFloat(value) / threshold) * 100, 100);
 }
 
-function MetricRow({ id, label, description, unit, thresholdValue, value, onChange }) {
+function MetricRow({ id, label, description, unit, thresholdValue, value, onChange, t }) {
   const pct    = calcPercent(value, thresholdValue);
   const passed = parseFloat(value) >= thresholdValue;
 
@@ -27,8 +28,8 @@ function MetricRow({ id, label, description, unit, thresholdValue, value, onChan
         <div className="flex items-center gap-1.5">
           {value && (
             passed
-              ? <span className="badge badge-bwg flex items-center gap-1"><CheckCircle size={11} />Qualifies</span>
-              : <span className="text-xs text-slate-400">{Math.round(pct)}% of threshold</span>
+              ? <span className="badge badge-bwg flex items-center gap-1"><CheckCircle size={11} />{t('tc.pass')}</span>
+              : <span className="text-xs text-slate-400">{t('tc.pct').replace('{pct}', Math.round(pct))}</span>
           )}
         </div>
       </div>
@@ -42,7 +43,7 @@ function MetricRow({ id, label, description, unit, thresholdValue, value, onChan
           step="0.1"
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder={`Enter value in ${unit}`}
+          placeholder={t('tc.ph').replace('{unit}', unit)}
           className="form-input pr-20 text-sm"
         />
         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-slate-400 pointer-events-none">
@@ -73,6 +74,9 @@ function MetricRow({ id, label, description, unit, thresholdValue, value, onChan
  *   initialValues: { floor_area, waste_kg, water_liters }
  */
 export default function ThresholdCalculator({ onChange, initialValues = {} }) {
+  const { t } = useI18n();
+  const THRESHOLDS = getThresholds(t);
+  
   const [floorArea,   setFloorArea]   = useState(initialValues.floor_area   || '');
   const [wasteKg,     setWasteKg]     = useState(initialValues.waste_kg     || '');
   const [waterLiters, setWaterLiters] = useState(initialValues.water_liters || '');
@@ -102,16 +106,16 @@ export default function ThresholdCalculator({ onChange, initialValues = {} }) {
       {/* Header */}
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-sm font-semibold text-slate-700">BWG Threshold Calculator</p>
+          <p className="text-sm font-semibold text-slate-700">{t('tc.title')}</p>
           <p className="text-xs text-slate-400 mt-0.5">
-            Meeting <strong>any one</strong> threshold triggers Bulk Waste Generator status.
+            {t('tc.sub1')}<strong>{t('tc.sub2')}</strong>{t('tc.sub3')}
           </p>
         </div>
         {isBWG && (
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl animate-scale-in"
                style={{ background: 'rgba(22, 101, 74,0.08)', border: '1.5px solid rgba(22, 101, 74,0.2)' }}>
             <AlertTriangle size={14} className="text-ruby-800" />
-            <span className="text-xs font-bold text-ruby-800">BWG Qualified</span>
+            <span className="text-xs font-bold text-ruby-800">{t('tc.qual')}</span>
           </div>
         )}
       </div>
@@ -124,6 +128,7 @@ export default function ThresholdCalculator({ onChange, initialValues = {} }) {
           thresholdValue={THRESHOLDS.floor_area.value}
           value={floorArea}
           onChange={setFloorArea}
+          t={t}
         />
         <div className="divider my-3" />
         <MetricRow
@@ -132,6 +137,7 @@ export default function ThresholdCalculator({ onChange, initialValues = {} }) {
           thresholdValue={THRESHOLDS.waste_kg.value}
           value={wasteKg}
           onChange={setWasteKg}
+          t={t}
         />
         <div className="divider my-3" />
         <MetricRow
@@ -140,6 +146,7 @@ export default function ThresholdCalculator({ onChange, initialValues = {} }) {
           thresholdValue={THRESHOLDS.water_liters.value}
           value={waterLiters}
           onChange={setWaterLiters}
+          t={t}
         />
       </div>
 
@@ -150,10 +157,9 @@ export default function ThresholdCalculator({ onChange, initialValues = {} }) {
           <div className="flex gap-3">
             <Info size={16} className="text-ruby-800 shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-semibold text-ruby-800">Your facility qualifies as a Bulk Waste Generator</p>
+              <p className="text-sm font-semibold text-ruby-800">{t('tc.yes_title')}</p>
               <p className="text-xs text-ruby-700/80 mt-1">
-                Under GPCB / CPCB SWM Rules 2016, you are legally required to register and file compliance reports.
-                Proceed to file your registration to avoid penalties up to ₹1,00,000/day.
+                {t('tc.yes_desc')}
               </p>
             </div>
           </div>
@@ -166,9 +172,9 @@ export default function ThresholdCalculator({ onChange, initialValues = {} }) {
           <div className="flex gap-3">
             <CheckCircle size={16} className="text-emerald-600 shrink-0 mt-0.5" />
             <div>
-              <p className="text-sm font-semibold text-slate-700">Below BWG threshold</p>
+              <p className="text-sm font-semibold text-slate-700">{t('tc.no_title')}</p>
               <p className="text-xs text-slate-500 mt-1">
-                Your current metrics do not trigger mandatory BWG registration. You may still register voluntarily.
+                {t('tc.no_desc')}
               </p>
             </div>
           </div>

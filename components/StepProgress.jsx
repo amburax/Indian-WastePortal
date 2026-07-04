@@ -1,11 +1,12 @@
 'use client';
 import { Check } from 'lucide-react';
 import { clsx } from 'clsx';
+import { useI18n } from '../lib/i18n';
 
-const STEPS = [
-  { id: 1, label: 'Account',         description: 'Your contact details' },
-  { id: 2, label: 'Organisation',    description: 'Category & sub-category' },
-  { id: 3, label: 'Location',        description: 'LGD address mapping'  },
+const getSteps = (t) => [
+  { id: 1, label: t('sp.s1'),         description: t('sp.s1_d') },
+  { id: 2, label: t('sp.s2'),    description: t('sp.s2_d') },
+  { id: 3, label: t('sp.s3'),        description: t('sp.s3_d')  },
 ];
 
 /**
@@ -14,6 +15,8 @@ const STEPS = [
  *   currentStep: 1 | 2 | 3 | 4
  */
 export default function StepProgress({ currentStep = 1 }) {
+  const { t } = useI18n();
+  const STEPS = getSteps(t);
   return (
     <div className="w-full">
       <div className="flex items-center justify-between relative">
@@ -67,7 +70,7 @@ export default function StepProgress({ currentStep = 1 }) {
       {/* Mobile: current step label */}
       <div className="mt-4 text-center sm:hidden">
         <p className="text-sm font-semibold text-ruby-800">
-          Step {currentStep}: {STEPS[currentStep - 1]?.label}
+          {t('sp.mob').replace('{step}', currentStep)}{STEPS[currentStep - 1]?.label}
         </p>
         <p className="text-xs text-slate-400">{STEPS[currentStep - 1]?.description}</p>
       </div>

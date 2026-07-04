@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { X, Mail, ArrowRight, Loader2, CheckCircle2, Zap } from 'lucide-react';
+import { useI18n } from '../lib/i18n';
 
 /**
  * EWasteModal — Glassmorphic E-Waste waitlist capture modal
@@ -9,6 +10,7 @@ import { X, Mail, ArrowRight, Loader2, CheckCircle2, Zap } from 'lucide-react';
  *   onClose: () => void
  */
 export default function EWasteModal({ isOpen, onClose }) {
+  const { t } = useI18n();
   const [email,   setEmail]   = useState('');
   const [loading, setLoading] = useState(false);
   const [done,    setDone]    = useState(false);
@@ -36,7 +38,7 @@ export default function EWasteModal({ isOpen, onClose }) {
   async function handleSubmit(e) {
     e.preventDefault();
     if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError('Please enter a valid email address.');
+      setError(t('ew.email_err'));
       return;
     }
     setLoading(true);
@@ -48,7 +50,7 @@ export default function EWasteModal({ isOpen, onClose }) {
         body: JSON.stringify({ email }),
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || 'Something went wrong');
+      if (!res.ok) throw new Error(data.error || t('ew.err_generic'));
       setDone(true);
     } catch (err) {
       setError(err.message);
@@ -95,27 +97,27 @@ export default function EWasteModal({ isOpen, onClose }) {
                 <Zap size={14} className="text-white" />
               </div>
               <span className="text-xs font-bold tracking-widest uppercase text-emerald-700">
-                E-Waste Compliance
+                {t('ew.badge')}
               </span>
             </div>
 
             {/* Heading */}
             <h2 id="ewaste-modal-title" className="font-display text-2xl font-bold text-slate-800 leading-tight mb-2">
-              Mandates are{' '}
+              {t('ew.h')}{' '}
               <span className="text-transparent bg-clip-text"
                     style={{ backgroundImage: 'linear-gradient(135deg, #10b981, #059669)' }}>
-                tightening.
+                {t('ew.h_hl')}
               </span>
             </h2>
             <p className="text-sm text-slate-500 mb-6 leading-relaxed">
-              New GPCB E-Waste rules take effect soon. Drop your email to <strong className="text-slate-700">
-              pre-book a 20% discount</strong> on your first E-Waste compliance filing — exclusively for early registrants.
+              {t('ew.lead1')}<strong className="text-slate-700">
+              {t('ew.lead2')}</strong>{t('ew.lead3')}
             </p>
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label htmlFor="ewaste-email" className="form-label">Your Work Email</label>
+                <label htmlFor="ewaste-email" className="form-label">{t('ew.email_label')}</label>
                 <div className="relative">
                   <Mail size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400" />
                   <input
@@ -124,7 +126,7 @@ export default function EWasteModal({ isOpen, onClose }) {
                     type="email"
                     value={email}
                     onChange={(e) => { setEmail(e.target.value); setError(''); }}
-                    placeholder="you@company.com"
+                    placeholder={t('ew.email_ph')}
                     className={`form-input pl-10 ${error ? 'error' : ''}`}
                     disabled={loading}
                     autoComplete="email"
@@ -143,14 +145,14 @@ export default function EWasteModal({ isOpen, onClose }) {
                 id="ewaste-submit-btn"
               >
                 {loading
-                  ? <><Loader2 size={16} className="animate-spin" />Reserving your spot…</>
-                  : <><span>Reserve My 20% Discount</span><ArrowRight size={15} /></>
+                  ? <><Loader2 size={16} className="animate-spin" />{t('ew.btn_loading')}</>
+                  : <><span>{t('ew.btn')}</span><ArrowRight size={15} /></>
                 }
               </button>
             </form>
 
             <p className="text-xs text-slate-400 text-center mt-4">
-              No spam. Only the launch announcement + your discount code.
+              {t('ew.note')}
             </p>
           </>
         ) : (
@@ -160,12 +162,12 @@ export default function EWasteModal({ isOpen, onClose }) {
                  style={{ background: 'rgba(16,185,129,0.12)' }}>
               <CheckCircle2 size={32} className="text-emerald-600" />
             </div>
-            <h3 className="font-display text-xl font-bold text-slate-800 mb-2">You&apos;re on the list!</h3>
+            <h3 className="font-display text-xl font-bold text-slate-800 mb-2">{t('ew.success_h')}</h3>
             <p className="text-sm text-slate-500 max-w-xs mx-auto">
-              We&apos;ll send your exclusive 20% discount code to <strong>{email}</strong> the moment E-Waste filing opens.
+              {t('ew.slead1')}<strong>{email}</strong>{t('ew.slead2')}
             </p>
             <button onClick={onClose} className="btn-ghost mt-6 mx-auto" style={{ color: '#059669', borderColor: 'rgba(16,185,129,0.35)' }}>
-              Close
+              {t('ew.close')}
             </button>
           </div>
         )}

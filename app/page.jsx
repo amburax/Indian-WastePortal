@@ -20,6 +20,7 @@ import { useI18n } from '../lib/i18n';
 
 // ── Top Urgency Banner ────────────────────────────────────
 function TopAlertBanner() {
+  const { t } = useI18n();
   // Real days to the next annual-return deadline (30 June), computed client-side
   // to stay accurate — no hardcoded/stale number.
   const [days, setDays] = useState(null);
@@ -33,16 +34,16 @@ function TopAlertBanner() {
     <div className="w-full bg-[#831818] text-white/90 text-xs font-bold py-2.5 px-4 flex items-center justify-center gap-3 relative z-50 shadow-md">
       <div className="w-2 h-2 bg-ruby-400 rounded-full animate-pulse shrink-0" />
       <span className="text-center sm:text-left">
-        SWM Rules 2026 are <span className="text-white">IN FORCE</span> — unregistered Bulk Waste Generators risk Environmental Compensation
+        <span dangerouslySetInnerHTML={{ __html: t('pg.alert.force') }} />
       </span>
       {days != null && (
         <>
           <span className="hidden lg:inline mx-1 opacity-40">|</span>
-          <span className="hidden lg:inline text-ruby-200">Annual return due in {days} days (30 June)</span>
+          <span className="hidden lg:inline text-ruby-200">{t('pg.alert.due').replace('{days}', days)}</span>
         </>
       )}
       <Link href="/register" className="hidden sm:inline-flex ml-2 bg-white text-ruby-900 px-4 py-1.5 rounded-full hover:bg-ruby-50 transition-colors shadow-sm">
-        Register now
+        {t('pg.alert.reg')}
       </Link>
     </div>
   );
@@ -55,7 +56,7 @@ function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   useEffect(() => { fetch('/api/account/me', { cache: 'no-store' }).then(r => setAuthed(r.ok)).catch(() => setAuthed(false)); }, []);
   const NAV = [
-    { href: '#whats-new', label: 'SWM 2026' },
+    { href: '#whats-new', label: t('pg.nav.swm') },
     { href: '#services', label: t('nav.services') },
     { href: '#how-it-works', label: t('nav.how') },
     { href: '#pricing', label: t('nav.pricing') },
@@ -82,11 +83,11 @@ function Header() {
         <div className="flex items-center gap-4">
           <LanguageSwitcher className="hidden sm:inline-flex text-white border-white/20 hover:bg-white/10" />
           {authed
-            ? <Link href="/dashboard" id="header-register-btn" className="btn-brass text-sm font-bold px-4 sm:px-6 py-2.5 rounded-xl shadow-lg">My Dashboard</Link>
+            ? <Link href="/dashboard" id="header-register-btn" className="btn-brass text-sm font-bold px-4 sm:px-6 py-2.5 rounded-xl shadow-lg">{t('pg.nav.dash')}</Link>
             : (
               <>
-                <Link href="/login" className="text-white text-sm font-bold hover:text-white/80 drop-shadow-md hidden sm:block">Login</Link>
-                <Link href="/register" className="bg-[#fde08b] text-slate-900 text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-[#c8a24b] transition-colors shadow-lg">Start registration</Link>
+                <Link href="/login" className="text-white text-sm font-bold hover:text-white/80 drop-shadow-md hidden sm:block">{t('pg.nav.login')}</Link>
+                <Link href="/register" className="bg-[#fde08b] text-slate-900 text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-[#c8a24b] transition-colors shadow-lg">{t('pg.nav.start')}</Link>
               </>
             )}
           <button onClick={() => setMenuOpen(v => !v)} aria-label="Menu"
@@ -104,8 +105,8 @@ function Header() {
               <a key={n.href} href={n.href} onClick={() => setMenuOpen(false)} className="px-3 py-2.5 rounded-xl hover:bg-white/10 hover:text-white">{n.label}</a>
             ))}
             <div className="h-px bg-white/10 my-2" />
-            <Link href="/login" onClick={() => setMenuOpen(false)} className="px-3 py-2.5 rounded-xl hover:bg-white/10 hover:text-white">Login</Link>
-            <Link href="/register" onClick={() => setMenuOpen(false)} className="px-3 py-2.5 rounded-xl bg-[#c8a24b] text-slate-900 font-bold text-center mt-2">Start registration</Link>
+            <Link href="/login" onClick={() => setMenuOpen(false)} className="px-3 py-2.5 rounded-xl hover:bg-white/10 hover:text-white">{t('pg.nav.login')}</Link>
+            <Link href="/register" onClick={() => setMenuOpen(false)} className="px-3 py-2.5 rounded-xl bg-[#c8a24b] text-slate-900 font-bold text-center mt-2">{t('pg.nav.start')}</Link>
             <div className="px-3 pt-4 pb-2"><LanguageSwitcher className="text-white w-full justify-center" /></div>
           </nav>
         </div>
@@ -116,14 +117,15 @@ function Header() {
 
 // ── Ticker Tape ──────────────────────────────────────────
 function TickerTape() {
+  const { t } = useI18n();
   // Honest, factual ticker — no fabricated counts or "live activity".
   const items = [
-    'SWM Rules 2026 · GSR 388(E) — now in force',
-    'Four streams: Wet · Dry · Sanitary · Special-care',
-    'LGD-verified addresses · exact CPCB portal fields',
-    'Your OTP stays on your device — we never read it',
-    'Filed on the official CPCB SWM portal',
-    'Urban & Rural — every ULB, Panchayat & Gram Panchayat',
+    t('pg.tick.1'),
+    t('pg.tick.2'),
+    t('pg.tick.3'),
+    t('pg.tick.4'),
+    t('pg.tick.5'),
+    t('pg.tick.6'),
   ];
   return (
     <div className="w-full bg-[#16654a] text-white/90 text-[11px] font-semibold py-2.5 overflow-hidden flex items-center shadow-inner relative z-20">
@@ -143,9 +145,9 @@ function TickerTape() {
 function ThresholdBand() {
   const { t } = useI18n();
   const CRITERIA = [
-    { icon: Building2, tint: '#16654a', soft: 'rgba(22,101,74,0.10)',  label: t('sec.threshold.area'),  value: '≥ 20,000', unit: 'sq.m'  },
-    { icon: Droplets,  tint: '#2563eb', soft: 'rgba(37,99,235,0.10)',  label: t('sec.threshold.water'), value: '≥ 40,000', unit: 'L/day' },
-    { icon: Truck,     tint: '#16a34a', soft: 'rgba(22,163,74,0.10)',  label: t('sec.threshold.waste'), value: '≥ 100',    unit: 'Kg/day'},
+    { icon: Building2, tint: '#16654a', soft: 'rgba(22,101,74,0.10)',  label: t('sec.threshold.area'),  value: '≥ 20,000', unit: t('pg.unit.sqm')  },
+    { icon: Droplets,  tint: '#2563eb', soft: 'rgba(37,99,235,0.10)',  label: t('sec.threshold.water'), value: '≥ 40,000', unit: t('pg.unit.lday') },
+    { icon: Truck,     tint: '#16a34a', soft: 'rgba(22,163,74,0.10)',  label: t('sec.threshold.waste'), value: '≥ 100',    unit: t('pg.unit.kgday')},
   ];
   return (
     <section className="px-4 pb-10">
@@ -177,9 +179,7 @@ function ThresholdBand() {
                 {idx < CRITERIA.length - 1 && (
                   <div className="flex items-center justify-center md:px-1">
                     <span className="w-12 h-12 rounded-full flex items-center justify-center text-xs font-black text-white shadow-lg"
-                          style={{ background: '#0e3b2e' }}>
-                      OR
-                    </span>
+                          style={{ background: '#0e3b2e' }}>{t('pg.thresh.or')}</span>
                   </div>
                 )}
               </Fragment>
@@ -195,41 +195,21 @@ function ThresholdBand() {
 
 // ── What's New in SWM 2026 ───────────────────────────────
 function WhatsNew() {
+  const { t } = useI18n();
   const changes = [
-    {
-      icon: Globe,
-      tag: 'Universal coverage',
-      title: 'Urban AND Rural now covered',
-      desc: 'The 2016 Rules covered only urban local bodies. SWM 2026 binds every ULB, Panchayat and Gram Panchayat — every square metre of India.',
-    },
-    {
-      icon: Recycle,
-      tag: '4-stream segregation',
-      title: 'Four mandatory waste streams',
-      desc: 'Wet, Dry, Sanitary and Special-Care waste must now be segregated at source from Day One — up from three streams in 2016.',
-    },
-    {
-      icon: FileText,
-      tag: 'Centralised portal',
-      title: 'Mandatory registration & returns',
-      desc: 'Bulk Waste Generators must register on the CPCB centralised portal, fulfil EBWGR obligations, and file annual returns by 30 June each year.',
-    },
-    {
-      icon: Scale,
-      tag: 'Polluter-pays',
-      title: 'Environmental Compensation',
-      desc: 'Non-compliance now triggers Environmental Compensation (Rule 17) — a fast administrative penalty, plus portal audits and GST cross-checks.',
-    },
+    { icon: Globe, tag: t('pg.nw.t1.tag'), title: t('pg.nw.t1.title'), desc: t('pg.nw.t1.desc') },
+    { icon: Recycle, tag: t('pg.nw.t2.tag'), title: t('pg.nw.t2.title'), desc: t('pg.nw.t2.desc') },
+    { icon: FileText, tag: t('pg.nw.t3.tag'), title: t('pg.nw.t3.title'), desc: t('pg.nw.t3.desc') },
+    { icon: Scale, tag: t('pg.nw.t4.tag'), title: t('pg.nw.t4.title'), desc: t('pg.nw.t4.desc') },
   ];
 
-  const { t } = useI18n();
   return (
     <section id="whats-new" className="py-20 px-4">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-4">
           <span className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider"
                 style={{ background: 'rgba(16,185,129,0.10)', color: '#047857' }}>
-            <Sparkles size={13} /> Gazette of India · GSR 388(E) · 27 Jan 2026
+            <Sparkles size={13} /> {t('pg.nw.gazette')}
           </span>
         </div>
         <div className="text-center mb-14">
@@ -259,10 +239,10 @@ function WhatsNew() {
 function Segregation() {
   const { t } = useI18n();
   const streams = [
-    { name: t('sec.seg.wet'), bin: 'Green Bin',  color: '#16a34a', soft: 'rgba(22,163,74,0.10)',  icon: Leaf,      eg: 'Kitchen, food, vegetable & flower waste' },
-    { name: t('sec.seg.dry'), bin: 'Blue Bin',   color: '#2563eb', soft: 'rgba(37,99,235,0.10)',  icon: Recycle,   eg: 'Paper, cardboard, plastic, glass, metal' },
-    { name: t('sec.seg.san'), bin: 'Red Bin',    color: '#dc2626', soft: 'rgba(220,38,38,0.10)',  icon: Sparkles,  eg: 'Diapers, sanitary pads, bandages' },
-    { name: t('sec.seg.spc'), bin: 'Yellow Bin', color: '#ca8a04', soft: 'rgba(202,138,4,0.12)',  icon: Battery,   eg: 'Batteries, medicines, CFL bulbs, paint cans' },
+    { name: t('sec.seg.wet'), bin: t('pg.seg.b1'),  color: '#16a34a', soft: 'rgba(22,163,74,0.10)',  icon: Leaf,      eg: t('pg.seg.e1') },
+    { name: t('sec.seg.dry'), bin: t('pg.seg.b2'),   color: '#2563eb', soft: 'rgba(37,99,235,0.10)',  icon: Recycle,   eg: t('pg.seg.e2') },
+    { name: t('sec.seg.san'), bin: t('pg.seg.b3'),    color: '#dc2626', soft: 'rgba(220,38,38,0.10)',  icon: Sparkles,  eg: t('pg.seg.e3') },
+    { name: t('sec.seg.spc'), bin: t('pg.seg.b4'), color: '#ca8a04', soft: 'rgba(202,138,4,0.12)',  icon: Battery,   eg: t('pg.seg.e4') },
   ];
 
   return (
@@ -323,7 +303,7 @@ function ServiceTiles({ onEWasteClick }) {
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
                   <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                  <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">Live & Active</span>
+                  <span className="text-xs font-bold text-emerald-700 uppercase tracking-wider">{t('pg.svc.live')}</span>
                 </div>
                 <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
                      style={{ background: 'linear-gradient(135deg, rgba(22, 101, 74,0.12), rgba(22, 101, 74,0.06))' }}>
@@ -332,17 +312,15 @@ function ServiceTiles({ onEWasteClick }) {
               </div>
 
               <h3 className="font-display text-2xl font-bold text-slate-800 mb-2">
-                Solid Waste Management
+                {t('pg.svc.s1')}
               </h3>
               <p className="text-slate-500 text-sm leading-relaxed mb-6">
-                Mandatory CPCB / GPCB Bulk Waste Generator registration under SWM Rules 2026.
-                Covers residential societies, commercial buildings, institutions and industrial
-                sites that cross any one threshold below.
+                {t('pg.svc.d1')}
               </p>
 
               {/* Threshold pills */}
               <div className="flex flex-wrap gap-2 mb-6">
-                {['≥ 20,000 sqm Floor Area', '≥ 100 kg/day Waste', '≥ 40,000 L/day Water'].map(t => (
+                {[t('pg.svc.t1'), t('pg.svc.t2'), t('pg.svc.t3')].map(t => (
                   <span key={t} className="px-2.5 py-1 rounded-lg text-xs font-semibold"
                         style={{ background: 'rgba(22, 101, 74,0.08)', color: '#16654a' }}>
                     {t}
@@ -352,7 +330,7 @@ function ServiceTiles({ onEWasteClick }) {
 
               <Link href="/register" id="solid-waste-tile-cta"
                     className="btn-ruby w-full justify-center gap-2 py-3.5 rounded-xl text-base">
-                Start Registration <ArrowRight size={16} />
+                {t('pg.svc.reg')} <ArrowRight size={16} />
               </Link>
             </GlassCard>
           </div>
@@ -363,7 +341,7 @@ function ServiceTiles({ onEWasteClick }) {
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
                   <div className="w-2.5 h-2.5 rounded-full bg-amber-400" />
-                  <span className="text-xs font-bold text-amber-700 uppercase tracking-wider">Coming Soon</span>
+                  <span className="text-xs font-bold text-amber-700 uppercase tracking-wider">{t('pg.svc.soon')}</span>
                 </div>
                 <div className="w-12 h-12 rounded-2xl flex items-center justify-center"
                      style={{ background: 'rgba(99,102,241,0.1)' }}>
@@ -371,16 +349,13 @@ function ServiceTiles({ onEWasteClick }) {
                 </div>
               </div>
 
-              <h3 className="font-display text-2xl font-bold text-slate-800 mb-2">
-                E-Waste Management
-              </h3>
+              <h3 className="font-display text-2xl font-bold text-slate-800 mb-2">{t('pg.svc.s2')}</h3>
               <p className="text-slate-500 text-sm leading-relaxed mb-6">
-                Extended Producer Responsibility (EPR) registration and e-waste channelisation
-                compliance under E-Waste Management Rules 2022. Mandates tightening soon.
+                {t('pg.svc.d2')}
               </p>
 
               <div className="flex flex-wrap gap-2 mb-6">
-                {['EPR Registration', 'Channel Partner Mapping', 'Annual Return Filing'].map(t => (
+                {[t('pg.svc.p1'), t('pg.svc.p2'), t('pg.svc.p3')].map(t => (
                   <span key={t} className="px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-400"
                         style={{ background: 'rgba(148,163,184,0.12)' }}>
                     {t}
@@ -392,9 +367,7 @@ function ServiceTiles({ onEWasteClick }) {
                 className="w-full py-3.5 rounded-xl text-base font-semibold text-slate-400"
                 style={{ background: 'rgba(148,163,184,0.12)', cursor: 'default' }}
                 disabled
-              >
-                Registration Locked
-              </button>
+              >{t('pg.svc.lock1')}</button>
             </GlassCard>
 
             {/* Frosted lock overlay */}
@@ -412,15 +385,15 @@ function ServiceTiles({ onEWasteClick }) {
                 <Lock size={24} className="text-slate-600" />
               </div>
               <p className="font-semibold text-slate-700 text-center mb-1 px-6">
-                E-Waste filing is locked
+                {t('pg.svc.lock2')}
               </p>
               <p className="text-sm text-slate-500 text-center mb-4 px-8">
-                Mandates are tightening. Pre-book your <strong>20% early-access discount.</strong>
+                <span dangerouslySetInnerHTML={{ __html: t('pg.svc.lock3') }} />
               </p>
               <div className="flex items-center gap-2 px-4 py-2 rounded-xl font-semibold text-sm text-white"
                    style={{ background: 'linear-gradient(135deg, #059669, #10b981)' }}>
                 <Mail size={14} />
-                Get Early Access
+                {t('pg.svc.early')}
               </div>
             </div>
           </div>
@@ -432,14 +405,14 @@ function ServiceTiles({ onEWasteClick }) {
 
 // ── How It Works ─────────────────────────────────────────
 function HowItWorks() {
+  const { t } = useI18n();
   const steps = [
-    { n: '01', icon: TrendingUp, title: 'Check Eligibility',     desc: 'Enter your floor area, daily waste and water use. Our calculator instantly checks if you qualify as a Bulk Waste Generator under SWM 2026.' },
-    { n: '02', icon: Globe,      title: 'Complete Registration',  desc: 'Add your organisation details, category and LGD-verified address. Our multi-step form validates everything in real time.' },
-    { n: '03', icon: CheckCircle,title: 'Pay Consultation Fee',   desc: 'Secure checkout. Our compliance team reviews your submission and prepares the CPCB centralised-portal payload.' },
-    { n: '04', icon: Zap,        title: 'Auto-Filing & ACK',     desc: 'Our agent files on the CPCB SWM portal, pauses for your mobile OTP, and returns the Acknowledgement Number to your dashboard.' },
+    { n: '01', icon: TrendingUp, title: t('pg.hw.t1'), desc: t('pg.hw.d1') },
+    { n: '02', icon: Globe,      title: t('pg.hw.t2'), desc: t('pg.hw.d2') },
+    { n: '03', icon: CheckCircle,title: t('pg.hw.t3'), desc: t('pg.hw.d3') },
+    { n: '04', icon: Zap,        title: t('pg.hw.t4'), desc: t('pg.hw.d4') },
   ];
 
-  const { t } = useI18n();
   return (
     <section id="how-it-works" className="py-20 px-4 bg-white/50">
       <div className="max-w-6xl mx-auto">
@@ -476,10 +449,10 @@ function HowItWorks() {
 function Deadlines() {
   const { t } = useI18n();
   const dates = [
-    { date: '1 Apr 2026',  label: 'SWM Rules 2026 in force — 4-stream segregation begins',  tone: '#16654a' },
-    { date: '30 Jun',      label: 'Annual returns due on the centralised portal (yearly)',   tone: '#a16207' },
-    { date: '1 Oct 2027',  label: 'Full compliance deadline — million-plus cities',          tone: '#1d4ed8' },
-    { date: 'Ongoing',     label: 'Environmental Compensation for any non-compliance',        tone: '#047857' },
+    { date: t('pg.dl.d1'), label: t('pg.dl.l1'), tone: '#16654a' },
+    { date: t('pg.dl.d2'), label: t('pg.dl.l2'), tone: '#a16207' },
+    { date: t('pg.dl.d3'), label: t('pg.dl.l3'), tone: '#1d4ed8' },
+    { date: t('pg.dl.d4'), label: t('pg.dl.l4'), tone: '#047857' },
   ];
   return (
     <section className="py-16 px-4">
@@ -513,11 +486,12 @@ function Deadlines() {
 
 // ── Stats Banner ─────────────────────────────────────────
 function StatsBanner() {
+  const { t } = useI18n();
   const stats = [
-    { value: '4',     label: 'Waste streams handled' },
-    { value: '24 hr', label: 'Consultant callback'   },
-    { value: '100%',  label: 'SWM 2026 aligned'      },
-    { value: '₹0',    label: 'Hidden charges'        },
+    { value: t('pg.st.v1'), label: t('pg.st.l1') },
+    { value: t('pg.st.v2'), label: t('pg.st.l2') },
+    { value: t('pg.st.v3'), label: t('pg.st.l3') },
+    { value: t('pg.st.v4'), label: t('pg.st.l4') },
   ];
   return (
     <section className="py-14 px-4">
@@ -539,9 +513,9 @@ function StatsBanner() {
 function WhyTrust() {
   const { t } = useI18n();
   const points = [
-    { icon: BadgeCheck, title: 'Built on the actual Gazette', desc: 'Every threshold, form and deadline on this platform is mapped to the notified SWM Rules 2026 (GSR 388(E)).' },
-    { icon: Lock,       title: 'OTP stays with you',          desc: 'Our agent pauses on the CPCB portal and asks YOU for the OTP sent to your mobile. We never submit without your verification.' },
-    { icon: Users,      title: 'Middleware, not a middleman', desc: 'We are an independent compliance consultant. We do the paperwork; you stay in control of your registration.' },
+    { icon: BadgeCheck, title: t('pg.why.t1'), desc: t('pg.why.d1') },
+    { icon: Lock,       title: t('pg.why.t2'), desc: t('pg.why.d2') },
+    { icon: Users,      title: t('pg.why.t3'), desc: t('pg.why.d3') },
   ];
   return (
     <section className="py-16 px-4">

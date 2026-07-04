@@ -1,0 +1,53 @@
+{
+  "en": {
+    "hs.next_jun": "NEXT 30 JUN",
+    "hs.fy_return": "FY return due {year}",
+    "hs.filing_win": "Filing window",
+    "hs.built_up": "Built-up area",
+    "hs.water": "Water use",
+    "hs.waste": "Waste output",
+    "hs.instant": "Instant eligibility check",
+    "hs.s_wet": "Wet",
+    "hs.s_wet_t": "Biodegradable",
+    "hs.s_dry": "Dry",
+    "hs.s_dry_t": "Recyclable",
+    "hs.s_san": "Sanitary",
+    "hs.s_san_t": "Hygiene",
+    "hs.s_spc": "Special",
+    "hs.s_spc_t": "Special care"
+  },
+  "hi": {
+    "hs.next_jun": "अगली 30 जून",
+    "hs.fy_return": "वित्त वर्ष रिटर्न देय {year}",
+    "hs.filing_win": "फाइलिंग विंडो",
+    "hs.built_up": "निर्मित क्षेत्र",
+    "hs.water": "जल उपयोग",
+    "hs.waste": "कचरा उत्पादन",
+    "hs.instant": "त्वरित पात्रता जाँच",
+    "hs.s_wet": "गीला",
+    "hs.s_wet_t": "बायोडिग्रेडेबल",
+    "hs.s_dry": "सूखा",
+    "hs.s_dry_t": "पुनर्चक्रण योग्य",
+    "hs.s_san": "स्वच्छता",
+    "hs.s_san_t": "स्वच्छता",
+    "hs.s_spc": "विशेष",
+    "hs.s_spc_t": "विशेष देखभाल"
+  },
+  "gu": {
+    "hs.next_jun": "આગલી 30 જૂન",
+    "hs.fy_return": "નાણાકીય વર્ષ રિટર્ન બાકી {year}",
+    "hs.filing_win": "ફાઇલિંગ વિન્ડો",
+    "hs.built_up": "બાંધકામ વિસ્તાર",
+    "hs.water": "પાણીનો વપરાશ",
+    "hs.waste": "કચરો ઉત્પાદન",
+    "hs.instant": "ત્વરિત પાત્રતા તપાસ",
+    "hs.s_wet": "ભીનો",
+    "hs.s_wet_t": "બાયોડિગ્રેડેબલ",
+    "hs.s_dry": "સૂકો",
+    "hs.s_dry_t": "રિસાઇકલ કરી શકાય તેવો",
+    "hs.s_san": "સ્વચ્છતા",
+    "hs.s_san_t": "સ્વચ્છતા",
+    "hs.s_spc": "વિશેષ",
+    "hs.s_spc_t": "વિશેષ સંભાળ"
+  }
+}

@@ -1,0 +1,26 @@
+{
+  "en": {
+    "wizard.hitArea": "Built-up area ≥ {x} sq.m",
+    "wizard.hitWater": "Water use ≥ {x} L/day",
+    "wizard.hitWaste": "Waste ≥ {x} kg/day",
+    "wizard.waMsg": "Hi, I ran the BWG self-check on Indian Waste Portal.\n• Built-up area: {a} sq.m\n• Water: {w} L/day\n• Waste: {k} kg/day\nResult: {result}. I'd like a consultation.",
+    "wizard.waQual": "Qualifies as a Bulk Waste Generator",
+    "wizard.waBelow": "Below threshold"
+  },
+  "hi": {
+    "wizard.hitArea": "निर्मित क्षेत्र ≥ {x} वर्ग मीटर",
+    "wizard.hitWater": "जल उपयोग ≥ {x} लीटर/दिन",
+    "wizard.hitWaste": "कचरा ≥ {x} किग्रा/दिन",
+    "wizard.waMsg": "नमस्ते, मैंने भारतीय अपशिष्ट पोर्टल पर BWG स्व-जांच की।\n• निर्मित क्षेत्र: {a} वर्ग मीटर\n• जल: {w} लीटर/दिन\n• कचरा: {k} किग्रा/दिन\nपरिणाम: {result}। मैं परामर्श चाहता हूँ।",
+    "wizard.waQual": "थोक अपशिष्ट जनरेटर (BWG) के रूप में योग्य है",
+    "wizard.waBelow": "सीमा से नीचे"
+  },
+  "gu": {
+    "wizard.hitArea": "બિલ્ટ-અપ વિસ્તાર ≥ {x} ચો.મી.",
+    "wizard.hitWater": "પાણીનો વપરાશ ≥ {x} લિટર/દિવસ",
+    "wizard.hitWaste": "કચરો ≥ {x} કિગ્રા/દિવસ",
+    "wizard.waMsg": "નમસ્તે, મેં ભારતીય કચરા પોર્ટલ પર BWG સ્વ-તપાસ કરી.\n• બિલ્ટ-અપ વિસ્તાર: {a} ચો.મી.\n• પાણી: {w} લિટર/દિવસ\n• કચરો: {k} કિગ્રા/દિવસ\nપરિણામ: {result}. મારે પરામર્શ જોઈએ છે.",
+    "wizard.waQual": "જથ્થાબંધ કચરો પેદા કરનાર (BWG) તરીકે પાત્ર",
+    "wizard.waBelow": "મર્યાદાથી નીચે"
+  }
+}

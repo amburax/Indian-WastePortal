@@ -89,13 +89,13 @@ function SlideDeadline() {
             <p className="font-display text-6xl font-black text-white mt-1 mb-2 tabular-nums tracking-tighter relative z-10 drop-shadow-md">
               {days == null ? '—' : days}
             </p>
-            <p className="font-display text-lg font-bold text-ruby-400 relative z-10">{label || 'NEXT 30 JUN'}</p>
+            <p className="font-display text-lg font-bold text-ruby-400 relative z-10">{label || t('hs.next_jun')}</p>
             
             <div className="mt-5 h-2 rounded-full bg-white/10 overflow-hidden relative z-10">
               <div className="h-full bg-gradient-to-r from-ruby-600 to-ruby-400 transition-all duration-1000 shadow-[0_0_10px_rgba(225,29,72,0.5)]" style={{ width: `${pct}%` }} />
             </div>
             <p className="text-[10px] font-semibold text-slate-400 mt-3 uppercase tracking-wider relative z-10">
-              {year ? `FY return due ${year}` : 'Filing window'}
+              {year ? t('hs.fy_return').replace('{year}', year) : t('hs.filing_win')}
             </p>
           </div>
         </div>
@@ -132,16 +132,16 @@ function SlideFootprint() {
           <div className="mt-7"><Cta tone="brand">{t('sld.f.cta')}</Cta></div>
         </div>
         <div className="grid grid-cols-3 gap-3">
-          <MetricCard icon={Building2} big="≥20,000" unit="sq.m" label="Built-up area" />
-          <MetricCard icon={Droplet}   big="≥40,000" unit="L / day" label="Water use" />
-          <MetricCard icon={Weight}    big="≥100"    unit="kg / day" label="Waste output" />
+          <MetricCard icon={Building2} big="≥20,000" unit="sq.m" label={t('hs.built_up')} />
+          <MetricCard icon={Droplet}   big="≥40,000" unit="L / day" label={t('hs.water')} />
+          <MetricCard icon={Weight}    big="≥100"    unit="kg / day" label={t('hs.waste')} />
           <div className="col-span-3 mt-2 rounded-2xl bg-white/[0.04] backdrop-blur-xl border border-white/10 p-4 shadow-[0_0_40px_rgba(6,95,70,0.15)] relative overflow-hidden">
              <div className="absolute inset-0 bg-gradient-to-r from-emerald-500/5 to-transparent pointer-events-none" />
             <div className="flex items-center gap-2 text-[11px] text-slate-400 font-semibold uppercase tracking-wider mb-3 relative z-10">
               <div className="h-2 w-2 rounded-full bg-red-400" />
               <div className="h-2 w-2 rounded-full bg-amber-400" />
               <div className="h-2 w-2 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]" />
-              <span className="ml-1 text-slate-300">Instant eligibility check</span>
+              <span className="ml-1 text-slate-300">{t('hs.instant')}</span>
             </div>
             <div className="space-y-2 relative z-10">
               <div className="h-7 rounded-lg bg-white/5 border border-white/10" />
@@ -211,10 +211,10 @@ function SlideStreams() {
           <div className="mt-7"><Cta tone="white">{t('sld.s.cta')}</Cta></div>
         </div>
         <div className="grid grid-cols-2 sm:flex sm:flex-row gap-3">
-          <StreamBlock color="#34d399" name="Wet"     tag="Biodegradable" />
-          <StreamBlock color="#60a5fa" name="Dry"     tag="Recyclable" />
-          <StreamBlock color="#f87171" name="Sanitary" tag="Hygiene" />
-          <StreamBlock color="#fbbf24" name="Special" tag="Special care" />
+          <StreamBlock color="#34d399" name={t('hs.s_wet')} tag={t('hs.s_wet_t')} />
+          <StreamBlock color="#60a5fa" name={t('hs.s_dry')} tag={t('hs.s_dry_t')} />
+          <StreamBlock color="#f87171" name={t('hs.s_san')} tag={t('hs.s_san_t')} />
+          <StreamBlock color="#fbbf24" name={t('hs.s_spc')} tag={t('hs.s_spc_t')} />
         </div>
       </div>
     </div>

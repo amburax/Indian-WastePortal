@@ -1,0 +1,53 @@
+{
+  "en": {
+    "pay.err_create": "Failed to create order",
+    "pay.brand": "Indian Waste Portal",
+    "pay.desc": "CPCB SWM Compliance Filing — {plan} Plan",
+    "pay.err_verify": "Payment verification failed",
+    "pay.err_sdk": "Razorpay SDK not loaded. Please refresh and try again.",
+    "pay.err_fail": "Payment failed: {reason}",
+    "pay.success_ret": "Booking Confirmed!",
+    "pay.success_full": "Payment Successful!",
+    "pay.msg_ret": "Our consultant will call you within 24 hours to schedule your filing.",
+    "pay.msg_full": "Our team will initiate your filing shortly. We’ll notify you at each step.",
+    "pay.loading": "Opening Payment…",
+    "pay.cta": "Pay {amount} — Initiate CPCB Filing",
+    "pay.ssl": "256-bit SSL",
+    "pay.razor": "Razorpay Secured",
+    "pay.pci": "PCI DSS Compliant"
+  },
+  "hi": {
+    "pay.err_create": "ऑर्डर बनाने में विफल",
+    "pay.brand": "Indian Waste Portal",
+    "pay.desc": "CPCB SWM अनुपालन फाइलिंग — {plan} प्लान",
+    "pay.err_verify": "भुगतान सत्यापन विफल",
+    "pay.err_sdk": "रेज़रपे SDK लोड नहीं हुआ। कृपया ताज़ा करें और पुनः प्रयास करें।",
+    "pay.err_fail": "भुगतान विफल: {reason}",
+    "pay.success_ret": "बुकिंग पक्की हो गई!",
+    "pay.success_full": "भुगतान सफल!",
+    "pay.msg_ret": "हमारे सलाहकार आपकी फाइलिंग शेड्यूल करने के लिए 24 घंटे के भीतर कॉल करेंगे।",
+    "pay.msg_full": "हमारी टीम जल्द ही आपकी फाइलिंग शुरू करेगी। हम आपको हर कदम पर सूचित करेंगे।",
+    "pay.loading": "भुगतान खुल रहा है…",
+    "pay.cta": "{amount} का भुगतान करें — CPCB फाइलिंग शुरू करें",
+    "pay.ssl": "256-बिट SSL",
+    "pay.razor": "रेज़रपे सुरक्षित",
+    "pay.pci": "PCI DSS अनुपालक"
+  },
+  "gu": {
+    "pay.err_create": "ઓર્ડર બનાવવામાં નિષ્ફળ",
+    "pay.brand": "Indian Waste Portal",
+    "pay.desc": "CPCB SWM અનુપાલન ફાઇલિંગ — {plan} પ્લાન",
+    "pay.err_verify": "ચુકવણી ચકાસણી નિષ્ફળ",
+    "pay.err_sdk": "રેઝરપે SDK લોડ થયું નથી. કૃપા કરીને રિફ્રેશ કરો અને ફરી પ્રયાસ કરો.",
+    "pay.err_fail": "ચુકવણી નિષ્ફળ: {reason}",
+    "pay.success_ret": "બુકિંગ કન્ફર્મ થઈ ગયું!",
+    "pay.success_full": "ચુકવણી સફળ!",
+    "pay.msg_ret": "અમારા સલાહકાર તમારી ફાઇલિંગ શેડ્યૂલ કરવા માટે 24 કલાકમાં કૉલ કરશે.",
+    "pay.msg_full": "અમારી ટીમ ટૂંક સમયમાં તમારી ફાઇલિંગ શરૂ કરશે. અમે તમને દરેક પગલે જાણ કરીશું.",
+    "pay.loading": "ચુકવણી ખુલી રહી છે…",
+    "pay.cta": "{amount} ચૂકવો — CPCB ફાઇલિંગ શરૂ કરો",
+    "pay.ssl": "256-બીટ SSL",
+    "pay.razor": "રેઝરપે સુરક્ષિત",
+    "pay.pci": "PCI DSS અનુપાલક"
+  }
+}

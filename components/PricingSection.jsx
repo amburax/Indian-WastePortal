@@ -1,77 +1,78 @@
 'use client';
 import { Check, Zap, Building2, Globe2, Star } from 'lucide-react';
 import Link from 'next/link';
+import { useI18n } from '../lib/i18n';
 
-const PLANS = [
+const getPlans = (t) => [
   {
     id: 'standard',
-    name: 'Standard',
-    subtitle: 'Residential',
+    name: t('pricing.std.name'),
+    subtitle: t('pricing.std.sub'),
     icon: Building2,
     price: '2,999',
     period: 'one-time consultation',
     color: '#475569',
     accent: 'rgba(71,85,105,0.08)',
     border: 'rgba(71,85,105,0.2)',
-    description: 'For housing societies, apartments, and small residential complexes.',
+    description: t('pricing.std.desc'),
     features: [
-      'BWG threshold eligibility check',
-      'CPCB SWM portal registration',
-      'LGD-verified address mapping',
-      'Acknowledgement Number delivery',
-      'Email status notifications',
-      '30-day post-filing support',
+      t('pricing.std.f1'),
+      t('pricing.std.f2'),
+      t('pricing.std.f3'),
+      t('pricing.std.f4'),
+      t('pricing.std.f5'),
+      t('pricing.std.f6'),
     ],
-    cta: 'Get your quote',
+    cta: t('pricing.cta'),
     ctaHref: '/register?plan=standard',
     popular: false,
   },
   {
     id: 'professional',
-    name: 'Professional',
-    subtitle: 'Commercial / Institutional',
+    name: t('pricing.pro.name'),
+    subtitle: t('pricing.pro.sub'),
     icon: Zap,
     price: '7,499',
     period: 'one-time consultation',
     color: '#16654a',
     accent: 'rgba(22, 101, 74,0.06)',
     border: '#16654a',
-    description: 'For hospitals, hotels, malls, schools, and commercial establishments.',
+    description: t('pricing.pro.desc'),
     features: [
-      'Everything in Standard',
-      'Priority agent processing (24hr)',
-      'GST & PAN verification',
-      'Multi-contact org management',
-      'Dedicated compliance officer',
-      '90-day post-filing support',
-      'Renewal reminder alerts',
+      t('pricing.pro.f1'),
+      t('pricing.pro.f2'),
+      t('pricing.pro.f3'),
+      t('pricing.pro.f4'),
+      t('pricing.pro.f5'),
+      t('pricing.pro.f6'),
+      t('pricing.pro.f7'),
     ],
-    cta: 'Get your quote',
+    cta: t('pricing.cta'),
     ctaHref: '/register?plan=professional',
     popular: true,
   },
   {
     id: 'enterprise',
-    name: 'Enterprise',
-    subtitle: 'Multi-site Corporations',
+    name: t('pricing.ent.name'),
+    subtitle: t('pricing.ent.sub'),
     icon: Globe2,
     price: '24,999',
     period: 'per site / one-time',
     color: '#7c3aed',
     accent: 'rgba(124,58,237,0.06)',
     border: 'rgba(124,58,237,0.25)',
-    description: 'For large industries, SEZs, and multi-location corporate campuses.',
+    description: t('pricing.ent.desc'),
     features: [
-      'Everything in Professional',
-      'Multi-site bulk registration',
-      'Custom API integration hook',
-      'Dedicated account manager',
-      'SLA-backed 6-hour processing',
-      '1-year compliance support',
-      'Quarterly audit reports',
-      'White-label option available',
+      t('pricing.ent.f1'),
+      t('pricing.ent.f2'),
+      t('pricing.ent.f3'),
+      t('pricing.ent.f4'),
+      t('pricing.ent.f5'),
+      t('pricing.ent.f6'),
+      t('pricing.ent.f7'),
+      t('pricing.ent.f8'),
     ],
-    cta: 'Get your quote',
+    cta: t('pricing.cta'),
     ctaHref: '/register?plan=enterprise',
     popular: false,
   },
@@ -90,7 +91,7 @@ function PricingCard({ plan }) {
         <div className="flex items-center justify-center mb-4">
           <span className="flex items-center gap-1.5 px-4 py-1 rounded-full text-xs font-bold text-white"
                 style={{ background: 'linear-gradient(135deg, #16654a, #46a67c)' }}>
-            <Star size={10} fill="currentColor" /> Most Popular
+            <Star size={10} fill="currentColor" /> {plan.popularLabel}
           </span>
         </div>
       )}
@@ -111,8 +112,8 @@ function PricingCard({ plan }) {
 
       {/* Price — tailored (confirmed on consultation, not shown publicly) */}
       <div className="mb-5">
-        <span className="font-display text-3xl font-bold" style={{ color: plan.color }}>Custom quote</span>
-        <p className="text-xs text-slate-400 mt-0.5">One-time fee · based on your facility type &amp; location</p>
+        <span className="font-display text-3xl font-bold" style={{ color: plan.color }}>{plan.customQuoteText}</span>
+        <p className="text-xs text-slate-400 mt-0.5">{plan.feeNoteText}</p>
       </div>
 
       <div className="divider" />
@@ -141,34 +142,40 @@ function PricingCard({ plan }) {
 }
 
 export default function PricingSection() {
+  const { t } = useI18n();
+  const plans = getPlans(t).map(p => ({
+    ...p,
+    popularLabel: t('pricing.popular'),
+    customQuoteText: t('pricing.custom_quote'),
+    feeNoteText: t('pricing.fee_note')
+  }));
+
   return (
     <section id="pricing" className="py-20 px-4">
       <div className="max-w-6xl mx-auto">
         {/* Section header */}
         <div className="text-center mb-14">
-          <p className="section-label mb-3">Transparent Pricing</p>
+          <p className="section-label mb-3">{t('pricing.label')}</p>
           <h2 className="font-display text-4xl md:text-5xl font-bold text-slate-800 mb-4 leading-tight">
-            One fee, tailored to<br />
-            <span className="text-gradient-ruby">your facility.</span>
+            {t('pricing.h')}<br />
+            <span className="text-gradient-ruby">{t('pricing.h_highlight')}</span>
           </h2>
           <p className="text-slate-500 max-w-xl mx-auto text-lg">
-            Every facility is different. Register in minutes — a consultant confirms a single,
-            all-inclusive fee for your type &amp; location. No subscriptions, no hidden charges.
+            {t('pricing.lead')}
           </p>
         </div>
 
         {/* Cards grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
-          {PLANS.map((plan) => (
+          {plans.map((plan) => (
             <PricingCard key={plan.id} plan={plan} />
           ))}
         </div>
 
         {/* Footer note */}
         <p className="text-center text-sm text-slate-400 mt-10">
-          Your consultant confirms a single all-inclusive fee after a quick review.
-          Government portal fees (if any) are separate.{' '}
-          <Link href="/register" className="text-ruby-800 font-medium hover:underline">Get your quote →</Link>
+          {t('pricing.footer_note')}{' '}
+          <Link href="/register" className="text-ruby-800 font-medium hover:underline">{t('pricing.footer_link')}</Link>
         </p>
       </div>
     </section>

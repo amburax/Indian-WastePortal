@@ -1,6 +1,7 @@
 'use client';
 import { useState } from 'react';
 import { CreditCard, Lock, Loader2, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { useI18n } from '../lib/i18n';
 
 const PLAN_AMOUNTS = {
   standard:     299900,   // ₹2,999 in paise
@@ -25,6 +26,7 @@ const PLAN_LABELS = {
  *   onSuccess:  (paymentData) => void
  */
 export default function PaymentButton({ orgId, plan = 'standard', kind = 'full', amountLabel, ctaLabel, orgName, email, phone, onSuccess }) {
+  const { t } = useI18n();
   const [loading, setLoading] = useState(false);
   const [paid,    setPaid]    = useState(false);
   const [error,   setError]   = useState('');
@@ -41,15 +43,15 @@ export default function PaymentButton({ orgId, plan = 'standard', kind = 'full',
         body: JSON.stringify({ orgId, plan, kind }),
       });
       const orderData = await orderRes.json();
-      if (!orderRes.ok) throw new Error(orderData.error || 'Failed to create order');
+      if (!orderRes.ok) throw new Error(orderData.error || t('pay.err_create'));
 
       // 2. Open Razorpay checkout
       const options = {
         key:         process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount:      orderData.amount,
         currency:    'INR',
-        name:        'Indian Waste Portal',
-        description: `CPCB SWM Compliance Filing — ${plan.charAt(0).toUpperCase() + plan.slice(1)} Plan`,
+        name:        t('pay.brand'),
+        description: t('pay.desc').replace('{plan}', plan.charAt(0).toUpperCase() + plan.slice(1)),
         order_id:    orderData.orderId,
         prefill: {
           name:    orgName,
@@ -77,7 +79,7 @@ export default function PaymentButton({ orgId, plan = 'standard', kind = 'full',
             }),
           });
           const verifyData = await verifyRes.json();
-          if (!verifyRes.ok) throw new Error(verifyData.error || 'Payment verification failed');
+          if (!verifyRes.ok) throw new Error(verifyData.error || t('pay.err_verify'));
 
           setPaid(true);
           setLoading(false);
@@ -86,12 +88,12 @@ export default function PaymentButton({ orgId, plan = 'standard', kind = 'full',
       };
 
       if (typeof window === 'undefined' || !window.Razorpay) {
-        throw new Error('Razorpay SDK not loaded. Please refresh and try again.');
+        throw new Error(t('pay.err_sdk'));
       }
 
       const rzp = new window.Razorpay(options);
       rzp.on('payment.failed', (res) => {
-        setError(`Payment failed: ${res.error.description}`);
+        setError(t('pay.err_fail').replace('{reason}', res.error.description));
         setLoading(false);
       });
       rzp.open();
@@ -107,11 +109,11 @@ export default function PaymentButton({ orgId, plan = 'standard', kind = 'full',
       <div className="w-full p-5 rounded-2xl text-center animate-scale-in"
            style={{ background: 'rgba(16,185,129,0.08)', border: '1.5px solid rgba(16,185,129,0.3)' }}>
         <CheckCircle2 size={36} className="text-emerald-600 mx-auto mb-2" />
-        <p className="font-semibold text-emerald-800">{kind === 'retainer' ? 'Booking Confirmed!' : 'Payment Successful!'}</p>
+        <p className="font-semibold text-emerald-800">{kind === 'retainer' ? t('pay.success_ret') : t('pay.success_full')}</p>
         <p className="text-sm text-emerald-700/80 mt-1">
           {kind === 'retainer'
-            ? 'Our consultant will call you within 24 hours to schedule your filing.'
-            : 'Our team will initiate your filing shortly. We’ll notify you at each step.'}
+            ? t('pay.msg_ret')
+            : t('pay.msg_full')}
         </p>
       </div>
     );
@@ -126,11 +128,11 @@ export default function PaymentButton({ orgId, plan = 'standard', kind = 'full',
         className="btn-ruby w-full text-base py-4 rounded-2xl gap-3"
       >
         {loading ? (
-          <><Loader2 size={18} className="animate-spin" />Opening Payment…</>
+          <><Loader2 size={18} className="animate-spin" />{t('pay.loading')}</>
         ) : (
           <>
             <CreditCard size={18} />
-            {ctaLabel || `Pay ${amountLabel || PLAN_LABELS[plan]} — Initiate CPCB Filing`}
+            {ctaLabel || t('pay.cta').replace('{amount}', amountLabel || PLAN_LABELS[plan])}
           </>
         )}
       </button>
@@ -140,11 +142,11 @@ export default function PaymentButton({ orgId, plan = 'standard', kind = 'full',
       )}
 
       <div className="flex items-center justify-center gap-4 text-xs text-slate-400">
-        <span className="flex items-center gap-1"><ShieldCheck size={12} />256-bit SSL</span>
+        <span className="flex items-center gap-1"><ShieldCheck size={12} />{t('pay.ssl')}</span>
         <span>·</span>
-        <span className="flex items-center gap-1"><Lock size={12} />Razorpay Secured</span>
+        <span className="flex items-center gap-1"><Lock size={12} />{t('pay.razor')}</span>
         <span>·</span>
-        <span>PCI DSS Compliant</span>
+        <span>{t('pay.pci')}</span>
       </div>
     </div>
   );

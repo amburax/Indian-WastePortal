@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { Loader2, CheckCircle2, Clock, Users, Zap, AlertCircle, ExternalLink } from 'lucide-react';
+import { useI18n } from '../lib/i18n';
 
 /**
  * QueueStatus — Real-time queue position display
@@ -19,6 +20,7 @@ import { Loader2, CheckCircle2, Clock, Users, Zap, AlertCircle, ExternalLink } f
  *   onCompleted:  function — called when status becomes Completed
  */
 export default function QueueStatus({ token, initialPos, onCompleted }) {
+  const { t } = useI18n();
   const [data,     setData]     = useState(null);
   const [error,    setError]    = useState('');
   const [pulse,    setPulse]    = useState(false);
@@ -41,7 +43,7 @@ export default function QueueStatus({ token, initialPos, onCompleted }) {
     try {
       const res = await fetch(`/api/queue/position?token=${token}`);
       const d   = await res.json();
-      if (!res.ok) throw new Error(d.error || 'Failed to fetch status');
+      if (!res.ok) throw new Error(d.error || t('qs.err_fetch'));
 
       setData(prev => {
         // Trigger pulse animation when data changes
@@ -108,16 +110,13 @@ export default function QueueStatus({ token, initialPos, onCompleted }) {
     return (
       <div className="glass-frosted rounded-2xl p-6 animate-scale-in">
         <h3 className="text-lg font-bold text-slate-800 mb-2 flex items-center gap-2">
-          <AlertCircle size={20} className="text-amber-600" /> Verification Paused
+          <AlertCircle size={20} className="text-amber-600" /> {t('qs.lock_title')}
         </h3>
         <p className="text-sm text-slate-500">
-          We couldn’t verify the OTP after {MAX_OTP_ATTEMPTS} attempts, so we’ve paused this filing
-          to keep your registration safe. <strong className="text-slate-700">Our consultant will
-          contact you shortly</strong> to complete the verification — no action is needed from you
-          right now.
+          {t('qs.lock_p1').replace('{max}', MAX_OTP_ATTEMPTS)}<strong className="text-slate-700">{t('qs.lock_p2')}</strong>{t('qs.lock_p3')}
         </p>
         <p className="text-xs text-slate-400 mt-3">
-          You can keep this page open; it will update automatically once filing resumes.
+          {t('qs.lock_sub')}
         </p>
       </div>
     );
@@ -129,16 +128,14 @@ export default function QueueStatus({ token, initialPos, onCompleted }) {
       <div className="glass-frosted rounded-2xl p-6 animate-scale-in">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-lg font-bold text-slate-800 flex items-center gap-2">
-            <AlertCircle size={20} className="text-ruby-700" /> Verify Mobile OTP
+            <AlertCircle size={20} className="text-ruby-700" /> {t('qs.otp_title')}
           </h3>
           <span className="text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-full px-2 py-0.5">
-            {attemptsLeft} {attemptsLeft === 1 ? 'try' : 'tries'} left
+            {t('qs.tries_left').replace('{left}', attemptsLeft).replace('{noun}', attemptsLeft === 1 ? t('qs.try') : t('qs.tries'))}
           </span>
         </div>
         <p className="text-sm text-slate-500 mb-5">
-          The CPCB portal has sent an OTP to your registered mobile number.
-          Please enter the OTP and the CAPTCHA below to continue registration.
-          You enter it here on your own screen — we never ask for your OTP over a call.
+          {t('qs.otp_desc')}
         </p>
 
         {interceptError && (
@@ -149,13 +146,13 @@ export default function QueueStatus({ token, initialPos, onCompleted }) {
 
         <form onSubmit={submitIntercept} className="space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Enter OTP</label>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">{t('qs.enter_otp')}</label>
             <input type="text" required value={otp} onChange={e => setOtp(e.target.value)}
                    className="w-full px-4 py-2 border rounded-xl" placeholder="XXXXXX" />
           </div>
           
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">CAPTCHA</label>
+            <label className="block text-xs font-semibold text-slate-700 mb-1">{t('qs.captcha')}</label>
             <div className="mb-2 p-2 bg-white rounded border inline-block">
               {data.job.captcha_image_base64 ? (
                 <img src={data.job.captcha_image_base64} alt="CAPTCHA" className="rounded max-h-16" />
@@ -164,16 +161,16 @@ export default function QueueStatus({ token, initialPos, onCompleted }) {
               )}
             </div>
             <input type="text" required value={captcha} onChange={e => setCaptcha(e.target.value)}
-                   className="w-full px-4 py-2 border rounded-xl" placeholder="Enter CAPTCHA text" />
+                   className="w-full px-4 py-2 border rounded-xl" placeholder={t('qs.enter_captcha')} />
           </div>
           
           <button type="submit" disabled={submittingIntercept}
                   className="w-full bg-ruby-800 text-white rounded-xl py-3 font-semibold disabled:opacity-50 transition-colors hover:bg-ruby-900">
             {submittingIntercept ? (
               <span className="flex items-center justify-center gap-2">
-                <Loader2 size={16} className="animate-spin" /> Verifying...
+                <Loader2 size={16} className="animate-spin" /> {t('qs.verifying')}
               </span>
-            ) : 'Submit to CPCB'}
+            ) : t('qs.submit_cpcb')}
           </button>
         </form>
       </div>
@@ -191,8 +188,8 @@ export default function QueueStatus({ token, initialPos, onCompleted }) {
             <CheckCircle2 size={24} className="text-emerald-600" />
           </div>
           <div>
-            <p className="font-semibold text-slate-800">Filing Completed!</p>
-            <p className="text-xs text-emerald-700">{portalStatus || 'Pending Verification at ULB'}</p>
+            <p className="font-semibold text-slate-800">{t('qs.done_title')}</p>
+            <p className="text-xs text-emerald-700">{portalStatus || t('qs.pending_ulb')}</p>
           </div>
         </div>
 
@@ -200,19 +197,19 @@ export default function QueueStatus({ token, initialPos, onCompleted }) {
         <div className="p-4 rounded-xl mb-4"
              style={{ background: 'rgba(16,185,129,0.07)', border: '1.5px solid rgba(16,185,129,0.25)' }}>
           <p className="text-xs font-bold text-emerald-700 uppercase tracking-wider mb-2">
-            🏛️ CPCB Acknowledgement Number
+            {t('qs.ack')}
           </p>
           <p className="font-mono text-xl font-bold text-slate-800 break-all">{ackNumber}</p>
           <p className="text-xs text-slate-500 mt-2">
-            Portal Status: <span className="font-medium text-emerald-700">{portalStatus}</span>
+            {t('qs.portal_status')} <span className="font-medium text-emerald-700">{portalStatus}</span>
           </p>
         </div>
 
         <p className="text-xs text-slate-400">
-          Save this number — required for annual compliance returns and ULB inspections.{' '}
+          {t('qs.save_note')}{' '}
           <a href="https://swm.cpcb.gov.in" target="_blank" rel="noopener noreferrer"
              className="text-ruby-800 underline flex items-center gap-0.5 inline-flex">
-            Verify on CPCB portal <ExternalLink size={10} />
+            {t('qs.verify_cpcb')} <ExternalLink size={10} />
           </a>
         </p>
       </div>
@@ -244,9 +241,9 @@ export default function QueueStatus({ token, initialPos, onCompleted }) {
           </div>
           <div>
             <p className="font-semibold text-slate-800 text-sm">
-              {status === 'In Progress' ? 'Agent Filing Now…' : 'Payment Verified! In Queue.'}
+              {status === 'In Progress' ? t('qs.agent_now') : t('qs.pay_ver')}
             </p>
-            <p className="text-xs text-slate-400">Auto-refreshing every 15 seconds</p>
+            <p className="text-xs text-slate-400">{t('qs.auto_ref')}</p>
           </div>
         </div>
         <Loader2 size={16} className="animate-spin text-ruby-800/50" />
@@ -258,41 +255,41 @@ export default function QueueStatus({ token, initialPos, onCompleted }) {
         {/* Position number */}
         <div className="flex-1 rounded-xl p-4 text-center"
              style={{ background: 'rgba(22, 101, 74,0.06)', border: '1.5px solid rgba(22, 101, 74,0.18)' }}>
-          <p className="text-xs font-bold text-ruby-800/70 uppercase tracking-wider mb-1">Your Position</p>
+          <p className="text-xs font-bold text-ruby-800/70 uppercase tracking-wider mb-1">{t('qs.pos')}</p>
           <div className="flex items-baseline justify-center gap-1">
             <span className="text-xs text-ruby-800/60 font-medium">#</span>
             <span className="font-display text-4xl font-bold text-ruby-800">{position}</span>
           </div>
-          <p className="text-xs text-ruby-800/60 mt-1">in the filing queue</p>
+          <p className="text-xs text-ruby-800/60 mt-1">{t('qs.in_queue')}</p>
         </div>
 
         {/* Stats column */}
         <div className="flex-1 flex flex-col gap-2">
           <div className="flex-1 rounded-xl p-3"
                style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.15)' }}>
-            <p className="text-xs text-indigo-600/70 font-semibold mb-0.5">Applications ahead</p>
+            <p className="text-xs text-indigo-600/70 font-semibold mb-0.5">{t('qs.app_ahead')}</p>
             <p className="font-display text-2xl font-bold text-indigo-700">{jobsAhead}</p>
           </div>
           <div className="flex-1 rounded-xl p-3"
                style={{ background: 'rgba(234,179,8,0.08)', border: '1px solid rgba(234,179,8,0.2)' }}>
-            <p className="text-xs text-amber-700/70 font-semibold mb-0.5">Est. wait time</p>
+            <p className="text-xs text-amber-700/70 font-semibold mb-0.5">{t('qs.est_wait')}</p>
             <p className="font-display text-xl font-bold text-amber-700">
-              {eta < 1 ? '< 1 min' : `~${eta} min`}
+              {eta < 1 ? t('qs.lt_1m') : t('qs.m_eta').replace('{eta}', eta)}
             </p>
           </div>
         </div>
       </div>
 
       {/* Step progress bar */}
-      <QueueStepBar status={status} />
+      <QueueStepBar status={status} t={t} />
 
       {/* Agent activity message */}
       <div className="mt-4 flex items-center gap-2 text-xs text-slate-500">
         <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse shrink-0" />
         <span>
           {status === 'In Progress'
-            ? 'Our agent is currently navigating the CPCB portal on your behalf…'
-            : `You're in line. Our automated agent will process your filing in approximately ${eta < 1 ? 'a few minutes' : `${eta} minutes`}.`
+            ? t('qs.msg_nav')
+            : t('qs.msg_wait').replace('{eta}', eta < 1 ? t('qs.few_min') : t('qs.n_min').replace('{eta}', eta))
           }
         </span>
       </div>
@@ -301,11 +298,11 @@ export default function QueueStatus({ token, initialPos, onCompleted }) {
 }
 
 // ── Queue step visualizer ─────────────────────────────────────
-const QUEUE_STEPS = [
-  { id: 'paid',       label: 'Payment Verified'    },
-  { id: 'queued',     label: 'In Queue'             },
-  { id: 'filing',     label: 'Portal Filing'        },
-  { id: 'completed',  label: 'ACK Received'         },
+const getQueueSteps = (t) => [
+  { id: 'paid',       label: t('qs.st_pay') },
+  { id: 'queued',     label: t('qs.st_que') },
+  { id: 'filing',     label: t('qs.st_fil') },
+  { id: 'completed',  label: t('qs.st_ack') },
 ];
 
 const STATUS_TO_STEP = {
@@ -315,12 +312,13 @@ const STATUS_TO_STEP = {
   'Completed':   4,
 };
 
-function QueueStepBar({ status }) {
+function QueueStepBar({ status, t }) {
   const currentStep = STATUS_TO_STEP[status] || 2;
+  const steps = getQueueSteps(t);
 
   return (
     <div className="flex items-center gap-1">
-      {QUEUE_STEPS.map((step, i) => {
+      {steps.map((step, i) => {
         const stepNum  = i + 1;
         const isDone   = stepNum < currentStep;
         const isActive = stepNum === currentStep;
@@ -341,7 +339,7 @@ function QueueStepBar({ status }) {
               </p>
             </div>
             {/* Connector line */}
-            {i < QUEUE_STEPS.length - 1 && (
+            {i < steps.length - 1 && (
               <div className={`h-0.5 flex-1 mx-1 rounded-full transition-all duration-700
                 ${stepNum < currentStep ? 'bg-emerald-400' : 'bg-slate-200'}`} />
             )}

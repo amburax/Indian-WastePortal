@@ -43,18 +43,22 @@ export default function PreScreenWizard() {
 
   const a = parseFloat(area) || 0, w = parseFloat(water) || 0, k = parseFloat(waste) || 0;
   const hits = [
-    a >= T.area  && `Built-up area ≥ ${T.area.toLocaleString('en-IN')} sq.m`,
-    w >= T.water && `Water use ≥ ${T.water.toLocaleString('en-IN')} L/day`,
-    k >= T.waste && `Waste ≥ ${T.waste} kg/day`,
+    a >= T.area  && t('wizard.hitArea', { x: T.area.toLocaleString('en-IN') }),
+    w >= T.water && t('wizard.hitWater', { x: T.water.toLocaleString('en-IN') }),
+    k >= T.waste && t('wizard.hitWaste', { x: T.waste }),
   ].filter(Boolean);
   const qualifies = hits.length > 0;
   const hasInput  = a > 0 || w > 0 || k > 0;
 
   const waNumber = (process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || '').replace(/[^\d]/g, '');
+  const waResult = qualifies ? t('wizard.waQual') : t('wizard.waBelow');
   const waMsg = encodeURIComponent(
-    `Hi, I ran the BWG self-check on Indian Waste Portal.\n` +
-    `• Built-up area: ${a || '-'} sq.m\n• Water: ${w || '-'} L/day\n• Waste: ${k || '-'} kg/day\n` +
-    `Result: ${qualifies ? 'Qualifies as a Bulk Waste Generator' : 'Below threshold'}. I'd like a consultation.`
+    t('wizard.waMsg', {
+      a: a || '-',
+      w: w || '-',
+      k: k || '-',
+      result: waResult
+    })
   );
   const waHref = waNumber ? `https://wa.me/${waNumber}?text=${waMsg}` : null;
 
