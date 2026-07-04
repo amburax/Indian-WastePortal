@@ -114,10 +114,27 @@ const HERO_BINS = [
 function Hero() {
   const { t } = useI18n();
   return (
-    <section className="relative pt-28 pb-20 px-4 overflow-hidden">
+    <section className="relative pt-10 pb-20 px-4 overflow-hidden">
       {/* Calm green-tinted canvas */}
       <div className="absolute inset-0 bg-[linear-gradient(to_bottom,#ffffff,#f6f8f4)] -z-10" />
       <div className="absolute inset-0 dot-grid opacity-[0.25] -z-10" />
+      {/* Faint waste/eco motif — leaf · recycle · droplet · special-waste (self-contained SVG, stays readable) */}
+      <svg aria-hidden preserveAspectRatio="xMidYMid slice" className="absolute inset-0 w-full h-full -z-10"
+           style={{ color: 'rgba(22,101,74,0.06)' }}>
+        <defs>
+          <pattern id="ecoMotif" width="112" height="112" patternUnits="userSpaceOnUse" patternTransform="rotate(8)">
+            {/* leaf */}
+            <path d="M20 16 c 12 0 19 7 19 19 c -12 0 -19 -7 -19 -19 Z M20 16 c 5 7 10 12 16 15" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+            {/* recycling triangle */}
+            <path d="M80 20 l 9 16 h -18 z" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinejoin="round" />
+            {/* water droplet */}
+            <path d="M34 74 c 7 9 7 16 0 22 c -7 -6 -7 -13 0 -22 Z" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinejoin="round" />
+            {/* special / e-waste mark */}
+            <circle cx="86" cy="84" r="4.5" fill="currentColor" />
+          </pattern>
+        </defs>
+        <rect width="100%" height="100%" fill="url(#ecoMotif)" />
+      </svg>
       <div className="absolute -top-[8%] right-[6%] w-[620px] h-[620px] rounded-full blur-[130px] -z-10"
            style={{ background: 'rgba(22,101,74,0.12)' }} />
       <div className="absolute bottom-[2%] left-[2%] w-[520px] h-[520px] rounded-full blur-[120px] -z-10"
