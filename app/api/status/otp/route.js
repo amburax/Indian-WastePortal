@@ -15,7 +15,7 @@ export async function POST(request) {
     const code = String(otp).replace(/\s/g, '');
     if (!/^\d{4,8}$/.test(code)) return NextResponse.json({ error: 'Enter the numeric OTP from your SMS' }, { status: 400 });
 
-    if (rateLimit(`statusotp:${token}`, { max: 10, windowMs: 60_000 }).limited)
+    if ((await rateLimit(request, `statusotp:${token}`, { max: 10, windowMs: 60_000 })).limited)
       return NextResponse.json({ error: 'Too many attempts — please wait a minute.' }, { status: 429 });
 
     const db  = getDb(request);

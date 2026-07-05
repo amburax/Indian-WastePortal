@@ -18,7 +18,7 @@ import { reportError }         from '../../../lib/observability';
  */
 export async function POST(request) {
   try {
-    if (rateLimit(`register:${clientIp(request)}`, { max: 6, windowMs: 10 * 60_000 }).limited)
+    if ((await rateLimit(request, `register:${clientIp(request)}`, { max: 6, windowMs: 10 * 60_000 })).limited)
       return NextResponse.json({ error: 'Too many attempts — please try again in a few minutes.' }, { status: 429 });
 
     const body = await request.json();
@@ -26,9 +26,10 @@ export async function POST(request) {
       org_name, auth_person, email, phone,
       category, sub_category,
       plan = 'standard', password,
+      metrics, address,
     } = body;
 
-    // ── Validation ─────────────────────────────────────────
+    // ── Validation (everything up front — nothing is written until it all passes) ──
     if (!org_name?.trim() || org_name.trim().length < 3)
       return NextResponse.json({ error: 'Organisation name must be at least 3 characters' }, { status: 400 });
     if (!auth_person?.trim() || auth_person.trim().length < 2)
@@ -39,6 +40,9 @@ export async function POST(request) {
       return NextResponse.json({ error: '10-digit mobile number is required' }, { status: 400 });
     if (!category)
       return NextResponse.json({ error: 'Category is required' }, { status: 400 });
+    // Address is part of the same filing — validate it before we commit anything.
+    if (address && (!address.state_code || !address.district_name || !address.city_name))
+      return NextResponse.json({ error: 'State, district, and city are required' }, { status: 400 });
 
     const db = getDb(request);
     const cleanEmail = email.toLowerCase().trim();
@@ -60,8 +64,6 @@ export async function POST(request) {
       if (existingUser)
         return NextResponse.json({ error: 'An account with this email already exists — please log in.' }, { status: 409 });
       userId = randomUUID();
-      await db.run('INSERT INTO users (id, email, password_hash, full_name, phone) VALUES (?,?,?,?,?)',
-        [userId, cleanEmail, hashPassword(password), auth_person.trim(), cleanPhone]);
       newSession = true;
     }
 
@@ -70,12 +72,23 @@ export async function POST(request) {
     if (existingEmail)
       return NextResponse.json({ error: 'A registration with this contact email already exists. Use a different facility contact email.' }, { status: 409 });
 
-    // ── Insert the registration ─────────────────────────────
+    // ── Compose the whole registration as ONE atomic transaction ────────────────
+    // Account + organisation + metrics + address are written together, so a
+    // partial failure can never leave (e.g.) an org saved with no metrics.
     const orgId = randomUUID();
     const token = randomUUID();
     const internalToken = createHash('sha256').update(randomUUID()).digest('hex');
+    const S = ([sql, params]) => ({ sql, params });   // Q helper → batch statement
+    const stmts = [];
 
-    await db.run(...Q.insertOrg({
+    if (newSession) {
+      stmts.push({
+        sql: 'INSERT INTO users (id, email, password_hash, full_name, phone) VALUES (?,?,?,?,?)',
+        params: [userId, cleanEmail, hashPassword(password), auth_person.trim(), cleanPhone],
+      });
+    }
+
+    stmts.push(S(Q.insertOrg({
       id:            orgId,
       org_name:      org_name.trim(),
       auth_person:   auth_person.trim(),
@@ -86,8 +99,44 @@ export async function POST(request) {
       sub_category:  sub_category || null,
       plan,
       payment_token: token,
-    }));
-    await db.run('UPDATE organizations SET user_id = ? WHERE id = ?', [userId, orgId]);
+    })));
+    stmts.push({ sql: 'UPDATE organizations SET user_id = ? WHERE id = ?', params: [userId, orgId] });
+
+    // Metrics — server-side BWG re-verification (can't be spoofed by the client).
+    if (metrics) {
+      const area  = parseFloat(metrics.floor_area_sqm)       || 0;
+      const waste = parseFloat(metrics.waste_kg_per_day)     || 0;
+      const water = parseFloat(metrics.water_liters_per_day) || 0;
+      const isBWG = area >= 20000 || waste >= 100 || water >= 40000;
+      stmts.push(S(Q.upsertMetrics({
+        id: randomUUID(), org_id: orgId,
+        floor_area_sqm: area, waste_kg_per_day: waste, water_liters_per_day: water,
+        is_bulk_waste_generator: isBWG ? 1 : 0,
+        qualifying_criteria: typeof metrics.qualifying_criteria === 'string'
+          ? metrics.qualifying_criteria
+          : JSON.stringify(metrics.qualifying_criteria || []),
+      })));
+    }
+
+    // Address (full LGD detail).
+    if (address) {
+      stmts.push(S(Q.insertAddress({
+        id: randomUUID(), org_id: orgId,
+        state_code:      address.state_code,
+        state_name:      address.state_name || '',
+        district_name:   address.district_name,
+        sub_district:    address.sub_district || null,
+        city_name:       address.city_name,
+        full_address:    address.full_address || `${address.city_name}, ${address.district_name}, ${address.state_name || address.state_code}`,
+        zone_ward:       address.zone_ward || null,
+        local_body_type: address.local_body_type || null,
+        pincode:         address.pincode || null,
+        latitude:        address.latitude  ? parseFloat(address.latitude)  : null,
+        longitude:       address.longitude ? parseFloat(address.longitude) : null,
+      })));
+    }
+
+    await db.batch(stmts);   // all-or-nothing
 
     // Transactional receipt — fire immediately, but never block the response.
     try {

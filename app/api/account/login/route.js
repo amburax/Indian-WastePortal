@@ -7,7 +7,7 @@ export async function POST(request) {
   try {
     const { email, password } = await request.json();
     if (!email || !password) return NextResponse.json({ error: 'Email and password required' }, { status: 400 });
-    if (rateLimit(`login:${clientIp(request)}:${email.toLowerCase().trim()}`, { max: 8, windowMs: 60_000 }).limited)
+    if ((await rateLimit(request, `login:${clientIp(request)}:${email.toLowerCase().trim()}`, { max: 8, windowMs: 60_000 })).limited)
       return NextResponse.json({ error: 'Too many attempts — please wait a minute.' }, { status: 429 });
 
     const db = getDb(request);

@@ -11,6 +11,7 @@ import GlassCard          from '../../components/GlassCard';
 import StepProgress       from '../../components/StepProgress';
 import { INDIAN_STATES } from '../../lib/lgdData';
 import { useI18n } from '../../lib/i18n';
+import LanguageSwitcher from '../../components/LanguageSwitcher';
 
 // ── Sub-categories from WasteComply_CRM (exact CPCB portal values) ─
 const SUBCATS = {
@@ -640,39 +641,27 @@ function RegisterContent() {
     setLoading(true);
     setApiError('');
     try {
-      // 1. Register org
+      // Single atomic call: the org, metrics and address are written together in
+      // one DB transaction server-side — no risk of a half-saved registration.
       const regRes = await fetch('/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...account, ...category, plan: planFromUrl }),
+        body: JSON.stringify({
+          ...account, ...category, plan: planFromUrl,
+          metrics: {
+            floor_area_sqm:       Number(category.floor_area_sqm)       || 0,
+            waste_kg_per_day:     Number(category.waste_kg_per_day)     || 0,
+            water_liters_per_day: Number(category.water_liters_per_day) || 0,
+            qualifying_criteria: '[]',
+          },
+          address: {
+            ...address,
+            zone_ward: (address.zone_board || '') + (address.block_ward ? ' / ' + address.block_ward : ''),
+          },
+        }),
       });
       const reg = await regRes.json();
       if (!regRes.ok) throw new Error(reg.error || 'Registration failed');
-
-      const { orgId, token } = reg;
-
-      // 2. Save metrics — required on CPCB Step 2 (collected in the Category step)
-      await fetch('/api/metrics', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          org_id: orgId,
-          floor_area_sqm:       Number(category.floor_area_sqm)       || 0,
-          waste_kg_per_day:     Number(category.waste_kg_per_day)     || 0,
-          water_liters_per_day: Number(category.water_liters_per_day) || 0,
-          is_bulk_waste_generator: 1,
-          qualifying_criteria: '[]',
-        }),
-      });
-
-      // 3. Save address (all V2 fields)
-      await fetch('/api/address', {
-        method: 'POST', headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          org_id: orgId, 
-          ...address,
-          zone_ward: (address.zone_board || '') + (address.block_ward ? ' / ' + address.block_ward : '')
-        }),
-      });
 
       // Registration also created/attached the account + logged them in → dashboard.
       router.push('/dashboard');
@@ -700,7 +689,10 @@ function RegisterContent() {
               <span className="font-display font-bold text-sm">Indian Waste<span className="text-ruby-800">Portal</span></span>
             </div>
           </Link>
-          <span className="text-xs text-slate-400">{t('reg.chrome')} — {planFromUrl}</span>
+          <div className="flex items-center gap-4">
+            <LanguageSwitcher className="hidden sm:inline-flex" />
+            <span className="text-xs text-slate-400 hidden md:inline">{t('reg.chrome')} — {planFromUrl}</span>
+          </div>
         </div>
       </header>
 

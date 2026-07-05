@@ -10,7 +10,7 @@ import { rateLimit, clientIp } from '../../../lib/ratelimit';
  */
 export async function POST(request) {
   try {
-    if (rateLimit(`clienterr:${clientIp(request)}`, { max: 20, windowMs: 60_000 }).limited)
+    if ((await rateLimit(request, `clienterr:${clientIp(request)}`, { max: 20, windowMs: 60_000 })).limited)
       return NextResponse.json({ ok: true });
 
     const { message, stack, digest, url } = await request.json().catch(() => ({}));

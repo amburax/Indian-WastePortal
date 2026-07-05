@@ -25,7 +25,7 @@ export async function POST(request) {
     if (!token || !otp || !captchaText)
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
 
-    if (rateLimit(`otp:${token}`, { max: 5, windowMs: 60_000 }).limited)
+    if ((await rateLimit(request, `otp:${token}`, { max: 5, windowMs: 60_000 })).limited)
       return NextResponse.json({ error: 'Too many attempts — please wait a minute.' }, { status: 429 });
 
     const db  = getDb(request);

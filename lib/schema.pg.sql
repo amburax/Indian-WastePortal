@@ -280,3 +280,10 @@ CREATE TABLE IF NOT EXISTS pincode_directory (
 CREATE INDEX IF NOT EXISTS idx_pincode_state ON pincode_directory(statename);
 CREATE INDEX IF NOT EXISTS idx_pincode_dist  ON pincode_directory(district);
 CREATE INDEX IF NOT EXISTS idx_pincode_div   ON pincode_directory(divisionname);
+
+-- -- rate_limits (shared fixed-window throttle counter) ------------------------
+CREATE TABLE IF NOT EXISTS rate_limits (
+  key          TEXT PRIMARY KEY,
+  hits         INTEGER NOT NULL DEFAULT 0,
+  window_start TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
