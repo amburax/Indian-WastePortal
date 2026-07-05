@@ -44,8 +44,10 @@ const nextConfig = {
         ],
       },
       {
-        // API-only: no-cache to prevent stale sensitive data
-        source: '/api/:path*',
+        // API-only: no-cache to prevent stale sensitive data.
+        // Exclude /api/lgd — it's immutable public reference data that sets its
+        // own long-lived Cache-Control (avoids emitting two conflicting headers).
+        source: '/api/((?!lgd).*)',
         headers: [
           { key: 'Cache-Control', value: 'no-store, no-cache, must-revalidate' },
         ],
