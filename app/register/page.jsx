@@ -340,7 +340,7 @@ function Step3Address({ data, onChange, errors }) {
                    onChange('city_name', '');
                  }}
                  className={`form-input ${errors.district_name ? 'error' : ''}`}
-                 placeholder="Type or select District..." />
+                 placeholder={t('reg.ph.district')} />
           {districts && districts.length > 0 && (
             <datalist id="dist-list">
               {districts.map(d => <option key={d} value={d} />)}
@@ -360,7 +360,7 @@ function Step3Address({ data, onChange, errors }) {
                    onChange('city_name', '');
                  }}
                  className={`form-input ${errors.sub_district ? 'error' : ''}`}
-                 placeholder="Type or select Sub-District..." />
+                 placeholder={t('reg.ph.subdistrict')} />
           {subDistricts && subDistricts.length > 0 && (
             <datalist id="taluka-list">
               {subDistricts.map(s => <option key={s} value={s} />)}
@@ -373,7 +373,7 @@ function Step3Address({ data, onChange, errors }) {
           <input id="f-city" list="city-list" value={data.city_name}
                  onChange={e => handleVillageChange(e.target.value)}
                  className={`form-input ${errors.city_name ? 'error' : ''}`}
-                 placeholder="Type or select City/Village..." />
+                 placeholder={t('reg.ph.city')} />
           {villages && villages.length > 0 && (
             <datalist id="city-list">
               {villages.map(v => <option key={v.name} value={v.name} />)}
@@ -422,13 +422,13 @@ function Step3Address({ data, onChange, errors }) {
           <label className="form-label">{t('reg.ad.zone')} <span className="text-slate-400 font-normal normal-case">{t('reg.ad.optional')}</span></label>
           <input id="f-zone" value={data.zone_board}
                  onChange={e => onChange('zone_board', e.target.value)}
-                 className="form-input" placeholder="Enter Zone/Containment Board" />
+                 className="form-input" placeholder={t('reg.ph.zone')} />
         </div>
         <div>
           <label className="form-label">{t('reg.ad.block')} <span className="text-slate-400 font-normal normal-case">{t('reg.ad.optional')}</span></label>
           <input id="f-block" value={data.block_ward}
                  onChange={e => onChange('block_ward', e.target.value)}
-                 className="form-input" placeholder="Enter Block/Ward" />
+                 className="form-input" placeholder={t('reg.ph.block')} />
         </div>
       </div>
 
@@ -525,7 +525,6 @@ function EWasteWaitlistCard() {
   const [email, setEmail] = useState('');
   const [state, setState] = useState('idle');   // idle | loading | done | error
   const [msg, setMsg]     = useState('');
-  const [code, setCode]   = useState('');
   async function join(e) {
     e.preventDefault();
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { setState('error'); setMsg(t('reg.ew.invalidEmail')); return; }
@@ -533,9 +532,9 @@ function EWasteWaitlistCard() {
     try {
       const res = await fetch('/api/ewaste-waitlist', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email }) });
       const d = await res.json();
-      if (!res.ok) { setState('error'); setMsg(d.error || 'Something went wrong'); return; }
-      setState('done'); setMsg(d.message || "You're on the list!"); setCode(d.discount_code || '');
-    } catch { setState('error'); setMsg('Network error — please try again.'); }
+      if (!res.ok) { setState('error'); setMsg(d.error || t('reg.ew.err')); return; }
+      setState('done'); setMsg(d.already ? t('reg.ew.already') : t('reg.ew.done'));
+    } catch { setState('error'); setMsg(t('reg.ew.err')); }
   }
   return (
     <GlassCard variant="frosted" className="p-8 text-center">
@@ -547,7 +546,6 @@ function EWasteWaitlistCard() {
       {state === 'done' ? (
         <div className="mt-5 p-4 rounded-xl bg-emerald-50 border border-emerald-200 max-w-md mx-auto">
           <p className="text-sm font-semibold text-emerald-800 flex items-center justify-center gap-2"><CheckCircle size={16} /> {msg}</p>
-          {code && <p className="text-xs text-emerald-700 mt-1">Your launch discount code: <span className="font-mono font-bold">{code}</span></p>}
         </div>
       ) : (
         <form onSubmit={join} className="mt-5 flex flex-col sm:flex-row gap-2 max-w-md mx-auto">

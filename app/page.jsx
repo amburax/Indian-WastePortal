@@ -104,7 +104,7 @@ function Header({ onLogin }) {
                 <Link href="/register" className="bg-[#fde08b] text-slate-900 text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-[#c8a24b] transition-colors shadow-lg">{t('pg.nav.start')}</Link>
               </>
             )}
-          <button onClick={() => setMenuOpen(v => !v)} aria-label="Menu"
+          <button onClick={() => setMenuOpen(v => !v)} aria-label={t('pg.aria.menu')}
             className="md:hidden w-10 h-10 rounded-xl flex items-center justify-center text-white bg-white/10 backdrop-blur-md border border-white/20">
             {menuOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
@@ -392,7 +392,7 @@ function ServiceTiles({ onEWasteClick }) {
               tabIndex={0}
               id="ewaste-tile-lock"
               onKeyDown={(e) => e.key === 'Enter' && onEWasteClick()}
-              aria-label="Join E-Waste waitlist"
+              aria-label={t('pg.aria.ewaste')}
             >
               <div className="w-14 h-14 rounded-2xl flex items-center justify-center mb-4"
                    style={{ background: 'rgba(255,255,255,0.85)', boxShadow: '0 8px 24px rgba(0,0,0,0.10)' }}>

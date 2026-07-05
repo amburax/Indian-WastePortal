@@ -10,27 +10,18 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Valid email is required' }, { status: 400 });
 
     const db = getDb(request);
+    const cleanEmail = email.toLowerCase().trim();
 
-    // Generate a unique discount code
-    const discountCode = 'EWASTE20-' + randomUUID().slice(0, 8).toUpperCase();
+    // One waitlist entry per email. Repeat submits are a no-op (idempotent).
+    const existing = await db.get('SELECT id FROM ewaste_waitlist WHERE email = ?', [cleanEmail]);
+    if (existing) {
+      return NextResponse.json({ success: true, already: true });
+    }
 
-    await db.run(...Q.insertWaitlist(
-      randomUUID(),
-      email.toLowerCase().trim(),
-      discountCode,
-    ));
-
-    return NextResponse.json({
-      success: true,
-      message: 'Added to E-Waste waitlist',
-      discount_code: discountCode,
-    });
+    await db.run(...Q.insertWaitlist(randomUUID(), cleanEmail, null));
+    return NextResponse.json({ success: true, already: false });
 
   } catch (err) {
-    // SQLite UNIQUE constraint = already registered
-    if (err.message?.includes('UNIQUE constraint failed')) {
-      return NextResponse.json({ success: true, message: 'Already on the waitlist!' });
-    }
     console.error('[/api/ewaste-waitlist] Error:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
   }
