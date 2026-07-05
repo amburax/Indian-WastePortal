@@ -692,6 +692,10 @@ export default function AdminDashboard() {
                       <Row k="Refunded" v={<span className="font-semibold text-red-600">₹{((detail.payment.refund_amount_paise || 0) / 100).toLocaleString('en-IN')} · {detail.payment.refund_status}</span>} />
                       <Row k="Refunded at" v={fmt(detail.payment.refunded_at)} />
                     </>}
+                    {detail.payment.status === 'paid' && (
+                      <a href={`/api/receipt/${detail.org.payment_token}/pdf`} target="_blank" rel="noopener noreferrer"
+                        className="mt-1 inline-block text-[12px] font-semibold text-[#16654a] hover:underline">⬇ Download receipt (PDF)</a>
+                    )}
                   </Section>
                 )}
                 </>)}

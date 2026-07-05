@@ -150,6 +150,7 @@ CREATE TABLE IF NOT EXISTS payments (
   paid_at               TIMESTAMPTZ,
   created_at            TIMESTAMPTZ NOT NULL DEFAULT NOW(),
   kind                  TEXT NOT NULL DEFAULT 'full',
+  receipt_no            TEXT,
   refund_id             TEXT,
   refund_amount_paise   INTEGER,
   refund_status         TEXT,

@@ -257,6 +257,12 @@ export default function StatusPage({ params }) {
                 <p className="font-semibold text-slate-800">{data?.org?.org_name}</p>
                 <p className="text-sm text-slate-500">{data?.org?.org_type}</p>
                 <p className="text-sm text-slate-500 mt-1">{data?.org?.email}</p>
+                {data?.org?.payment_verified && (
+                  <a href={`/api/receipt/${token}/pdf`} target="_blank" rel="noopener noreferrer"
+                     className="text-xs text-ruby-800 underline flex items-center gap-1 mt-3 hover:text-ruby-700">
+                    {t('st.receipt')} <ExternalLink size={10} />
+                  </a>
+                )}
               </GlassCard>
 
               {/* Acknowledgement number */}

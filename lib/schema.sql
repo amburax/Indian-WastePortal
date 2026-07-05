@@ -118,6 +118,7 @@ CREATE TABLE IF NOT EXISTS payments (
   paid_at               TEXT,
   created_at            TEXT NOT NULL DEFAULT (datetime('now')),
   kind                  TEXT NOT NULL DEFAULT 'full',   -- full | retainer | balance
+  receipt_no            TEXT,                           -- sequential receipt number (lazy-assigned)
   -- Refunds (admin-issued via Razorpay)
   refund_id             TEXT,
   refund_amount_paise   INTEGER,
