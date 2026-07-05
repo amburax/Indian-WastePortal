@@ -54,7 +54,16 @@ function Header() {
   const { t } = useI18n();
   const [authed, setAuthed] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   useEffect(() => { fetch('/api/account/me', { cache: 'no-store' }).then(r => setAuthed(r.ok)).catch(() => setAuthed(false)); }, []);
+  // Sticky, scroll-aware: transparent over the hero at rest, solid bar once scrolled
+  // (so the navbar stays visible everywhere and the white text stays readable).
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 40);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
   const NAV = [
     { href: '#whats-new', label: t('pg.nav.swm') },
     { href: '#services', label: t('nav.services') },
@@ -62,7 +71,11 @@ function Header() {
     { href: '#pricing', label: t('nav.pricing') },
   ];
   return (
-    <header className="absolute top-[44px] w-full z-40 bg-transparent">
+    <header className={`fixed w-full z-50 transition-all duration-300 ${
+      scrolled
+        ? 'top-0 bg-[#0e3b2e]/95 backdrop-blur-md shadow-lg border-b border-white/10'
+        : 'top-[44px] bg-transparent'
+    }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center gap-2.5">
@@ -81,9 +94,9 @@ function Header() {
 
         {/* CTA */}
         <div className="flex items-center gap-4">
-          <LanguageSwitcher className="hidden sm:inline-flex text-white border-white/20 hover:bg-white/10" />
+          <LanguageSwitcher dark className="hidden sm:inline-flex text-white border-white/20 hover:bg-white/10" />
           {authed
-            ? <Link href="/dashboard" id="header-register-btn" className="btn-brass text-sm font-bold px-4 sm:px-6 py-2.5 rounded-xl shadow-lg">{t('pg.nav.dash')}</Link>
+            ? <Link href="/dashboard" id="header-register-btn" className="bg-[#fde08b] text-slate-900 text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-[#c8a24b] transition-colors shadow-lg">{t('pg.nav.dash')}</Link>
             : (
               <>
                 <Link href="/login" className="text-white text-sm font-bold hover:text-white/80 drop-shadow-md hidden sm:block">{t('pg.nav.login')}</Link>
@@ -107,7 +120,7 @@ function Header() {
             <div className="h-px bg-white/10 my-2" />
             <Link href="/login" onClick={() => setMenuOpen(false)} className="px-3 py-2.5 rounded-xl hover:bg-white/10 hover:text-white">{t('pg.nav.login')}</Link>
             <Link href="/register" onClick={() => setMenuOpen(false)} className="px-3 py-2.5 rounded-xl bg-[#c8a24b] text-slate-900 font-bold text-center mt-2">{t('pg.nav.start')}</Link>
-            <div className="px-3 pt-4 pb-2"><LanguageSwitcher className="text-white w-full justify-center" /></div>
+            <div className="px-3 pt-4 pb-2"><LanguageSwitcher dark className="text-white w-full justify-center" /></div>
           </nav>
         </div>
       )}

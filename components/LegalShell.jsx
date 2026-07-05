@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ShieldCheck, ArrowLeft } from 'lucide-react';
+import LanguageSwitcher from './LanguageSwitcher';
 
 /**
  * Shared shell for legal/policy pages. Server component (no interactivity), so
@@ -17,7 +18,10 @@ export default function LegalShell({ title, updated, children }) {
               <span className="font-display font-bold text-sm">Indian Waste<span className="text-ruby-800">Portal</span></span>
             </div>
           </Link>
-          <span className="text-xs text-slate-400">Legal</span>
+          <div className="flex items-center gap-4">
+            <LanguageSwitcher className="hidden sm:inline-flex" />
+            <span className="text-xs text-slate-400 hidden md:inline">Legal</span>
+          </div>
         </div>
       </header>
 

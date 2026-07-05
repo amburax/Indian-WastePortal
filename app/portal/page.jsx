@@ -8,6 +8,8 @@ import {
 } from 'lucide-react';
 import GlassCard    from '../../components/GlassCard';
 import PaymentButton from '../../components/PaymentButton';
+import LanguageSwitcher from '../../components/LanguageSwitcher';
+import { useI18n } from '../../lib/i18n';
 
 const STATUS_CONFIG = {
   New:          { label: 'Submitted',     color: '#475569', bg: 'rgba(71,85,105,0.08)',   icon: Clock,         desc: 'Your registration has been received.' },
@@ -39,6 +41,7 @@ function SummaryRow({ icon: Icon, label, value }) {
 }
 
 function PortalContent() {
+  const { t } = useI18n();
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
   const bwg   = searchParams.get('bwg') === '1';
@@ -60,7 +63,7 @@ function PortalContent() {
   }
 
   useEffect(() => {
-    if (!token) { setError('No registration token found. Please register first.'); setLoading(false); return; }
+    if (!token) { setError(t('pt.noToken')); setLoading(false); return; }
     reload();
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
@@ -69,7 +72,7 @@ function PortalContent() {
   if (loading) return (
     <div className="flex flex-col items-center justify-center py-20 gap-4">
       <Loader2 size={28} className="animate-spin text-ruby-800" />
-      <p className="text-sm text-slate-500">Loading your registration…</p>
+      <p className="text-sm text-slate-500">{t('pt.loading')}</p>
     </div>
   );
 
@@ -78,14 +81,17 @@ function PortalContent() {
       <AlertTriangle size={36} className="text-red-400 mx-auto mb-3" />
       <p className="text-slate-700 font-medium">{error}</p>
       <div className="flex items-center justify-center gap-3 mt-6">
-        <Link href="/register" className="btn-ruby inline-flex">Start Registration</Link>
-        <Link href="/find" className="btn-ghost inline-flex">Find my registration</Link>
+        <Link href="/register" className="btn-ruby inline-flex">{t('wizard.startReg')}</Link>
+        <Link href="/find" className="btn-ghost inline-flex">{t('find.h')}</Link>
       </div>
     </div>
   );
 
   const status   = data?.org?.status || 'New';
   const cfg      = STATUS_CONFIG[status] || STATUS_CONFIG.New;
+  const sKey     = (STATUS_CONFIG[status] ? status : 'New').replace(/\s/g, '');
+  const cfgLabel = t(`pt.s.${sKey}.l`);
+  const cfgDesc  = t(`pt.s.${sKey}.d`);
   const StatusIcon = cfg.icon;
   const planLabel = (data?.org?.plan || 'standard');
   const PLAN_AMOUNTS = { standard: '2,999', professional: '7,499', enterprise: '24,999' };
@@ -105,28 +111,26 @@ function PortalContent() {
               <StatusIcon size={20} style={{ color: cfg.color }} className={status === 'In Progress' ? 'animate-spin' : ''} />
             </div>
             <div>
-              <p className="font-semibold text-slate-800">Filing Status</p>
+              <p className="font-semibold text-slate-800">{t('pt.filingStatus')}</p>
               <span className="badge" style={{ background: cfg.bg, color: cfg.color }}>
-                ● {cfg.label}
+                ● {cfgLabel}
               </span>
             </div>
           </div>
           <div className="text-right">
-            <p className="text-xs text-slate-400">Registration Token</p>
+            <p className="text-xs text-slate-400">{t('pt.regToken')}</p>
             <p className="text-xs font-mono text-slate-600 bg-slate-100 px-2 py-0.5 rounded">{token?.slice(0, 16)}…</p>
           </div>
         </div>
-        <p className="text-sm text-slate-500">{cfg.desc}</p>
+        <p className="text-sm text-slate-500">{cfgDesc}</p>
 
         {/* Acknowledgement number */}
         {data?.org?.ack_number && (
           <div className="mt-4 p-4 rounded-xl"
                style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.25)' }}>
-            <p className="text-xs font-semibold text-emerald-700 mb-1">CPCB Acknowledgement Number</p>
+            <p className="text-xs font-semibold text-emerald-700 mb-1">{t('pt.ackNum')}</p>
             <p className="font-mono text-lg font-bold text-emerald-800">{data.org.ack_number}</p>
-            <p className="text-xs text-emerald-600 mt-1">
-              Save this number — required for all future compliance correspondence.
-            </p>
+            <p className="text-xs text-emerald-600 mt-1">{t('pt.ackNote')}</p>
           </div>
         )}
       </GlassCard>
@@ -137,17 +141,17 @@ function PortalContent() {
         {/* Registration Summary */}
         <GlassCard className="p-6 space-y-4">
           <p className="font-semibold text-slate-800 text-sm flex items-center gap-2">
-            <FileText size={15} className="text-ruby-800" /> Registration Summary
+            <FileText size={15} className="text-ruby-800" /> {t('pt.summary')}
           </p>
-          <SummaryRow icon={Building2} label="Organisation"   value={data?.org?.org_name} />
-          <SummaryRow icon={Building2} label="Category"       value={data?.org?.category} />
-          <SummaryRow icon={Building2} label="Sub-category"   value={data?.org?.sub_category} />
-          <SummaryRow icon={Building2} label="Authorised Person" value={data?.org?.auth_person} />
-          <SummaryRow icon={MapPin}    label="Address"        value={data?.address?.full_address || `${data?.address?.city_name}, ${data?.address?.district_name}`} />
-          <SummaryRow icon={BarChart3} label="BWG Status"     value={data?.metrics?.is_bulk_waste_generator ? 'Qualifies as Bulk Waste Generator' : 'Below BWG Threshold'} />
-          {data?.metrics?.floor_area_sqm   > 0 && <SummaryRow icon={BarChart3} label="Floor Area" value={`${data.metrics.floor_area_sqm.toLocaleString()} sqm`} />}
-          {data?.metrics?.waste_kg_per_day > 0 && <SummaryRow icon={BarChart3} label="Daily Waste" value={`${data.metrics.waste_kg_per_day} kg/day`} />}
-          {data?.metrics?.water_liters_per_day > 0 && <SummaryRow icon={BarChart3} label="Water Usage" value={`${data.metrics.water_liters_per_day.toLocaleString()} L/day`} />}
+          <SummaryRow icon={Building2} label={t('pt.sum.org')}         value={data?.org?.org_name} />
+          <SummaryRow icon={Building2} label={t('pt.sum.category')}    value={data?.org?.category} />
+          <SummaryRow icon={Building2} label={t('pt.sum.subcategory')} value={data?.org?.sub_category} />
+          <SummaryRow icon={Building2} label={t('pt.sum.authPerson')}  value={data?.org?.auth_person} />
+          <SummaryRow icon={MapPin}    label={t('pt.sum.address')}     value={data?.address?.full_address || `${data?.address?.city_name}, ${data?.address?.district_name}`} />
+          <SummaryRow icon={BarChart3} label={t('pt.sum.bwg')}         value={data?.metrics?.is_bulk_waste_generator ? t('pt.bwgYes') : t('pt.bwgNo')} />
+          {data?.metrics?.floor_area_sqm   > 0 && <SummaryRow icon={BarChart3} label={t('pt.sum.floor')} value={`${data.metrics.floor_area_sqm.toLocaleString()} sqm`} />}
+          {data?.metrics?.waste_kg_per_day > 0 && <SummaryRow icon={BarChart3} label={t('pt.sum.waste')} value={`${data.metrics.waste_kg_per_day} kg/day`} />}
+          {data?.metrics?.water_liters_per_day > 0 && <SummaryRow icon={BarChart3} label={t('pt.sum.water')} value={`${data.metrics.water_liters_per_day.toLocaleString()} L/day`} />}
         </GlassCard>
 
         {/* Payment / Lock Gate */}
@@ -159,12 +163,9 @@ function PortalContent() {
                 <div className="flex-1 flex flex-col items-center justify-center text-center p-5 rounded-xl"
                      style={{ background: 'rgba(59,130,246,0.06)', border: '1px solid rgba(59,130,246,0.2)' }}>
                   <Clock size={30} className="text-blue-600 mb-2" />
-                  <p className="font-semibold text-blue-800">Registration received — Under Review</p>
-                  <p className="text-sm text-blue-700/80 mt-2 leading-relaxed">
-                    Our consultant will <strong>call you within 24 hours</strong> to confirm your facility details
-                    and send your registration invoice. No payment is needed until then.
-                  </p>
-                  <a href={`/status/${token}`} className="text-xs text-blue-700 underline mt-3">Track status</a>
+                  <p className="font-semibold text-blue-800">{t('pt.newTitle')}</p>
+                  <p className="text-sm text-blue-700/80 mt-2 leading-relaxed">{t('pt.newBody')}</p>
+                  <a href={`/status/${token}`} className="text-xs text-blue-700 underline mt-3">{t('pt.trackStatus')}</a>
                 </div>
               )}
 
@@ -173,10 +174,8 @@ function PortalContent() {
                 <div className="flex-1 flex flex-col items-center justify-center text-center p-5 rounded-xl"
                      style={{ background: 'rgba(99,102,241,0.06)', border: '1px solid rgba(99,102,241,0.2)' }}>
                   <CheckCircle size={30} className="text-indigo-600 mb-2" />
-                  <p className="font-semibold text-indigo-800">Consultation booked</p>
-                  <p className="text-sm text-indigo-700/80 mt-2 leading-relaxed">
-                    We’ll send your registration invoice shortly — you’ll receive it on WhatsApp and email.
-                  </p>
+                  <p className="font-semibold text-indigo-800">{t('pt.schedTitle')}</p>
+                  <p className="text-sm text-indigo-700/80 mt-2 leading-relaxed">{t('pt.schedBody')}</p>
                 </div>
               )}
 
@@ -185,15 +184,15 @@ function PortalContent() {
                 <>
                   <div className="mb-4 p-4 rounded-xl"
                        style={{ background: 'rgba(245,158,11,0.07)', border: '1px solid rgba(245,158,11,0.25)' }}>
-                    <p className="text-sm font-semibold text-amber-800">Your registration invoice</p>
+                    <p className="text-sm font-semibold text-amber-800">{t('pt.invoiceTitle')}</p>
                     <p className="font-display text-2xl font-bold text-amber-800 mt-1">₹{balanceRupees?.toLocaleString('en-IN')}</p>
-                    <p className="text-xs text-amber-700/80 mt-1">Pay to start your filing.</p>
+                    <p className="text-xs text-amber-700/80 mt-1">{t('pt.invoiceSub')}</p>
                   </div>
                   <div className="flex-1 flex flex-col justify-end gap-2">
                     {balanceUrl && (
                       <a href={balanceUrl} target="_blank" rel="noopener noreferrer"
                          className="btn-ruby w-full text-center py-3 rounded-xl">
-                        Pay ₹{balanceRupees?.toLocaleString('en-IN')} securely
+                        {t('pt.paySecure', { amount: balanceRupees?.toLocaleString('en-IN') })}
                       </a>
                     )}
                   </div>
@@ -205,17 +204,14 @@ function PortalContent() {
                 <div className="flex-1 flex flex-col items-center justify-center text-center p-5 rounded-xl"
                      style={{ background: 'rgba(16,185,129,0.06)', border: '1px solid rgba(16,185,129,0.2)' }}>
                   <CheckCircle size={32} className="text-emerald-600 mb-2" />
-                  <p className="font-semibold text-emerald-800">Payment received — filing in progress</p>
-                  <p className="text-sm text-emerald-700/80 mt-2 leading-relaxed">
-                    Your payment is received. Our team is preparing your CPCB filing — you’ll enter the mobile OTP
-                    yourself on your status page when prompted.
-                  </p>
+                  <p className="font-semibold text-emerald-800">{t('pt.paidTitle')}</p>
+                  <p className="text-sm text-emerald-700/80 mt-2 leading-relaxed">{t('pt.paidBody')}</p>
                   <div className="mt-3 text-xs text-emerald-700/70 bg-white/40 rounded-lg px-3 py-2 border border-emerald-200">
-                    🔒 We never ask for your OTP over a call — you always enter it on your own screen.
+                    {t('pt.paidOtpNote')}
                   </div>
                   <a href={`/status/${token}`}
                      className="text-xs text-emerald-700 underline mt-3 flex items-center gap-1">
-                    Track Live Status <ExternalLink size={10} />
+                    {t('pt.trackLive')} <ExternalLink size={10} />
                   </a>
                 </div>
               )}
@@ -227,15 +223,11 @@ function PortalContent() {
                    style={{ background: 'rgba(16,185,129,0.10)' }}>
                 <CheckCircle size={28} className="text-emerald-600" />
               </div>
-              <p className="font-semibold text-slate-800 mb-2">Below BWG Threshold</p>
-              <p className="text-sm text-slate-500 max-w-xs">
-                Your current metrics do not trigger mandatory Bulk Waste Generator registration.
-                No CPCB filing required at this time.
-              </p>
+              <p className="font-semibold text-slate-800 mb-2">{t('pt.bwgNoTitle')}</p>
+              <p className="text-sm text-slate-500 max-w-xs">{t('pt.bwgNoBody')}</p>
               <div className="mt-4 p-3 rounded-xl text-xs text-slate-500"
                    style={{ background: 'rgba(148,163,184,0.08)', border: '1px solid rgba(148,163,184,0.15)' }}>
-                You may still <strong>voluntarily register</strong> for proactive compliance.
-                Update your metrics if your facility expands.
+                {t('pt.bwgNoNote')}
               </div>
             </div>
           )}
@@ -243,17 +235,13 @@ function PortalContent() {
       </div>
 
       {/* Policy note */}
-      <p className="text-center text-xs text-slate-400 leading-relaxed">
-        Indian Waste Portal is a compliance middleware and is not affiliated with CPCB or GPCB.
-        <strong className="text-slate-500"> This portal is only responsible for your registration.</strong>{' '}
-        Our consultant calls within 24 hrs to schedule your filing.
-        Consultation fees are non-refundable once portal filing has commenced.
-      </p>
+      <p className="text-center text-xs text-slate-400 leading-relaxed">{t('pt.policy')}</p>
     </div>
   );
 }
 
 export default function PortalPage() {
+  const { t } = useI18n();
   return (
     <div className="min-h-screen bg-mesh">
       {/* Header */}
@@ -266,7 +254,10 @@ export default function PortalPage() {
               <span className="font-display font-bold text-sm">Indian Waste<span className="text-ruby-800">Portal</span></span>
             </div>
           </Link>
-          <span className="text-xs text-slate-400 font-medium">Filing Portal</span>
+          <div className="flex items-center gap-4">
+            <LanguageSwitcher className="hidden sm:inline-flex" />
+            <span className="text-xs text-slate-400 font-medium hidden md:inline">{t('pt.chrome')}</span>
+          </div>
         </div>
       </header>
 

@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ShieldCheck, ArrowLeft, Loader2, LogIn } from 'lucide-react';
 import { useI18n } from '../../lib/i18n';
+import LanguageSwitcher from '../../components/LanguageSwitcher';
 
 export default function ClientLogin() {
   const router = useRouter();
@@ -29,8 +30,8 @@ export default function ClientLogin() {
 
   return (
     <div className="min-h-screen bg-mesh flex flex-col">
-      <header className="glass border-b border-white/50">
-        <div className="max-w-3xl mx-auto px-4 h-14 flex items-center">
+      <header className="glass border-b border-white/50 sticky top-0 z-40">
+        <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
           <Link href="/" className="flex items-center gap-2 text-slate-600 hover:text-slate-800">
             <ArrowLeft size={16} />
             <div className="flex items-center gap-1.5">
@@ -38,6 +39,7 @@ export default function ClientLogin() {
               <span className="font-display font-bold text-sm">Indian Waste<span className="text-ruby-800">Portal</span></span>
             </div>
           </Link>
+          <LanguageSwitcher className="hidden sm:inline-flex" />
         </div>
       </header>
 
