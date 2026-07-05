@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import { getDb }        from '../../../../lib/d1-db';
 import { hashPassword, verifyPassword, isLegacyHash, signToken, ADMIN_COOKIE, SESSION_TTL_SEC } from '../../../../lib/admin-auth';
+import { verifyTOTP } from '../../../../lib/totp';
 import { randomUUID }   from 'crypto';
 
 export async function POST(request) {
   try {
-    const { email, password } = await request.json();
+    const { email, password, token } = await request.json();
     if (!email || !password)
       return NextResponse.json({ error: 'Email and password required' }, { status: 400 });
 
@@ -14,6 +15,13 @@ export async function POST(request) {
 
     if (!admin || !verifyPassword(password, admin.password_hash))
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+
+    // Second factor: if this admin has 2FA on, a valid TOTP code is required.
+    if (admin.totp_enabled) {
+      if (!token) return NextResponse.json({ needs2fa: true }, { status: 200 });
+      if (!verifyTOTP(admin.totp_secret, token))
+        return NextResponse.json({ needs2fa: true, error: 'Invalid authentication code' }, { status: 401 });
+    }
 
     // Upgrade legacy sha256 hashes to scrypt on successful login.
     if (isLegacyHash(admin.password_hash)) {

@@ -6,6 +6,8 @@ export default function AdminLogin() {
   const router = useRouter();
   const [email, setEmail]   = useState('');
   const [password, setPass] = useState('');
+  const [token, setToken]   = useState('');
+  const [needs2fa, setNeeds2fa] = useState(false);
   const [error, setError]   = useState('');
   const [loading, setLoad]  = useState(false);
 
@@ -16,9 +18,11 @@ export default function AdminLogin() {
       const res = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ email, password, token: token || undefined }),
       });
       const data = await res.json();
+      // Password OK but a 2FA code is required (or was wrong).
+      if (data.needs2fa) { setNeeds2fa(true); setError(data.error || ''); setLoad(false); return; }
       if (!res.ok) { setError(data.error || 'Login failed'); setLoad(false); return; }
       router.push('/admin');
     } catch {
@@ -54,11 +58,23 @@ export default function AdminLogin() {
                 placeholder="••••••••" autoComplete="current-password" />
             </div>
 
+            {needs2fa && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Authentication code</label>
+                <input
+                  inputMode="numeric" autoFocus maxLength={6} value={token}
+                  onChange={e => setToken(e.target.value.replace(/\D/g, ''))}
+                  className="w-full px-4 py-2.5 rounded-lg border border-gray-300 tracking-[0.4em] text-center font-mono text-lg focus:ring-2 focus:ring-ruby-500 focus:border-ruby-500 outline-none"
+                  placeholder="000000" autoComplete="one-time-code" />
+                <p className="text-xs text-gray-400 mt-1">Enter the 6-digit code from your authenticator app.</p>
+              </div>
+            )}
+
             {error && <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-lg px-3 py-2">{error}</p>}
 
             <button type="submit" disabled={loading}
               className="btn-ruby w-full py-2.5 rounded-lg font-semibold disabled:opacity-60">
-              {loading ? 'Signing in…' : 'Sign in'}
+              {loading ? 'Signing in…' : needs2fa ? 'Verify & sign in' : 'Sign in'}
             </button>
           </form>
         </div>
