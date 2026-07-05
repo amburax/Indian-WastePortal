@@ -83,6 +83,9 @@ export default function AdminDashboard() {
   const [ackStatus, setAckStatus] = useState('Pending Verification at ULB');
   const [tab, setTab]           = useState('Details');   // Details | Actions | History
   const [selected, setSelected] = useState(() => new Set());   // bulk-selected org ids
+  const [showRefund, setShowRefund] = useState(false);
+  const [refundAmt, setRefundAmt]   = useState('');
+  const [refundReason, setRefundReason] = useState('');
 
   // While waiting for the client's OTP, refresh the open detail so it appears live.
   useEffect(() => {
@@ -165,6 +168,7 @@ export default function AdminDashboard() {
       const d = await res.json();
       if (!res.ok) { alert(d.error || 'Action failed'); return; }
       setShowCall(false); setCallAt(''); setCallNotes(''); setShowNote(false); setNoteText(''); setEditForm(null); setShowAck(false);
+      setShowRefund(false); setRefundAmt(''); setRefundReason('');
       await openDetail(body.orgId);
       await loadSubs(); loadStats();
     } catch { alert('Network error'); }
@@ -513,6 +517,10 @@ export default function AdminDashboard() {
                       className="rounded-[9px] border border-[#dbe3df] bg-white px-3.5 py-2 text-[12px] font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50">Add Note</button>
                     <button disabled={acting} onClick={() => { setEditForm(f => f ? null : { org_name: detail.org.org_name || '', auth_person: detail.org.auth_person || '', email: detail.org.email || '', phone: detail.org.phone || '', category: detail.org.category || '', sub_category: detail.org.sub_category || '', plan: detail.org.plan || 'standard' }); setShowCall(false); setShowInvoice(false); setShowNote(false); }}
                       className="rounded-[9px] border border-[#dbe3df] bg-white px-3.5 py-2 text-[12px] font-semibold text-slate-600 hover:bg-slate-50 disabled:opacity-50">Edit details</button>
+                    {stats?.role === 'superadmin' && detail.org.payment_verified && (
+                      <button disabled={acting} onClick={() => { setShowRefund(v => !v); setShowCall(false); setShowInvoice(false); setShowNote(false); setEditForm(null); setShowAck(false); }}
+                        className="rounded-[9px] border border-red-300 bg-white px-3.5 py-2 text-[12px] font-semibold text-red-700 hover:bg-red-50 disabled:opacity-50">↩ Issue refund</button>
+                    )}
                     <select disabled={acting} value=""
                       onChange={e => { if (e.target.value) runAction('set-status', { orgId: detail.org.id, status: e.target.value }); }}
                       className="rounded-[9px] border border-[#dbe3df] bg-white px-2.5 py-2 text-[12px] font-semibold text-slate-600 disabled:opacity-50">
@@ -597,6 +605,18 @@ export default function AdminDashboard() {
                         className="rounded-[9px] bg-[#0f8a5b] px-3.5 py-2 text-xs font-semibold text-white hover:bg-[#0c7048] disabled:opacity-50">Save ACK &amp; mark Completed</button>
                     </form>
                   )}
+                  {showRefund && (
+                    <form onSubmit={e => { e.preventDefault(); if (confirm('Issue this refund via Razorpay? This cannot be undone.')) runAction('refund', { orgId: detail.org.id, amountRupees: refundAmt ? Number(refundAmt) : undefined, reason: refundReason || null }); }}
+                      className="mt-3 space-y-2 border-t border-red-200 pt-3">
+                      <label className="block text-[11px] font-medium text-gray-600">Refund via Razorpay (leave amount blank for a full refund)</label>
+                      <input type="number" min="1" value={refundAmt} onChange={e => setRefundAmt(e.target.value)} placeholder={detail.payment?.amount_paise ? `Full: ₹${(detail.payment.amount_paise / 100).toLocaleString('en-IN')}` : '₹ amount'}
+                        className="w-full text-xs px-2 py-1.5 rounded-lg border border-gray-300" />
+                      <input value={refundReason} onChange={e => setRefundReason(e.target.value)} placeholder="Reason (optional — kept in the record)"
+                        className="w-full text-xs px-2 py-1.5 rounded-lg border border-gray-300" />
+                      <button type="submit" disabled={acting}
+                        className="text-xs px-3 py-1.5 rounded-lg bg-red-700 text-white hover:bg-red-800 disabled:opacity-50">Issue refund</button>
+                    </form>
+                  )}
                   {acting && <p className="mt-2 text-[11px] text-slate-400">Working…</p>}
                 </div>
 
@@ -668,6 +688,10 @@ export default function AdminDashboard() {
                     <Row k="Amount" v={detail.payment.amount_paise != null ? `₹${(detail.payment.amount_paise / 100).toFixed(2)}` : '—'} />
                     <Row k="Razorpay ID" v={detail.payment.razorpay_payment_id} />
                     <Row k="Paid at" v={fmt(detail.payment.paid_at)} />
+                    {detail.payment.refund_id && <>
+                      <Row k="Refunded" v={<span className="font-semibold text-red-600">₹{((detail.payment.refund_amount_paise || 0) / 100).toLocaleString('en-IN')} · {detail.payment.refund_status}</span>} />
+                      <Row k="Refunded at" v={fmt(detail.payment.refunded_at)} />
+                    </>}
                   </Section>
                 )}
                 </>)}

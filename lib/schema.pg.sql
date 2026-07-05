@@ -149,7 +149,11 @@ CREATE TABLE IF NOT EXISTS payments (
   webhook_payload       TEXT,
   paid_at               TIMESTAMPTZ,
   created_at            TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  kind                  TEXT NOT NULL DEFAULT 'full'
+  kind                  TEXT NOT NULL DEFAULT 'full',
+  refund_id             TEXT,
+  refund_amount_paise   INTEGER,
+  refund_status         TEXT,
+  refunded_at           TIMESTAMPTZ
 );
 
 CREATE INDEX IF NOT EXISTS idx_payments_org ON payments(org_id);
@@ -214,6 +218,8 @@ CREATE TABLE IF NOT EXISTS admin_users (
   email         TEXT NOT NULL UNIQUE,
   password_hash TEXT NOT NULL,
   role          TEXT NOT NULL DEFAULT 'admin',
+  totp_secret   TEXT,
+  totp_enabled  INTEGER NOT NULL DEFAULT 0,
   created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 

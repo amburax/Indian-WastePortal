@@ -116,7 +116,13 @@ CREATE TABLE IF NOT EXISTS payments (
   status                TEXT NOT NULL DEFAULT 'created',  -- created | paid | failed
   webhook_payload       TEXT,                      -- Raw JSON (audit)
   paid_at               TEXT,
-  created_at            TEXT NOT NULL DEFAULT (datetime('now'))
+  created_at            TEXT NOT NULL DEFAULT (datetime('now')),
+  kind                  TEXT NOT NULL DEFAULT 'full',   -- full | retainer | balance
+  -- Refunds (admin-issued via Razorpay)
+  refund_id             TEXT,
+  refund_amount_paise   INTEGER,
+  refund_status         TEXT,
+  refunded_at           TEXT
 );
 
 -- ── E-Waste Waitlist ──────────────────────────────────────────
@@ -159,6 +165,8 @@ CREATE TABLE IF NOT EXISTS admin_users (
   email         TEXT NOT NULL UNIQUE,
   password_hash TEXT NOT NULL,                      -- sha256(salt + password)
   role          TEXT NOT NULL DEFAULT 'admin',      -- admin | superadmin
+  totp_secret   TEXT,                                -- base32 TOTP secret (2FA)
+  totp_enabled  INTEGER NOT NULL DEFAULT 0,          -- 1 once verified/enrolled
   created_at    TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
