@@ -109,8 +109,8 @@ export default async function CertificatePage({ params }) {
 
         </div>
 
-        <PrintButton />
-        
+        <PrintButton token={token} />
+
       </div>
     </div>
   );
