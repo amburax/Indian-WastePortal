@@ -19,7 +19,14 @@ export async function GET(request) {
 
     const where = [];
     const params = [];
-    if (status && status !== 'All') { where.push('o.status = ?'); params.push(status); }
+    // Archived submissions are hidden from every view except the explicit
+    // "Archived" filter (soft delete).
+    if (status === 'Archived') {
+      where.push('o.archived = 1');
+    } else {
+      where.push('o.archived = 0');
+      if (status && status !== 'All') { where.push('o.status = ?'); params.push(status); }
+    }
     if (q) {
       where.push('(o.org_name LIKE ? OR o.email LIKE ? OR o.phone LIKE ? OR o.auth_person LIKE ? OR o.ack_number LIKE ?)');
       const like = `%${q}%`;

@@ -50,21 +50,10 @@ export default function NotificationsLog() {
 
   return (
     <div className="min-h-screen bg-mesh-light">
-      <header className="sticky top-0 z-20 bg-white/80 backdrop-blur border-b border-gray-200">
-        <div className="max-w-6xl mx-auto px-5 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-ruby-700 flex items-center justify-center text-white font-bold text-sm">IW</div>
-            <div>
-              <h1 className="font-bold text-ruby-900 leading-tight">Notifications</h1>
-              <p className="text-[11px] text-gray-500">{data?.rows?.length ?? 0} recent messages</p>
-            </div>
-          </div>
-          <nav className="flex items-center gap-1 text-sm">
-            <Link href="/admin" className="px-3 py-1.5 rounded-lg hover:bg-gray-100 text-gray-600">Submissions</Link>
-            <Link href="/admin/calendar" className="px-3 py-1.5 rounded-lg hover:bg-gray-100 text-gray-600">Calendar</Link>
-            <span className="px-3 py-1.5 rounded-lg bg-ruby-50 text-ruby-800 font-medium">Notifications</span>
-            <Link href="/admin/audit" className="px-3 py-1.5 rounded-lg hover:bg-gray-100 text-gray-600">Audit</Link>
-          </nav>
+      <header className="sticky top-0 z-10 bg-[#eef2f0]/85 backdrop-blur border-b border-[#dde5e1]">
+        <div className="px-6 md:px-8 py-4">
+          <h1 className="font-display text-[20px] font-bold text-[#0e3b2e] leading-tight">Notifications</h1>
+          <p className="text-[12.5px] text-slate-500">{data?.rows?.length ?? 0} recent messages</p>
         </div>
       </header>
 

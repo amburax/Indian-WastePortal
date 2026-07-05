@@ -53,6 +53,9 @@ CREATE TABLE IF NOT EXISTS organizations (
   manual_otp        TEXT,                          -- OTP the client entered on their status page
   manual_otp_at     TEXT,                          -- when the client shared it
 
+  -- Soft delete — admin archives old/junk submissions (hidden from default list)
+  archived          INTEGER NOT NULL DEFAULT 0,
+
   -- Timestamps
   created_at        TEXT NOT NULL DEFAULT (datetime('now')),
   updated_at        TEXT NOT NULL DEFAULT (datetime('now')),

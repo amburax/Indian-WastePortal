@@ -76,7 +76,10 @@ CREATE TABLE IF NOT EXISTS organizations (
   -- OTP relay (client enters their own OTP on their status page)
   otp_requested_at  TIMESTAMPTZ,
   manual_otp        TEXT,
-  manual_otp_at     TIMESTAMPTZ
+  manual_otp_at     TIMESTAMPTZ,
+
+  -- Soft delete — admin archives old/junk submissions (hidden from default list)
+  archived          INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE INDEX IF NOT EXISTS idx_orgs_status      ON organizations(status);

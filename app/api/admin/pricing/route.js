@@ -1,10 +1,16 @@
 import { NextResponse } from 'next/server';
 import { getDb }    from '../../../../lib/d1-db';
-import { getAdmin } from '../../../../lib/admin-auth';
+import { getAdmin, getAdminRole } from '../../../../lib/admin-auth';
 import { writeAudit } from '../../../../lib/audit';
 import { randomUUID } from 'crypto';
 
 const toPaise = (v) => Math.round(Number(v) * 100);
+
+// Pricing is global billing config → mutations are superadmin-only.
+async function requireSuperadmin(db, admin) {
+  return (await getAdminRole(db, admin.email)) === 'superadmin';
+}
+const FORBIDDEN = NextResponse.json({ error: 'Superadmin role required' }, { status: 403 });
 
 /** GET — list all pricing rules (newest last). */
 export async function GET(request) {
@@ -25,12 +31,14 @@ export async function POST(request) {
   const admin = getAdmin(request);
   if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   try {
+    const db = getDb(request);
+    if (!(await requireSuperadmin(db, admin))) return FORBIDDEN;
+
     const { est_type, location = 'Any', amountRupees } = await request.json();
     if (!est_type?.trim()) return NextResponse.json({ error: 'Establishment type required' }, { status: 400 });
     const paise = toPaise(amountRupees);
     if (!paise || paise < 100) return NextResponse.json({ error: 'Valid amount (₹) required' }, { status: 400 });
 
-    const db = getDb(request);
     const id = randomUUID();
     await db.run('INSERT INTO pricing_rules (id, est_type, location, amount_paise) VALUES (?,?,?,?)',
       [id, est_type.trim(), (location || 'Any').trim(), paise]);
@@ -58,6 +66,7 @@ export async function PUT(request) {
     if (!set.length) return NextResponse.json({ error: 'Nothing to update' }, { status: 400 });
 
     const db = getDb(request);
+    if (!(await requireSuperadmin(db, admin))) return FORBIDDEN;
     await db.run(`UPDATE pricing_rules SET ${set.join(', ')} WHERE id = ?`, [...params, id]);
     await writeAudit(db, { adminEmail: admin.email, action: 'pricing_update', meta: { id } });
     return NextResponse.json({ ok: true });
@@ -75,6 +84,7 @@ export async function DELETE(request) {
     const id = new URL(request.url).searchParams.get('id');
     if (!id) return NextResponse.json({ error: 'id required' }, { status: 400 });
     const db = getDb(request);
+    if (!(await requireSuperadmin(db, admin))) return FORBIDDEN;
     await db.run('DELETE FROM pricing_rules WHERE id = ?', [id]);
     await writeAudit(db, { adminEmail: admin.email, action: 'pricing_delete', meta: { id } });
     return NextResponse.json({ ok: true });

@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getDb }    from '../../../../lib/d1-db';
-import { getAdmin } from '../../../../lib/admin-auth';
+import { getAdmin, getAdminRole } from '../../../../lib/admin-auth';
 
 /**
  * GET /api/admin/stats — dashboard KPIs: status counts, funnel, revenue, notifications.
@@ -12,7 +12,8 @@ export async function GET(request) {
   try {
     const db = getDb(request);
 
-    const statusRows = await db.all('SELECT status, COUNT(*) c FROM organizations GROUP BY status', []);
+    // Archived submissions are excluded from every KPI (they're hidden from the list too).
+    const statusRows = await db.all('SELECT status, COUNT(*) c FROM organizations WHERE archived = 0 GROUP BY status', []);
     const counts = {};
     let total = 0;
     for (const r of statusRows) { counts[r.status] = r.c; total += r.c; }
@@ -21,9 +22,9 @@ export async function GET(request) {
       SELECT
         SUM(CASE WHEN retainer_paid = 1 THEN 1 ELSE 0 END)    AS retainer_paid,
         SUM(CASE WHEN payment_verified = 1 THEN 1 ELSE 0 END) AS balance_paid
-      FROM organizations`, []);
+      FROM organizations WHERE archived = 0`, []);
 
-    const revRows = await db.all("SELECT kind, SUM(amount_paise) paise, COUNT(*) n FROM payments WHERE status = 'paid' GROUP BY kind", []);
+    const revRows = await db.all("SELECT kind, SUM(amount_paise) paise, COUNT(*) n FROM payments WHERE status = 'paid' AND org_id IN (SELECT id FROM organizations WHERE archived = 0) GROUP BY kind", []);
     const revenue = { retainer: 0, balance: 0, full: 0, total: 0 };
     for (const r of revRows) { revenue[r.kind || 'full'] = r.paise || 0; revenue.total += r.paise || 0; }
 
@@ -32,10 +33,11 @@ export async function GET(request) {
     for (const r of notifRows) { notifications[r.status] = r.c; notifications.total += r.c; }
 
     const upcoming = await db.get(
-      "SELECT COUNT(*) c FROM organizations WHERE appointment_at IS NOT NULL AND appointment_at >= datetime('now')", []);
+      "SELECT COUNT(*) c FROM organizations WHERE archived = 0 AND appointment_at IS NOT NULL AND appointment_at >= datetime('now')", []);
 
     return NextResponse.json({
       admin: admin.email,
+      role: await getAdminRole(db, admin.email),
       total,
       counts,
       funnel: {
