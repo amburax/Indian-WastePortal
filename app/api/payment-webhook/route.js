@@ -132,19 +132,22 @@ async function notifySafe(db, orgId, type, payload) {
 //   balance|full → marks payment_verified + status Paid (Gate 1 cleared)
 // Filing still only starts when an admin presses Start Filing (Gate 2).
 async function processPayment({ orderId, paymentId, signature, webhookPayload, db, cfEnv }) {
-  // Idempotency — Razorpay retries webhooks. If this order is already settled, skip.
-  const existing = await db.get(...Q.getPaymentByOrderId(orderId));
-  if (existing?.status === 'paid') {
-    console.log(`↩ [Payment] duplicate webhook for ${orderId} — already paid, skipping`);
-    return { orgId: existing.org_id, kind: existing.kind || 'full', duplicate: true };
-  }
+  // Atomic idempotency claim. Razorpay retries webhooks, and the client-side
+  // verify can race the server webhook — but this conditional UPDATE flips
+  // created→paid exactly once. Only the request that actually changes the row
+  // (claim.changes === 1) runs the money-affecting side effects below; every
+  // duplicate changes 0 rows and returns as a no-op.
+  const claim = await db.run(...Q.updatePaymentSuccess(paymentId, signature, webhookPayload, orderId));
 
-  await db.run(...Q.updatePaymentSuccess(paymentId, signature, webhookPayload, orderId));
-
-  const payment = existing || await db.get(...Q.getPaymentByOrderId(orderId));
+  const payment = await db.get(...Q.getPaymentByOrderId(orderId));
   if (!payment?.org_id) throw new Error(`No org found for order ${orderId}`);
   const orgId = payment.org_id;
   const kind  = payment.kind || 'full';
+
+  if (!claim || claim.changes === 0) {
+    console.log(`↩ [Payment] duplicate webhook for ${orderId} — already settled, skipping side effects`);
+    return { orgId, kind, duplicate: true };
+  }
 
   if (kind === 'retainer') {
     // Booking fee → move New → UnderReview, flag retainer_paid. No filing yet.
@@ -176,14 +179,15 @@ async function processBalanceLink({ plinkId, orgIdNote, paymentId, webhookPayloa
   }
   if (!orgId) throw new Error('payment_link.paid: could not resolve org');
 
-  // Idempotency — skip if the balance invoice is already settled.
-  const bal = await db.get("SELECT status FROM payments WHERE org_id=? AND kind='balance' ORDER BY created_at DESC LIMIT 1", [orgId]);
-  if (bal?.status === 'paid') { console.log(`↩ [Payment] duplicate payment_link.paid for ${orgId} — skipping`); return; }
-
-  await db.run(
-    "UPDATE payments SET status='paid', razorpay_payment_id=?, paid_at=datetime('now'), webhook_payload=? WHERE org_id=? AND kind='balance'",
+  // Atomic idempotency claim — the `status != 'paid'` guard flips the balance
+  // invoice to paid exactly once, so a retried/duplicate payment_link.paid
+  // changes 0 rows and skips the side effects below.
+  const claim = await db.run(
+    "UPDATE payments SET status='paid', razorpay_payment_id=?, paid_at=datetime('now'), webhook_payload=? WHERE org_id=? AND kind='balance' AND status != 'paid'",
     [paymentId || null, webhookPayload || null, orgId]
-  ).catch(() => {});
+  );
+  if (!claim || claim.changes === 0) { console.log(`↩ [Payment] duplicate payment_link.paid for ${orgId} — skipping`); return; }
+
   await db.run(...Q.markPaymentVerified(orgId));
   await db.run(...Q.updateStatus('Paid', orgId));
   await notifySafe(db, orgId, 'submission_ack',
