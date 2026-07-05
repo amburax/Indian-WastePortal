@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import PricingSection from '../components/PricingSection';
 import EWasteModal   from '../components/EWasteModal';
+import LoginModal    from '../components/LoginModal';
 import GlassCard     from '../components/GlassCard';
 import PreScreenWizard from '../components/PreScreenWizard';
 import CapabilityMosaic from '../components/CapabilityMosaic';
@@ -50,7 +51,7 @@ function TopAlertBanner() {
 }
 
 // ── Header ──────────────────────────────────────────────
-function Header() {
+function Header({ onLogin }) {
   const { t } = useI18n();
   const [authed, setAuthed] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -99,7 +100,7 @@ function Header() {
             ? <Link href="/dashboard" id="header-register-btn" className="bg-[#fde08b] text-slate-900 text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-[#c8a24b] transition-colors shadow-lg">{t('pg.nav.dash')}</Link>
             : (
               <>
-                <Link href="/login" className="text-white text-sm font-bold hover:text-white/80 drop-shadow-md hidden sm:block">{t('pg.nav.login')}</Link>
+                <button type="button" onClick={onLogin} className="text-white text-sm font-bold hover:text-white/80 drop-shadow-md hidden sm:block">{t('pg.nav.login')}</button>
                 <Link href="/register" className="bg-[#fde08b] text-slate-900 text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-[#c8a24b] transition-colors shadow-lg">{t('pg.nav.start')}</Link>
               </>
             )}
@@ -118,7 +119,7 @@ function Header() {
               <a key={n.href} href={n.href} onClick={() => setMenuOpen(false)} className="px-3 py-2.5 rounded-xl hover:bg-white/10 hover:text-white">{n.label}</a>
             ))}
             <div className="h-px bg-white/10 my-2" />
-            <Link href="/login" onClick={() => setMenuOpen(false)} className="px-3 py-2.5 rounded-xl hover:bg-white/10 hover:text-white">{t('pg.nav.login')}</Link>
+            <button type="button" onClick={() => { setMenuOpen(false); onLogin?.(); }} className="text-left px-3 py-2.5 rounded-xl hover:bg-white/10 hover:text-white">{t('pg.nav.login')}</button>
             <Link href="/register" onClick={() => setMenuOpen(false)} className="px-3 py-2.5 rounded-xl bg-[#c8a24b] text-slate-900 font-bold text-center mt-2">{t('pg.nav.start')}</Link>
             <div className="px-3 pt-4 pb-2"><LanguageSwitcher dark className="text-white w-full justify-center" /></div>
           </nav>
@@ -596,11 +597,12 @@ function Footer() {
 // ── Page ─────────────────────────────────────────────────
 export default function HomePage() {
   const [showEWasteModal, setShowEWasteModal] = useState(false);
+  const [showLogin, setShowLogin] = useState(false);
 
   return (
     <div className="min-h-screen page-transition">
       <TopAlertBanner />
-      <Header />
+      <Header onLogin={() => setShowLogin(true)} />
       <main>
         <FullscreenHero />
         <TickerTape />
@@ -618,6 +620,7 @@ export default function HomePage() {
       </main>
       <Footer />
       <EWasteModal isOpen={showEWasteModal} onClose={() => setShowEWasteModal(false)} />
+      <LoginModal isOpen={showLogin} onClose={() => setShowLogin(false)} />
     </div>
   );
 }
