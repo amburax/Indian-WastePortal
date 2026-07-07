@@ -85,7 +85,7 @@ export default function FullscreenHero() {
       ))}
 
       {/* Main Content Area (Pushed down to account for absolute header) */}
-      <div className="relative z-10 flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full pt-32 pb-20">
+      <div className="relative z-10 flex-1 flex flex-col justify-center px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto w-full pt-40 sm:pt-36 lg:pt-32 pb-20">
         
         <div className="grid lg:grid-cols-12 gap-12 items-center">
           
@@ -99,7 +99,7 @@ export default function FullscreenHero() {
             </div>
 
             {/* Headline */}
-            <h1 className="font-display text-5xl md:text-6xl lg:text-7xl font-black text-white leading-[1.1] tracking-tight mb-10 drop-shadow-lg">
+            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-[1.1] tracking-tight mb-8 sm:mb-10 drop-shadow-lg">
               {slide.headline}
             </h1>
 

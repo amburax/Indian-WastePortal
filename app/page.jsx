@@ -77,13 +77,13 @@ function Header({ onLogin }) {
         ? 'top-0 bg-[#0e3b2e]/95 backdrop-blur-md shadow-lg border-b border-white/10'
         : 'top-[44px] bg-transparent'
     }`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-3">
         {/* Logo */}
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-white/10 backdrop-blur-md border border-white/20">
+        <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+          <div className="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center bg-white/10 backdrop-blur-md border border-white/20">
             <ShieldCheck size={16} className="text-white" />
           </div>
-          <span className="font-display text-xl font-bold text-white tracking-tight drop-shadow-md">
+          <span className="font-display text-lg sm:text-xl font-bold text-white tracking-tight drop-shadow-md whitespace-nowrap">
             Indian Waste<span className="text-[#c8a24b]">Portal</span>
           </span>
         </div>
@@ -94,14 +94,14 @@ function Header({ onLogin }) {
         </nav>
 
         {/* CTA */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4 shrink-0">
           <LanguageSwitcher dark className="hidden sm:inline-flex text-white border-white/20 hover:bg-white/10" />
           {authed
-            ? <Link href="/dashboard" id="header-register-btn" className="bg-[#fde08b] text-slate-900 text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-[#c8a24b] transition-colors shadow-lg">{t('pg.nav.dash')}</Link>
+            ? <Link href="/dashboard" id="header-register-btn" className="bg-[#fde08b] text-slate-900 text-xs sm:text-sm font-bold px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl hover:bg-[#c8a24b] transition-colors shadow-lg whitespace-nowrap">{t('pg.nav.dash')}</Link>
             : (
               <>
                 <button type="button" onClick={onLogin} className="text-white text-sm font-bold hover:text-white/80 drop-shadow-md hidden sm:block">{t('pg.nav.login')}</button>
-                <Link href="/register" className="bg-[#fde08b] text-slate-900 text-sm font-bold px-5 py-2.5 rounded-xl hover:bg-[#c8a24b] transition-colors shadow-lg">{t('pg.nav.start')}</Link>
+                <Link href="/register" className="bg-[#fde08b] text-slate-900 text-xs sm:text-sm font-bold px-3.5 sm:px-5 py-2 sm:py-2.5 rounded-xl hover:bg-[#c8a24b] transition-colors shadow-lg whitespace-nowrap">{t('pg.nav.start')}</Link>
               </>
             )}
           <button onClick={() => setMenuOpen(v => !v)} aria-label={t('pg.aria.menu')}
