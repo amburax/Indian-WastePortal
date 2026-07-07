@@ -12,8 +12,8 @@ export default function Contact() {
 
       <H2>Reach us</H2>
       <ul className="list-none space-y-2">
-        <li><strong>Email:</strong> <a className="text-ruby-800 underline" href="mailto:hello@indianwasteportal.in">hello@indianwasteportal.in</a></li>
-        <li><strong>WhatsApp:</strong> <a className="text-ruby-800 underline" href="https://wa.me/918469876518" target="_blank" rel="noopener noreferrer">+91 84698 76518</a></li>
+        <li><strong>Email:</strong> <a className="text-ruby-800 underline" href="mailto:indianwasteportal@gmail.com">indianwasteportal@gmail.com</a></li>
+        <li><strong>Phone:</strong> <a className="text-ruby-800 underline" href="tel:+919054047272">+91 90540 47272</a></li>
         <li><strong>Hours:</strong> Mon–Sat, 10:00–19:00 IST</li>
       </ul>
 
