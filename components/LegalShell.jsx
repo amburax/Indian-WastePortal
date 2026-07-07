@@ -1,6 +1,5 @@
 import Link from 'next/link';
-import { ShieldCheck, ArrowLeft } from 'lucide-react';
-import LanguageSwitcher from './LanguageSwitcher';
+import SiteNavbar from './SiteNavbar';
 
 /**
  * Shared shell for legal/policy pages. Server component (no interactivity), so
@@ -9,21 +8,7 @@ import LanguageSwitcher from './LanguageSwitcher';
 export default function LegalShell({ title, updated, children }) {
   return (
     <div className="min-h-screen bg-mesh-light">
-      <header className="glass border-b border-white/50 sticky top-0 z-40">
-        <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-slate-600 hover:text-slate-800">
-            <ArrowLeft size={16} />
-            <div className="flex items-center gap-1.5">
-              <ShieldCheck size={15} className="text-ruby-800" />
-              <span className="font-display font-bold text-sm">Indian Waste<span className="text-ruby-800">Portal</span></span>
-            </div>
-          </Link>
-          <div className="flex items-center gap-4">
-            <LanguageSwitcher className="hidden sm:inline-flex" />
-            <span className="text-xs text-slate-400 hidden md:inline">Legal</span>
-          </div>
-        </div>
-      </header>
+      <SiteNavbar right={<span className="text-xs text-white/70 hidden md:inline">Legal</span>} />
 
       <main className="max-w-3xl mx-auto px-5 py-10">
         <h1 className="font-display text-3xl font-bold text-slate-800">{title}</h1>

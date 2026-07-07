@@ -8,7 +8,7 @@ import {
 } from 'lucide-react';
 import GlassCard    from '../../components/GlassCard';
 import PaymentButton from '../../components/PaymentButton';
-import LanguageSwitcher from '../../components/LanguageSwitcher';
+import SiteNavbar from '../../components/SiteNavbar';
 import { useI18n } from '../../lib/i18n';
 
 const STATUS_CONFIG = {
@@ -245,21 +245,7 @@ export default function PortalPage() {
   return (
     <div className="min-h-screen bg-mesh">
       {/* Header */}
-      <header className="glass border-b border-white/50 sticky top-0 z-40">
-        <div className="max-w-4xl mx-auto px-4 h-14 flex items-center justify-between">
-          <Link href="/" className="flex items-center gap-2 text-slate-600 hover:text-slate-800 transition-colors">
-            <ArrowLeft size={16} />
-            <div className="flex items-center gap-1.5">
-              <ShieldCheck size={15} className="text-ruby-800" />
-              <span className="font-display font-bold text-sm">Indian Waste<span className="text-ruby-800">Portal</span></span>
-            </div>
-          </Link>
-          <div className="flex items-center gap-4">
-            <LanguageSwitcher className="hidden sm:inline-flex" />
-            <span className="text-xs text-slate-400 font-medium hidden md:inline">{t('pt.chrome')}</span>
-          </div>
-        </div>
-      </header>
+      <SiteNavbar right={<span className="text-xs text-white/70 font-medium hidden lg:inline">{t('pt.chrome')}</span>} />
 
       <main className="max-w-4xl mx-auto px-4 py-10">
         <Suspense fallback={

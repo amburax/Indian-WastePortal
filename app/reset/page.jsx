@@ -3,7 +3,7 @@ import { useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { ShieldCheck, ArrowLeft, Loader2, KeyRound } from 'lucide-react';
-import LanguageSwitcher from '../../components/LanguageSwitcher';
+import SiteNavbar from '../../components/SiteNavbar';
 import { useI18n } from '../../lib/i18n';
 
 function ResetContent() {
@@ -59,18 +59,7 @@ function ResetContent() {
 export default function ResetPage() {
   return (
     <div className="min-h-screen bg-mesh flex flex-col">
-      <header className="glass border-b border-white/50 sticky top-0 z-40">
-        <div className="max-w-3xl mx-auto px-4 h-14 flex items-center justify-between">
-          <Link href="/login" className="flex items-center gap-2 text-slate-600 hover:text-slate-800">
-            <ArrowLeft size={16} />
-            <div className="flex items-center gap-1.5">
-              <ShieldCheck size={15} className="text-ruby-800" />
-              <span className="font-display font-bold text-sm">Indian Waste<span className="text-ruby-800">Portal</span></span>
-            </div>
-          </Link>
-          <LanguageSwitcher className="hidden sm:inline-flex" />
-        </div>
-      </header>
+      <SiteNavbar />
       <main className="flex-1 flex items-center justify-center px-4 py-12">
         <Suspense fallback={<Loader2 size={24} className="animate-spin text-ruby-800" />}>
           <ResetContent />

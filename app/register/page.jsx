@@ -11,7 +11,7 @@ import GlassCard          from '../../components/GlassCard';
 import StepProgress       from '../../components/StepProgress';
 import { INDIAN_STATES } from '../../lib/lgdData';
 import { useI18n } from '../../lib/i18n';
-import LanguageSwitcher from '../../components/LanguageSwitcher';
+import SiteNavbar from '../../components/SiteNavbar';
 
 // ── Sub-categories from WasteComply_CRM (exact CPCB portal values) ─
 const SUBCATS = {
@@ -678,29 +678,7 @@ function RegisterContent() {
 
   return (
     <div className="min-h-screen bg-mesh dot-grid">
-      <header className="sticky top-0 z-40 bg-[#0e3b2e]/95 backdrop-blur-md shadow-lg border-b border-white/10">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center bg-white/10 backdrop-blur-md border border-white/20">
-              <ShieldCheck size={16} className="text-white" />
-            </div>
-            <span className="font-display text-xl font-bold text-white tracking-tight">Indian Waste<span className="text-[#c8a24b]">Portal</span></span>
-          </Link>
-          {/* Nav */}
-          <nav className="hidden md:flex items-center gap-7 text-sm font-semibold text-white/90">
-            <Link href="/#whats-new"    className="hover:text-white transition-colors">{t('pg.nav.swm')}</Link>
-            <Link href="/#services"     className="hover:text-white transition-colors">{t('nav.services')}</Link>
-            <Link href="/#how-it-works" className="hover:text-white transition-colors">{t('nav.how')}</Link>
-            <Link href="/#pricing"      className="hover:text-white transition-colors">{t('nav.pricing')}</Link>
-          </nav>
-          {/* Right */}
-          <div className="flex items-center gap-3">
-            <LanguageSwitcher dark className="hidden sm:inline-flex" />
-            <span className="text-xs text-white/70 hidden lg:inline">{t('reg.chrome')} — {planFromUrl}</span>
-          </div>
-        </div>
-      </header>
+      <SiteNavbar right={<span className="text-xs text-white/70 hidden lg:inline">{t('reg.chrome')} — {planFromUrl}</span>} />
 
       <main className="max-w-2xl mx-auto px-4 py-10 page-transition">
         {step === 1 && <ServiceSelector service={service} onSelect={setService} />}
