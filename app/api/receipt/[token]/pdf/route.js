@@ -16,8 +16,8 @@ const LINE = '#e5e7eb';
 
 const BIZ = {
   name:  process.env.BUSINESS_NAME  || 'Indian Waste Portal',
-  email: process.env.BUSINESS_EMAIL || 'hello@indianwasteportal.in',
-  site:  process.env.APP_BASE_URL   || 'https://indianwasteportal.in',
+  email: process.env.BUSINESS_EMAIL || 'indianwasteportal@gmail.com',
+  site:  process.env.APP_BASE_URL   || 'https://indianwasteportal.com',
 };
 const inr = (p) => `Rs. ${((p || 0) / 100).toLocaleString('en-IN', { minimumFractionDigits: 2 })}`;
 

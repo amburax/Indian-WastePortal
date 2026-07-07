@@ -577,8 +577,8 @@ function Footer() {
           <a href="/legal/refund" className="hover:text-slate-600 transition-colors">{t('footer.refund')}</a>
           <a href="/legal/contact" className="hover:text-slate-600 transition-colors">{t('footer.contact')}</a>
           <a href="/find" className="hover:text-slate-600 transition-colors">{t('footer.track')}</a>
-          <a href="mailto:hello@indianwasteportal.in" className="hover:text-slate-600 transition-colors flex items-center gap-1">
-            <Mail size={12} />hello@indianwasteportal.in
+          <a href="mailto:indianwasteportal@gmail.com" className="hover:text-slate-600 transition-colors flex items-center gap-1">
+            <Mail size={12} />indianwasteportal@gmail.com
           </a>
         </div>
 

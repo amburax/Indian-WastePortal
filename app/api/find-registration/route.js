@@ -27,7 +27,7 @@ export async function POST(request) {
     try {
       await sendNotification(db, {
         orgId: org.id, channel: 'whatsapp', type: 'status_link',
-        payload: `Your Indian Waste Portal tracking link: ${process.env.APP_BASE_URL || 'https://indianwasteportal.in'}/status/${org.payment_token}`,
+        payload: `Your Indian Waste Portal tracking link: ${process.env.APP_BASE_URL || 'https://indianwasteportal.com'}/status/${org.payment_token}`,
       });
     } catch (e) { console.warn('[find] whatsapp failed:', e.message); }
 

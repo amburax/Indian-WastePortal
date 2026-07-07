@@ -31,7 +31,7 @@ export default function Refund() {
 
       <H2>3. How to request a cancellation or refund</H2>
       <p>
-        Email <a className="text-ruby-800 underline" href="mailto:hello@indianwasteportal.in">hello@indianwasteportal.in</a>
+        Email <a className="text-ruby-800 underline" href="mailto:indianwasteportal@gmail.com">indianwasteportal@gmail.com</a>
         {' '}from your registered email with your organisation name and reference token. Eligible
         refunds are processed to the original payment method within <strong>5–7 business days</strong>
         via our payment gateway.
@@ -47,7 +47,7 @@ export default function Refund() {
       <p>Any statutory fees payable to a government authority are separate and governed by that authority’s rules; we do not control or refund such amounts.</p>
 
       <H2>6. Contact</H2>
-      <p>For any billing question, email <a className="text-ruby-800 underline" href="mailto:hello@indianwasteportal.in">hello@indianwasteportal.in</a>.</p>
+      <p>For any billing question, email <a className="text-ruby-800 underline" href="mailto:indianwasteportal@gmail.com">indianwasteportal@gmail.com</a>.</p>
     </LegalShell>
   );
 }

@@ -3,7 +3,7 @@ import WhatsAppFab from '../components/WhatsAppFab';
 import Analytics from '../components/Analytics';
 import { LanguageProvider } from '../lib/i18n';
 
-const BASE = process.env.APP_BASE_URL || 'https://indianwasteportal.in';
+const BASE = process.env.APP_BASE_URL || 'https://indianwasteportal.com';
 
 export const metadata = {
   metadataBase: new URL(BASE),
@@ -35,13 +35,13 @@ const orgJsonLd = {
   '@type': 'Organization',
   name: 'Indian Waste Portal',
   url: BASE,
-  email: 'hello@indianwasteportal.in',
+  email: 'indianwasteportal@gmail.com',
   description: 'CPCB SWM 2026 Bulk Waste Generator compliance middleware and consultancy.',
   areaServed: 'IN',
   contactPoint: {
     '@type': 'ContactPoint',
     contactType: 'customer support',
-    email: 'hello@indianwasteportal.in',
+    email: 'indianwasteportal@gmail.com',
     availableLanguage: ['en', 'hi', 'gu'],
   },
 };

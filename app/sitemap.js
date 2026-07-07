@@ -1,5 +1,5 @@
 export default function sitemap() {
-  const base = process.env.APP_BASE_URL || 'https://indianwasteportal.in';
+  const base = process.env.APP_BASE_URL || 'https://indianwasteportal.com';
   const now = new Date();
   const paths = ['', '/register', '/find', '/legal/privacy', '/legal/terms', '/legal/refund', '/legal/contact'];
   return paths.map(p => ({

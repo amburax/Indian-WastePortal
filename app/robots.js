@@ -1,5 +1,5 @@
 export default function robots() {
-  const base = process.env.APP_BASE_URL || 'https://indianwasteportal.in';
+  const base = process.env.APP_BASE_URL || 'https://indianwasteportal.com';
   return {
     rules: [{
       userAgent: '*',

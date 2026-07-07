@@ -30,7 +30,7 @@ export async function POST(request) {
     try {
       await sendNotification(db, {
         orgId, channel: 'whatsapp', type: 'otp_link',
-        payload: `Action needed: open your tracking page and enter the CPCB OTP sent to your phone → ${(process.env.APP_BASE_URL || 'https://indianwasteportal.in')}/status/${org.payment_token}`,
+        payload: `Action needed: open your tracking page and enter the CPCB OTP sent to your phone → ${(process.env.APP_BASE_URL || 'https://indianwasteportal.com')}/status/${org.payment_token}`,
       });
     } catch { /* non-fatal */ }
 

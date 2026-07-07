@@ -62,7 +62,7 @@ export default function Terms() {
       </p>
 
       <H2>8. Contact</H2>
-      <p>Email <a className="text-ruby-800 underline" href="mailto:hello@indianwasteportal.in">hello@indianwasteportal.in</a>.</p>
+      <p>Email <a className="text-ruby-800 underline" href="mailto:indianwasteportal@gmail.com">indianwasteportal@gmail.com</a>.</p>
     </LegalShell>
   );
 }

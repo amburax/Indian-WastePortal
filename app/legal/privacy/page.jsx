@@ -62,7 +62,7 @@ export default function Privacy() {
       <p>We may update this policy from time to time; the “last updated” date reflects the latest revision.</p>
 
       <H2>8. Contact</H2>
-      <p>Questions about this policy? Email <a className="text-ruby-800 underline" href="mailto:hello@indianwasteportal.in">hello@indianwasteportal.in</a>.</p>
+      <p>Questions about this policy? Email <a className="text-ruby-800 underline" href="mailto:indianwasteportal@gmail.com">indianwasteportal@gmail.com</a>.</p>
     </LegalShell>
   );
 }

@@ -29,7 +29,7 @@ export default function Error({ error, reset }) {
         <h1 className="font-display text-2xl font-bold text-slate-800">Something went wrong</h1>
         <p className="text-sm text-slate-500 mt-2">
           An unexpected error occurred. Please try again — if it keeps happening, contact us at
-          {' '}<a href="mailto:hello@indianwasteportal.in" className="text-ruby-800 underline">hello@indianwasteportal.in</a>.
+          {' '}<a href="mailto:indianwasteportal@gmail.com" className="text-ruby-800 underline">indianwasteportal@gmail.com</a>.
         </p>
         {error?.digest && <p className="text-[11px] text-slate-400 mt-3 font-mono">ref: {error.digest}</p>}
         <div className="flex items-center justify-center gap-3 mt-6">

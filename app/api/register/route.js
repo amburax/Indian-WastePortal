@@ -154,7 +154,7 @@ export async function POST(request) {
     try {
       await sendNotification(db, {
         orgId, channel: 'whatsapp', type: 'status_link',
-        payload: `Thanks for registering with Indian Waste Portal. Track your filing here: ${process.env.APP_BASE_URL || 'https://indianwasteportal.in'}/status/${token}`,
+        payload: `Thanks for registering with Indian Waste Portal. Track your filing here: ${process.env.APP_BASE_URL || 'https://indianwasteportal.com'}/status/${token}`,
       });
     } catch (e) { console.warn('[register] whatsapp link failed (non-fatal):', e.message); }
 
