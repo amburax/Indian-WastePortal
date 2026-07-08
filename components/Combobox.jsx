@@ -12,17 +12,22 @@ import { ChevronDown, Check, Pencil } from 'lucide-react';
  * keystroke and on selection. `options` is an array of strings.
  */
 export default function Combobox({
-  value = '', onChange, options = [], placeholder, disabled = false,
+  value = '', onChange, onBlur, options = [], placeholder, disabled = false,
   error = false, id, maxVisible = 60,
 }) {
   const [open, setOpen] = useState(false);
   const wrapRef = useRef(null);
 
   useEffect(() => {
-    const onDoc = (e) => { if (wrapRef.current && !wrapRef.current.contains(e.target)) setOpen(false); };
+    const onDoc = (e) => {
+      if (wrapRef.current && !wrapRef.current.contains(e.target)) {
+        setOpen(false);
+        onBlur?.();   // leaving the field → let the form validate it
+      }
+    };
     document.addEventListener('mousedown', onDoc);
     return () => document.removeEventListener('mousedown', onDoc);
-  }, []);
+  }, [onBlur]);
 
   const q = (value || '').toLowerCase().trim();
   const filtered = (q ? options.filter(o => o.toLowerCase().includes(q)) : options).slice(0, maxVisible);

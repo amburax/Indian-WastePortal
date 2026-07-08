@@ -123,11 +123,12 @@ function FieldError({ msg }) {
 // ────────────────────────────────────────────────────────────
 //  STEP 1: Account (CPCB Step 1 fields)
 // ────────────────────────────────────────────────────────────
-function Step1Account({ data, onChange, errors, loggedIn, accountEmail }) {
+function Step1Account({ data, onChange, onBlur, errors, loggedIn, accountEmail }) {
   const { t } = useI18n();
   const f = (key) => ({
     value:    data[key],
     onChange: (e) => onChange(key, e.target.value),
+    onBlur:   () => onBlur(key),
   });
 
   return (
@@ -174,6 +175,7 @@ function Step1Account({ data, onChange, errors, loggedIn, accountEmail }) {
           <div className="relative">
             <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-medium text-slate-500">+91</span>
             <input value={data.phone} onChange={e => onChange('phone', e.target.value.replace(/\D/g, ''))}
+                   onBlur={() => onBlur('phone')}
                    type="tel" inputMode="numeric" maxLength={10}
                    className={`form-input pl-12 ${errors.phone ? 'error' : ''}`}
                    placeholder="9876543210" id="f-mobile" />
@@ -187,7 +189,7 @@ function Step1Account({ data, onChange, errors, loggedIn, accountEmail }) {
       {!loggedIn && (
         <div>
           <label className="form-label">{t('reg.a.password')}</label>
-          <input value={data.password || ''} onChange={e => onChange('password', e.target.value)} type="password"
+          <input value={data.password || ''} onChange={e => onChange('password', e.target.value)} onBlur={() => onBlur('password')} type="password"
                  className={`form-input ${errors.password ? 'error' : ''}`} placeholder={t('reg.a.passwordPh')} autoComplete="new-password" id="f-password" />
           <p className="text-xs text-slate-400 mt-1">{t('reg.a.passwordHint')}</p>
           <FieldError msg={errors.password} />
@@ -210,7 +212,7 @@ function Step1Account({ data, onChange, errors, loggedIn, accountEmail }) {
 // ────────────────────────────────────────────────────────────
 //  STEP 2: Category + Sub-category (CPCB Step 2A)
 // ────────────────────────────────────────────────────────────
-function Step2Category({ data, onChange, errors }) {
+function Step2Category({ data, onChange, onBlur, errors }) {
   const { t } = useI18n();
   const subcats = SUBCATS[data.category] || [];
 
@@ -237,6 +239,7 @@ function Step2Category({ data, onChange, errors }) {
           <select id="f-cat"
                   value={data.category}
                   onChange={e => { onChange('category', e.target.value); onChange('sub_category', ''); }}
+                  onBlur={() => onBlur('category')}
                   className={`form-input ${errors.category ? 'error' : ''}`}>
             <option value="">{t('reg.c.categorySelect')}</option>
             <option>Institutional</option>
@@ -250,6 +253,7 @@ function Step2Category({ data, onChange, errors }) {
           <select id="f-subcat"
                   value={data.sub_category}
                   onChange={e => onChange('sub_category', e.target.value)}
+                  onBlur={() => onBlur('sub_category')}
                   disabled={!data.category}
                   className={`form-input ${errors.sub_category ? 'error' : ''}`}>
             <option value="">{data.category ? t('reg.c.subcatSelect') : t('reg.c.subcatFirst')}</option>
@@ -266,6 +270,7 @@ function Step2Category({ data, onChange, errors }) {
           <input id="f-floor" type="number" min="0" inputMode="decimal"
                  value={data.floor_area_sqm}
                  onChange={e => onChange('floor_area_sqm', e.target.value)}
+                 onBlur={() => onBlur('floor_area_sqm')}
                  className={`form-input ${errors.floor_area_sqm ? 'error' : ''}`} placeholder="5000" />
           <FieldError msg={errors.floor_area_sqm} />
         </div>
@@ -274,6 +279,7 @@ function Step2Category({ data, onChange, errors }) {
           <input id="f-waste" type="number" min="0" inputMode="decimal"
                  value={data.waste_kg_per_day}
                  onChange={e => onChange('waste_kg_per_day', e.target.value)}
+                 onBlur={() => onBlur('waste_kg_per_day')}
                  className={`form-input ${errors.waste_kg_per_day ? 'error' : ''}`} placeholder="150" />
           <FieldError msg={errors.waste_kg_per_day} />
         </div>
@@ -282,6 +288,7 @@ function Step2Category({ data, onChange, errors }) {
           <input id="f-water" type="number" min="0" inputMode="decimal"
                  value={data.water_liters_per_day}
                  onChange={e => onChange('water_liters_per_day', e.target.value)}
+                 onBlur={() => onBlur('water_liters_per_day')}
                  className={`form-input ${errors.water_liters_per_day ? 'error' : ''}`} placeholder="5000" />
           <FieldError msg={errors.water_liters_per_day} />
         </div>
@@ -293,7 +300,7 @@ function Step2Category({ data, onChange, errors }) {
 // ────────────────────────────────────────────────────────────
 //  STEP 3: LGD Address (CPCB Step 2B — full field set)
 // ────────────────────────────────────────────────────────────
-function Step3Address({ data, onChange, errors }) {
+function Step3Address({ data, onChange, onBlur, errors }) {
   const { t } = useI18n();
   const [districts, setDistricts] = useState([]);
   const [subDistricts, setSubDistricts] = useState([]);
@@ -349,6 +356,7 @@ function Step3Address({ data, onChange, errors }) {
                     onChange('sub_district', '');
                     onChange('city_name', '');
                   }}
+                  onBlur={() => onBlur('state_code')}
                   className={`form-input ${errors.state_code ? 'error' : ''}`}>
             <option value="">{t('reg.ad.stateSelect')}</option>
             {INDIAN_STATES.map(s => <option key={s.code} value={s.code}>{s.name}</option>)}
@@ -363,6 +371,7 @@ function Step3Address({ data, onChange, errors }) {
                       onChange('sub_district', '');
                       onChange('city_name', '');
                     }}
+                    onBlur={() => onBlur('district_name')}
                     error={!!errors.district_name}
                     placeholder={t('reg.ph.district')} />
           <FieldError msg={errors.district_name} />
@@ -378,6 +387,7 @@ function Step3Address({ data, onChange, errors }) {
                       onChange('sub_district', val);
                       onChange('city_name', '');
                     }}
+                    onBlur={() => onBlur('sub_district')}
                     error={!!errors.sub_district}
                     placeholder={t('reg.ph.subdistrict')} />
           <FieldError msg={errors.sub_district} />
@@ -386,6 +396,7 @@ function Step3Address({ data, onChange, errors }) {
           <label className="form-label">{t('reg.ad.city')}</label>
           <Combobox id="f-city" value={data.city_name} options={villages.map(v => v.name)}
                     onChange={handleVillageChange}
+                    onBlur={() => onBlur('city_name')}
                     error={!!errors.city_name}
                     placeholder={t('reg.ph.city')} />
           <FieldError msg={errors.city_name} />
@@ -397,6 +408,7 @@ function Step3Address({ data, onChange, errors }) {
         <label className="form-label">{t('reg.ad.fulladdr')}</label>
         <textarea id="f-addr" rows={2} value={data.full_address}
                   onChange={e => onChange('full_address', e.target.value)}
+                  onBlur={() => onBlur('full_address')}
                   className={`form-input resize-none ${errors.full_address ? 'error' : ''}`}
                   placeholder="Plot 12, Sector 4, Near Bus Stand, Bopal" />
         <p className="text-xs text-slate-400 mt-1">{t('reg.ad.fulladdrHint')}</p>
@@ -409,6 +421,7 @@ function Step3Address({ data, onChange, errors }) {
           <label className="form-label">{t('reg.ad.localbody')}</label>
           <select id="f-localbody" value={data.local_body_type}
                   onChange={e => onChange('local_body_type', e.target.value)}
+                  onBlur={() => onBlur('local_body_type')}
                   className={`form-input ${errors.local_body_type ? 'error' : ''}`}>
             <option value="">{t('reg.ad.localbodySelect')}</option>
             <option value="Urban Local Body (ULB)">{t('reg.ad.ulb')}</option>
@@ -420,6 +433,7 @@ function Step3Address({ data, onChange, errors }) {
           <label className="form-label">{t('reg.ad.pincode')}</label>
           <input id="f-pin" type="text" inputMode="numeric" maxLength={6} value={data.pincode}
                  onChange={e => onChange('pincode', e.target.value.replace(/\D/g, ''))}
+                 onBlur={() => onBlur('pincode')}
                  className={`form-input ${errors.pincode ? 'error' : ''}`}
                  placeholder="382010" />
           <FieldError msg={errors.pincode} />
@@ -448,6 +462,7 @@ function Step3Address({ data, onChange, errors }) {
           <label className="form-label">{t('reg.ad.lat')}</label>
           <input id="f-lat" type="number" step="0.0001" value={data.latitude}
                  onChange={e => onChange('latitude', e.target.value)}
+                 onBlur={() => onBlur('latitude')}
                  className={`form-input ${errors.latitude ? 'error' : ''}`} placeholder="19.0760" />
           <FieldError msg={errors.latitude} />
         </div>
@@ -455,6 +470,7 @@ function Step3Address({ data, onChange, errors }) {
           <label className="form-label">{t('reg.ad.long')}</label>
           <input id="f-lng" type="number" step="0.0001" value={data.longitude}
                  onChange={e => onChange('longitude', e.target.value)}
+                 onBlur={() => onBlur('longitude')}
                  className={`form-input ${errors.longitude ? 'error' : ''}`} placeholder="72.8777" />
           <FieldError msg={errors.longitude} />
         </div>
@@ -624,9 +640,50 @@ function RegisterContent() {
   const allConsent = consent.terms && consent.declare && consent.scope;
   const updateConsent = (k, v) => setConsent(p => ({ ...p, [k]: v }));
 
-  const updateAccount  = (k, v) => { setAccount(p => ({ ...p, [k]: v }));  setErrors(p => ({ ...p, [k]: '' })); };
-  const updateCategory = (k, v) => { setCategory(p => ({ ...p, [k]: v })); setErrors(p => ({ ...p, [k]: '' })); };
-  const updateAddress  = (k, v) => { setAddress(p => ({ ...p, [k]: v }));  setErrors(p => ({ ...p, [k]: '' })); };
+  // Which fields the user has already left once — only these validate live, so
+  // we never flash an error while someone is still typing their first value.
+  const [touched, setTouched] = useState({});
+
+  const stepErrors = (whichStep, data) => {
+    if (whichStep === 1) {
+      const e = validate.step1(data, t);
+      if (!loggedIn && (!data.password || data.password.length < 8)) e.password = t('reg.v.password');
+      return e;
+    }
+    if (whichStep === 2) return validate.step2(data, t);
+    return validate.step3(data, t);
+  };
+
+  // Live-update one field's error as the user types — but only after it's been
+  // touched (blurred once). Untouched fields just clear, so typing isn't nagged.
+  const liveField = (whichStep, key, data) => {
+    setErrors(prev => {
+      if (!touched[key]) return { ...prev, [key]: '' };
+      const errs = stepErrors(whichStep, data);
+      const next = { ...prev, [key]: errs[key] || '' };
+      if (whichStep === 2) next.not_bwg = errs.not_bwg || '';
+      return next;
+    });
+  };
+
+  // On blur: mark touched and show that field's error immediately.
+  const blurField = (whichStep, key, data) => {
+    setTouched(prev => ({ ...prev, [key]: true }));
+    const errs = stepErrors(whichStep, data);
+    setErrors(prev => {
+      const next = { ...prev, [key]: errs[key] || '' };
+      if (whichStep === 2) next.not_bwg = errs.not_bwg || '';
+      return next;
+    });
+  };
+
+  const updateAccount  = (k, v) => { const nd = { ...account,  [k]: v }; setAccount(nd);  liveField(1, k, nd); };
+  const updateCategory = (k, v) => { const nd = { ...category, [k]: v }; setCategory(nd); liveField(2, k, nd); };
+  const updateAddress  = (k, v) => { const nd = { ...address,  [k]: v }; setAddress(nd);  liveField(3, k, nd); };
+
+  const blurAccount  = (k) => blurField(1, k, account);
+  const blurCategory = (k) => blurField(2, k, category);
+  const blurAddress  = (k) => blurField(3, k, address);
 
   function validateCurrentStep() {
     let errs = {};
@@ -723,11 +780,11 @@ function RegisterContent() {
             </div>
           </div>
 
-          {step === 1 && <Step1Account  data={account}  onChange={updateAccount}  errors={errors} loggedIn={loggedIn} accountEmail={accountEmail} />}
-          {step === 2 && <Step2Category data={category} onChange={updateCategory} errors={errors} />}
+          {step === 1 && <Step1Account  data={account}  onChange={updateAccount}  onBlur={blurAccount}  errors={errors} loggedIn={loggedIn} accountEmail={accountEmail} />}
+          {step === 2 && <Step2Category data={category} onChange={updateCategory} onBlur={blurCategory} errors={errors} />}
           {step === 3 && (
             <>
-              <Step3Address data={address} onChange={updateAddress} errors={errors} />
+              <Step3Address data={address} onChange={updateAddress} onBlur={blurAddress} errors={errors} />
               <ConsentGate consent={consent} onChange={updateConsent} />
             </>
           )}
