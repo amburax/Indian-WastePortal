@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { getDb, Q }     from '../../../../lib/d1-db';
 import { createOrder }  from '../../../../lib/razorpay';
 import { randomUUID }   from 'crypto';
+import { rateLimit, clientIp } from '../../../../lib/ratelimit';
 
 /**
  * POST /api/payment/create-order
@@ -20,17 +21,24 @@ const RETAINER_PAISE = parseInt(process.env.RETAINER_AMOUNT_PAISE || '49900', 10
 
 export async function POST(request) {
   try {
-    const { orgId, kind = 'full', plan = 'standard' } = await request.json();
+    if ((await rateLimit(request, `createorder:${clientIp(request)}`, { max: 12, windowMs: 60_000 })).limited)
+      return NextResponse.json({ error: 'Too many attempts — please wait a minute.' }, { status: 429 });
+
+    let bodyJson;
+    try { bodyJson = await request.json(); } catch { return NextResponse.json({ error: 'Invalid request body' }, { status: 400 }); }
+    const { orgId, kind = 'full' } = bodyJson;
     if (!orgId) return NextResponse.json({ error: 'orgId is required' }, { status: 400 });
 
     const db  = getDb(request);
     const org = await db.get(...Q.getOrgById(orgId));
     if (!org) return NextResponse.json({ error: 'Organisation not found' }, { status: 404 });
 
+    // Pricing is ALWAYS server-authoritative — derived from the org's stored plan
+    // or the admin-set balance, never from a client-supplied amount or plan.
     let amount;
     if (kind === 'retainer')     amount = RETAINER_PAISE;
     else if (kind === 'balance') amount = org.balance_amount_paise || (PLAN_AMOUNTS[org.plan] || PLAN_AMOUNTS.standard);
-    else                         amount = PLAN_AMOUNTS[plan] || PLAN_AMOUNTS.standard;
+    else                         amount = PLAN_AMOUNTS[org.plan] || PLAN_AMOUNTS.standard;
 
     const order = await createOrder({ amount, orgId, kind });
 

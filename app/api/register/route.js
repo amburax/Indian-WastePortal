@@ -21,7 +21,8 @@ export async function POST(request) {
     if ((await rateLimit(request, `register:${clientIp(request)}`, { max: 6, windowMs: 10 * 60_000 })).limited)
       return NextResponse.json({ error: 'Too many attempts — please try again in a few minutes.' }, { status: 429 });
 
-    const body = await request.json();
+    let body;
+    try { body = await request.json(); } catch { return NextResponse.json({ error: 'Invalid request body' }, { status: 400 }); }
     const {
       org_name, auth_person, email, phone,
       category, sub_category,
