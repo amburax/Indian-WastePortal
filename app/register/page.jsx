@@ -64,10 +64,16 @@ const validate = {
   // Step 1 — Account
   step1: (d, t) => {
     const e = {};
-    if (!d.org_name?.trim() || d.org_name.trim().length < 3)
+    const org = d.org_name?.trim() || '';
+    const person = d.auth_person?.trim() || '';
+    if (org.length < 3)
       e.org_name    = t('reg.v.orgName');
-    if (!d.auth_person?.trim() || d.auth_person.trim().length < 2)
+    else if (!/[a-zA-Zऀ-ॿ઀-૿]/.test(org))   // must contain a letter, not just digits/symbols
+      e.org_name    = t('reg.v.orgNameInvalid');
+    if (person.length < 2)
       e.auth_person = t('reg.v.authPerson');
+    else if (!/^[a-zA-Zऀ-ॿ઀-૿][a-zA-Zऀ-ॿ઀-૿\s.'-]*$/.test(person)) // letters/spaces only, no digits
+      e.auth_person = t('reg.v.authPersonInvalid');
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email?.trim()))
       e.email       = t('reg.v.email');
     if (!/^\d{10}$/.test(d.phone?.replace(/\s/g, '')))
@@ -79,9 +85,16 @@ const validate = {
     const e = {};
     if (!d.category)    e.category    = t('reg.v.category');
     if (!d.sub_category) e.sub_category = t('reg.v.subcat');
-    if (!(Number(d.floor_area_sqm) > 0))       e.floor_area_sqm       = t('reg.v.floor');
-    if (!(Number(d.waste_kg_per_day) > 0))     e.waste_kg_per_day     = t('reg.v.waste');
-    if (!(Number(d.water_liters_per_day) > 0)) e.water_liters_per_day = t('reg.v.water');
+    const floor = Number(d.floor_area_sqm);
+    const waste = Number(d.waste_kg_per_day);
+    const water = Number(d.water_liters_per_day);
+    if (!(floor > 0))  e.floor_area_sqm       = t('reg.v.floor');
+    if (!(waste > 0))  e.waste_kg_per_day     = t('reg.v.waste');
+    if (!(water > 0))  e.water_liters_per_day = t('reg.v.water');
+    // BWG condition (SWM 2026): must cross at least ONE threshold to be a Bulk Waste Generator.
+    if (floor > 0 && waste > 0 && water > 0 &&
+        floor < 20000 && water < 40000 && waste < 100)
+      e.not_bwg = t('reg.v.notBwg');
     return e;
   },
   // Step 3 — Address
@@ -91,6 +104,7 @@ const validate = {
     if (!d.district_name?.trim()) e.district_name = t('reg.v.district');
     if (!d.sub_district?.trim())  e.sub_district  = t('reg.v.subdistrict');
     if (!d.city_name?.trim())     e.city_name     = t('reg.v.city');
+    if (!d.full_address?.trim())  e.full_address  = t('reg.v.fulladdr');
     if (!d.local_body_type)       e.local_body_type = t('reg.v.localbody');
     if (!/^\d{6}$/.test(d.pincode || '')) e.pincode = t('reg.v.pincode');
     // CPCB Step 2 requires coordinates (there is no "skip" on the portal).
@@ -205,6 +219,14 @@ function Step2Category({ data, onChange, errors }) {
         <strong className="text-indigo-700">{t('reg.c.banner1')}</strong>
         <span className="text-slate-500 ml-2">{t('reg.c.banner2')}</span>
       </div>
+
+      {errors.not_bwg && (
+        <div className="p-3 rounded-xl text-xs text-amber-800 flex gap-2"
+             style={{ background: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.3)' }}>
+          <span className="shrink-0">⚠️</span>
+          <span>{errors.not_bwg}</span>
+        </div>
+      )}
 
       {/* Category + Sub-category */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -388,9 +410,10 @@ function Step3Address({ data, onChange, errors }) {
         <label className="form-label">{t('reg.ad.fulladdr')}</label>
         <textarea id="f-addr" rows={2} value={data.full_address}
                   onChange={e => onChange('full_address', e.target.value)}
-                  className="form-input resize-none"
+                  className={`form-input resize-none ${errors.full_address ? 'error' : ''}`}
                   placeholder="Plot 12, Sector 4, Near Bus Stand, Bopal" />
         <p className="text-xs text-slate-400 mt-1">{t('reg.ad.fulladdrHint')}</p>
+        <FieldError msg={errors.full_address} />
       </div>
 
       {/* Local body + Pincode */}
@@ -478,7 +501,18 @@ function ConsentGate({ consent, onChange }) {
           <input type="checkbox" checked={consent[key]} required
                  onChange={(e) => onChange(key, e.target.checked)}
                  className="mt-0.5 w-4 h-4 accent-emerald-600 shrink-0" />
-          <span className="text-xs text-slate-600 leading-relaxed">{t(tkey)}</span>
+          <span className="text-xs text-slate-600 leading-relaxed">
+            {t(tkey)}
+            {key === 'terms' && (
+              <>
+                {' '}
+                <Link href="/legal/terms" target="_blank" onClick={(e) => e.stopPropagation()}
+                      className="text-ruby-800 underline font-medium whitespace-nowrap">
+                  {t('reg.consentTermsLink')}
+                </Link>
+              </>
+            )}
+          </span>
         </label>
       ))}
     </div>

@@ -32,7 +32,7 @@ function TopAlertBanner() {
     setDays(Math.max(0, Math.ceil((due - now) / 86_400_000)));
   }, []);
   return (
-    <div className="w-full bg-[#831818] text-white/90 text-xs font-bold py-2.5 px-4 flex items-center justify-center gap-3 relative z-50 shadow-md">
+    <div id="top-alert-banner" className="w-full bg-[#831818] text-white/90 text-xs font-bold py-2.5 px-4 flex items-center justify-center gap-3 relative z-50 shadow-md">
       <div className="w-2 h-2 bg-ruby-400 rounded-full animate-pulse shrink-0" />
       <span className="text-center sm:text-left">
         <span dangerouslySetInnerHTML={{ __html: t('pg.alert.force') }} />
@@ -56,6 +56,7 @@ function Header({ onLogin }) {
   const [authed, setAuthed] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [bannerH, setBannerH] = useState(44);
   useEffect(() => { fetch('/api/account/me', { cache: 'no-store' }).then(r => setAuthed(r.ok)).catch(() => setAuthed(false)); }, []);
   // Sticky, scroll-aware: transparent over the hero at rest, solid bar once scrolled
   // (so the navbar stays visible everywhere and the white text stays readable).
@@ -65,6 +66,17 @@ function Header({ onLogin }) {
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+  // Sit the navbar exactly below the alert banner, whatever its height is.
+  // The banner wraps to 2 lines on small screens, so a hardcoded offset overlaps it.
+  useEffect(() => {
+    const measure = () => {
+      const el = document.getElementById('top-alert-banner');
+      if (el) setBannerH(el.offsetHeight);
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, []);
   const NAV = [
     { href: '#whats-new', label: t('pg.nav.swm') },
     { href: '#services', label: t('nav.services') },
@@ -72,10 +84,10 @@ function Header({ onLogin }) {
     { href: '#pricing', label: t('nav.pricing') },
   ];
   return (
-    <header className={`fixed w-full z-50 transition-all duration-300 ${
+    <header style={{ top: scrolled ? 0 : bannerH }} className={`fixed w-full z-50 transition-all duration-300 ${
       scrolled
-        ? 'top-0 bg-[#0e3b2e]/95 backdrop-blur-md shadow-lg border-b border-white/10'
-        : 'top-[44px] bg-transparent'
+        ? 'bg-[#0e3b2e]/95 backdrop-blur-md shadow-lg border-b border-white/10'
+        : 'bg-transparent'
     }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-3">
         {/* Logo */}
