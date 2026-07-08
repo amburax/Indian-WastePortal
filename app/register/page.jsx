@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import GlassCard          from '../../components/GlassCard';
 import StepProgress       from '../../components/StepProgress';
+import Combobox           from '../../components/Combobox';
 import { INDIAN_STATES } from '../../lib/lgdData';
 import { useI18n } from '../../lib/i18n';
 import SiteNavbar from '../../components/SiteNavbar';
@@ -356,19 +357,14 @@ function Step3Address({ data, onChange, errors }) {
         </div>
         <div>
           <label className="form-label">{t('reg.ad.district')}</label>
-          <input id="f-dist" list="dist-list" value={data.district_name}
-                 onChange={e => {
-                   onChange('district_name', e.target.value);
-                   onChange('sub_district', '');
-                   onChange('city_name', '');
-                 }}
-                 className={`form-input ${errors.district_name ? 'error' : ''}`}
-                 placeholder={t('reg.ph.district')} />
-          {districts && districts.length > 0 && (
-            <datalist id="dist-list">
-              {districts.map(d => <option key={d} value={d} />)}
-            </datalist>
-          )}
+          <Combobox id="f-dist" value={data.district_name} options={districts || []}
+                    onChange={val => {
+                      onChange('district_name', val);
+                      onChange('sub_district', '');
+                      onChange('city_name', '');
+                    }}
+                    error={!!errors.district_name}
+                    placeholder={t('reg.ph.district')} />
           <FieldError msg={errors.district_name} />
         </div>
       </div>
@@ -377,31 +373,21 @@ function Step3Address({ data, onChange, errors }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <label className="form-label">{t('reg.ad.subdistrict')}</label>
-          <input id="f-taluka" list="taluka-list" value={data.sub_district}
-                 onChange={e => {
-                   onChange('sub_district', e.target.value);
-                   onChange('city_name', '');
-                 }}
-                 className={`form-input ${errors.sub_district ? 'error' : ''}`}
-                 placeholder={t('reg.ph.subdistrict')} />
-          {subDistricts && subDistricts.length > 0 && (
-            <datalist id="taluka-list">
-              {subDistricts.map(s => <option key={s} value={s} />)}
-            </datalist>
-          )}
+          <Combobox id="f-taluka" value={data.sub_district} options={subDistricts || []}
+                    onChange={val => {
+                      onChange('sub_district', val);
+                      onChange('city_name', '');
+                    }}
+                    error={!!errors.sub_district}
+                    placeholder={t('reg.ph.subdistrict')} />
           <FieldError msg={errors.sub_district} />
         </div>
         <div>
           <label className="form-label">{t('reg.ad.city')}</label>
-          <input id="f-city" list="city-list" value={data.city_name}
-                 onChange={e => handleVillageChange(e.target.value)}
-                 className={`form-input ${errors.city_name ? 'error' : ''}`}
-                 placeholder={t('reg.ph.city')} />
-          {villages && villages.length > 0 && (
-            <datalist id="city-list">
-              {villages.map(v => <option key={v.name} value={v.name} />)}
-            </datalist>
-          )}
+          <Combobox id="f-city" value={data.city_name} options={villages.map(v => v.name)}
+                    onChange={handleVillageChange}
+                    error={!!errors.city_name}
+                    placeholder={t('reg.ph.city')} />
           <FieldError msg={errors.city_name} />
         </div>
       </div>
