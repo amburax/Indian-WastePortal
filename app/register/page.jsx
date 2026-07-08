@@ -172,7 +172,8 @@ function Step1Account({ data, onChange, errors, loggedIn, accountEmail }) {
           <label className="form-label">{t('reg.a.mobile')}</label>
           <div className="relative">
             <span className="absolute left-3.5 top-1/2 -translate-y-1/2 text-sm font-medium text-slate-500">+91</span>
-            <input {...f('phone')} type="tel" maxLength={10}
+            <input value={data.phone} onChange={e => onChange('phone', e.target.value.replace(/\D/g, ''))}
+                   type="tel" inputMode="numeric" maxLength={10}
                    className={`form-input pl-12 ${errors.phone ? 'error' : ''}`}
                    placeholder="9876543210" id="f-mobile" />
           </div>
@@ -431,8 +432,8 @@ function Step3Address({ data, onChange, errors }) {
         </div>
         <div>
           <label className="form-label">{t('reg.ad.pincode')}</label>
-          <input id="f-pin" type="text" maxLength={6} value={data.pincode}
-                 onChange={e => onChange('pincode', e.target.value)}
+          <input id="f-pin" type="text" inputMode="numeric" maxLength={6} value={data.pincode}
+                 onChange={e => onChange('pincode', e.target.value.replace(/\D/g, ''))}
                  className={`form-input ${errors.pincode ? 'error' : ''}`}
                  placeholder="382010" />
           <FieldError msg={errors.pincode} />
