@@ -2,6 +2,7 @@
 import { useState, useEffect, useCallback, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
+import dynamic from 'next/dynamic';
 import {
   ArrowLeft, ArrowRight, Loader2,
   User, Building2, MapPin, BarChart3, ShieldCheck, CheckCircle,
@@ -13,6 +14,16 @@ import Combobox           from '../../components/Combobox';
 import { INDIAN_STATES } from '../../lib/lgdData';
 import { useI18n } from '../../lib/i18n';
 import SiteNavbar from '../../components/SiteNavbar';
+
+// Map picker is browser-only (Leaflet needs window) → load client-side, no SSR.
+const LocationPicker = dynamic(() => import('../../components/LocationPicker'), {
+  ssr: false,
+  loading: () => (
+    <div className="h-[260px] rounded-xl bg-slate-100 animate-pulse flex items-center justify-center text-xs text-slate-400">
+      Loading map…
+    </div>
+  ),
+});
 
 // ── Sub-categories from WasteComply_CRM (exact CPCB portal values) ─
 const SUBCATS = {
@@ -456,7 +467,14 @@ function Step3Address({ data, onChange, onBlur, errors }) {
         </div>
       </div>
 
-      {/* Lat/Lng — required by CPCB Step 2 */}
+      {/* Map picker — sets ONLY the coordinates below, never the address above */}
+      <div className="mt-4">
+        <label className="form-label">{t('reg.ad.mapLabel')}</label>
+        <LocationPicker lat={data.latitude} lng={data.longitude}
+                        onPick={(la, ln) => { onChange('latitude', String(la)); onChange('longitude', String(ln)); }} />
+      </div>
+
+      {/* Lat/Lng — required by CPCB Step 2 (kept visible & editable to verify the pin) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
         <div>
           <label className="form-label">{t('reg.ad.lat')}</label>
