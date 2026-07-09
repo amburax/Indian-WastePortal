@@ -77,7 +77,7 @@ const validate = {
       e.auth_person = t('reg.v.authPersonInvalid');
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(d.email?.trim()))
       e.email       = t('reg.v.email');
-    if (!/^\d{10}$/.test(d.phone?.replace(/\s/g, '')))
+    if (!/^[6-9]\d{9}$/.test(d.phone?.replace(/\s/g, '')))
       e.phone       = t('reg.v.phone');
     return e;
   },

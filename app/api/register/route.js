@@ -41,8 +41,8 @@ export async function POST(request) {
       return NextResponse.json({ error: 'Enter a valid authorised person name (letters only)' }, { status: 400 });
     if (!email?.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
       return NextResponse.json({ error: 'Valid email address is required' }, { status: 400 });
-    if (!phone || !/^\d{10}$/.test(phone.replace(/\s/g, '')))
-      return NextResponse.json({ error: '10-digit mobile number is required' }, { status: 400 });
+    if (!phone || !/^[6-9]\d{9}$/.test(phone.replace(/\s/g, '')))
+      return NextResponse.json({ error: 'Enter a valid 10-digit Indian mobile number (starting 6–9)' }, { status: 400 });
     if (!category)
       return NextResponse.json({ error: 'Category is required' }, { status: 400 });
     if (!sub_category?.trim())
