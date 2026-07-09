@@ -2,7 +2,7 @@
 import { useState, useEffect, Fragment } from 'react';
 import Link from 'next/link';
 import {
-  ShieldCheck, Cpu, Lock, ArrowRight, ChevronDown,
+  ShieldCheck, Cpu, Lock, ArrowRight, ArrowLeft, ChevronDown,
   Shield, Zap, CheckCircle, Globe, Phone, Mail,
   Star, TrendingUp, AlertTriangle, Recycle, Leaf,
   Calendar, Scale, MapPin, FileText, Landmark, Battery,
@@ -90,8 +90,12 @@ function Header({ onLogin }) {
         : 'bg-transparent'
     }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between gap-3">
-        {/* Logo */}
+        {/* Back to platform home + Logo */}
         <div className="flex items-center gap-2 sm:gap-2.5 min-w-0">
+          <Link href="/" aria-label="Back to home"
+                className="shrink-0 inline-flex items-center gap-1 rounded-lg border border-white/20 bg-white/5 text-white/85 hover:text-white hover:bg-white/10 text-xs font-semibold px-2.5 py-1.5 transition-colors">
+            <ArrowLeft size={14} /><span className="hidden lg:inline">Home</span>
+          </Link>
           <div className="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center bg-white/10 backdrop-blur-md border border-white/20">
             <ShieldCheck size={16} className="text-white" />
           </div>
