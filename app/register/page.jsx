@@ -695,9 +695,12 @@ function RegisterContent() {
     });
   };
 
-  const updateAccount  = (k, v) => { const nd = { ...account,  [k]: v }; setAccount(nd);  liveField(1, k, nd); };
-  const updateCategory = (k, v) => { const nd = { ...category, [k]: v }; setCategory(nd); liveField(2, k, nd); };
-  const updateAddress  = (k, v) => { const nd = { ...address,  [k]: v }; setAddress(nd);  liveField(3, k, nd); };
+  // Use the functional updater so two updates fired in the same handler (e.g.
+  // picking a category also clears sub_category) both apply — a plain merge from
+  // the closure would let the second overwrite the first.
+  const updateAccount  = (k, v) => { setAccount(p => ({ ...p, [k]: v }));  liveField(1, k, { ...account,  [k]: v }); };
+  const updateCategory = (k, v) => { setCategory(p => ({ ...p, [k]: v })); liveField(2, k, { ...category, [k]: v }); };
+  const updateAddress  = (k, v) => { setAddress(p => ({ ...p, [k]: v }));  liveField(3, k, { ...address,  [k]: v }); };
 
   const blurAccount  = (k) => blurField(1, k, account);
   const blurCategory = (k) => blurField(2, k, category);
