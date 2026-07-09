@@ -282,7 +282,7 @@ function Step2Category({ data, onChange, onBlur, errors }) {
                  value={data.floor_area_sqm}
                  onChange={e => onChange('floor_area_sqm', e.target.value)}
                  onBlur={() => onBlur('floor_area_sqm')}
-                 className={`form-input ${errors.floor_area_sqm ? 'error' : ''}`} placeholder="5000" />
+                 className={`form-input ${errors.floor_area_sqm ? 'error' : ''}`} placeholder="20000" />
           <FieldError msg={errors.floor_area_sqm} />
         </div>
         <div>
@@ -291,7 +291,7 @@ function Step2Category({ data, onChange, onBlur, errors }) {
                  value={data.waste_kg_per_day}
                  onChange={e => onChange('waste_kg_per_day', e.target.value)}
                  onBlur={() => onBlur('waste_kg_per_day')}
-                 className={`form-input ${errors.waste_kg_per_day ? 'error' : ''}`} placeholder="150" />
+                 className={`form-input ${errors.waste_kg_per_day ? 'error' : ''}`} placeholder="100" />
           <FieldError msg={errors.waste_kg_per_day} />
         </div>
         <div>
@@ -300,7 +300,7 @@ function Step2Category({ data, onChange, onBlur, errors }) {
                  value={data.water_liters_per_day}
                  onChange={e => onChange('water_liters_per_day', e.target.value)}
                  onBlur={() => onBlur('water_liters_per_day')}
-                 className={`form-input ${errors.water_liters_per_day ? 'error' : ''}`} placeholder="5000" />
+                 className={`form-input ${errors.water_liters_per_day ? 'error' : ''}`} placeholder="40000" />
           <FieldError msg={errors.water_liters_per_day} />
         </div>
       </div>
