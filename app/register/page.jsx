@@ -100,9 +100,14 @@ const validate = {
     const floor = Number(d.floor_area_sqm);
     const waste = Number(d.waste_kg_per_day);
     const water = Number(d.water_liters_per_day);
-    if (!(floor > 0))  e.floor_area_sqm       = t('reg.v.floor');
-    if (!(waste > 0))  e.waste_kg_per_day     = t('reg.v.waste');
-    if (!(water > 0))  e.water_liters_per_day = t('reg.v.water');
+    // Sane upper bounds — larger than any real facility, but block typos like 100 billion.
+    const MAX = { floor: 10_000_000, waste: 1_000_000, water: 100_000_000 };
+    if (!(floor > 0))            e.floor_area_sqm       = t('reg.v.floor');
+    else if (floor > MAX.floor)  e.floor_area_sqm       = t('reg.v.floorMax');
+    if (!(waste > 0))            e.waste_kg_per_day     = t('reg.v.waste');
+    else if (waste > MAX.waste)  e.waste_kg_per_day     = t('reg.v.wasteMax');
+    if (!(water > 0))            e.water_liters_per_day = t('reg.v.water');
+    else if (water > MAX.water)  e.water_liters_per_day = t('reg.v.waterMax');
     // BWG condition (SWM 2026): must cross at least ONE threshold to be a Bulk Waste Generator.
     if (floor > 0 && waste > 0 && water > 0 &&
         floor < 20000 && water < 40000 && waste < 100)
@@ -278,7 +283,7 @@ function Step2Category({ data, onChange, onBlur, errors }) {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div>
           <label className="form-label">{t('reg.c.floor')}</label>
-          <input id="f-floor" type="number" min="0" inputMode="decimal"
+          <input id="f-floor" type="number" min="0" max="10000000" inputMode="decimal"
                  value={data.floor_area_sqm}
                  onChange={e => onChange('floor_area_sqm', e.target.value)}
                  onBlur={() => onBlur('floor_area_sqm')}
@@ -287,7 +292,7 @@ function Step2Category({ data, onChange, onBlur, errors }) {
         </div>
         <div>
           <label className="form-label">{t('reg.c.waste')}</label>
-          <input id="f-waste" type="number" min="0" inputMode="decimal"
+          <input id="f-waste" type="number" min="0" max="1000000" inputMode="decimal"
                  value={data.waste_kg_per_day}
                  onChange={e => onChange('waste_kg_per_day', e.target.value)}
                  onBlur={() => onBlur('waste_kg_per_day')}
@@ -296,7 +301,7 @@ function Step2Category({ data, onChange, onBlur, errors }) {
         </div>
         <div>
           <label className="form-label">{t('reg.c.water')}</label>
-          <input id="f-water" type="number" min="0" inputMode="decimal"
+          <input id="f-water" type="number" min="0" max="100000000" inputMode="decimal"
                  value={data.water_liters_per_day}
                  onChange={e => onChange('water_liters_per_day', e.target.value)}
                  onBlur={() => onBlur('water_liters_per_day')}

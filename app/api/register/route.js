@@ -52,6 +52,11 @@ export async function POST(request) {
       const a = parseFloat(metrics.floor_area_sqm)       || 0;
       const w = parseFloat(metrics.waste_kg_per_day)     || 0;
       const l = parseFloat(metrics.water_liters_per_day) || 0;
+      if (!(a > 0) || !(w > 0) || !(l > 0))
+        return NextResponse.json({ error: 'Floor area, waste, and water must all be positive numbers.' }, { status: 400 });
+      // Sane upper bounds — block typos/garbage like 100 billion sq.m.
+      if (a > 10_000_000 || w > 1_000_000 || l > 100_000_000)
+        return NextResponse.json({ error: 'A metric value is unrealistically large — please check floor area, waste, and water.' }, { status: 400 });
       if (!(a >= 20000 || w >= 100 || l >= 40000))
         return NextResponse.json({ error: "These figures don't meet any Bulk Waste Generator threshold (≥ 20,000 sq.m OR ≥ 40,000 L/day OR ≥ 100 kg/day)." }, { status: 400 });
     }
