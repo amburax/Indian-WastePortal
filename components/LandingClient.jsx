@@ -20,7 +20,7 @@ function CategoryCircle({ img, Icon, live }) {
       style={showImg ? undefined : { background: live ? 'linear-gradient(135deg,#16654a,#0e3b2e)' : 'linear-gradient(135deg,#eef2f0,#cbd5e1)' }}
     >
       {showImg ? (
-        <img src={img} alt="" onError={() => setBroken(true)}
+        <img src={img} alt="" onError={() => setBroken(true)} loading="lazy" decoding="async"
              className={`w-full h-full object-cover ${live ? '' : 'grayscale'}`} />
       ) : (
         <Icon size={54} className={live ? 'text-white' : 'text-slate-400'} />
@@ -42,15 +42,15 @@ export default function LandingClient() {
   // appear automatically; until then a clean icon circle shows.
   const CATEGORIES = [
     { key: 'solid',   name: t('land.cat.solid'),   rule: 'SWM Rules, 2016 / 2026',    icon: Recycle,   href: '/solid-waste', live: true, img: '/mosaic/mrf.webp',   blurb: t('land.cat.solidBlurb') },
-    { key: 'plastic', name: t('land.cat.plastic'), rule: 'Plastic Waste Rules · EPR', icon: Package,   img: '/waste/plastic.png',    blurb: t('land.cat.plasticBlurb') },
-    { key: 'ewaste',  name: t('land.cat.ewaste'),  rule: 'E-Waste Rules · EPR',       icon: Cpu,       img: '/waste/ewaste.png',     blurb: t('land.cat.ewasteBlurb') },
-    { key: 'biomed',  name: t('land.cat.biomed'),  rule: 'BMW Rules, 2016',           icon: Syringe,   img: '/waste/biomedical.png', blurb: t('land.cat.biomedBlurb') },
-    { key: 'battery', name: t('land.cat.battery'), rule: 'Battery Waste Rules · EPR', icon: Battery,   img: '/waste/battery.png',    blurb: t('land.cat.batteryBlurb') },
-    { key: 'oil',     name: t('land.cat.oil'),     rule: 'Hazardous Waste Rules',     icon: Droplet,   img: '/waste/oil.png',        blurb: t('land.cat.oilBlurb') },
-    { key: 'tyre',    name: t('land.cat.tyre'),    rule: 'EPR for Waste Tyres',       icon: Disc,      img: '/waste/tyre.png',       blurb: t('land.cat.tyreBlurb') },
-    { key: 'cnd',     name: t('land.cat.cnd'),     rule: 'C&D Waste Rules, 2016',     icon: Building2, img: '/waste/cnd.png',        blurb: t('land.cat.cndBlurb') },
-    { key: 'hazard',  name: t('land.cat.hazard'),  rule: 'Hazardous Waste Rules, 2016', icon: AlertTriangle, img: '/waste/hazardous.png', blurb: t('land.cat.hazardBlurb') },
-    { key: 'metal',   name: t('land.cat.metal'),   rule: 'Metal Recycling Compliance', icon: Layers,   img: '/waste/nonferrous.png', blurb: t('land.cat.metalBlurb') },
+    { key: 'plastic', name: t('land.cat.plastic'), rule: 'Plastic Waste Rules · EPR', icon: Package,   img: '/waste/plastic.webp',    blurb: t('land.cat.plasticBlurb') },
+    { key: 'ewaste',  name: t('land.cat.ewaste'),  rule: 'E-Waste Rules · EPR',       icon: Cpu,       img: '/waste/ewaste.webp',     blurb: t('land.cat.ewasteBlurb') },
+    { key: 'biomed',  name: t('land.cat.biomed'),  rule: 'BMW Rules, 2016',           icon: Syringe,   img: '/waste/biomedical.webp', blurb: t('land.cat.biomedBlurb') },
+    { key: 'battery', name: t('land.cat.battery'), rule: 'Battery Waste Rules · EPR', icon: Battery,   img: '/waste/battery.webp',    blurb: t('land.cat.batteryBlurb') },
+    { key: 'oil',     name: t('land.cat.oil'),     rule: 'Hazardous Waste Rules',     icon: Droplet,   img: '/waste/oil.webp',        blurb: t('land.cat.oilBlurb') },
+    { key: 'tyre',    name: t('land.cat.tyre'),    rule: 'EPR for Waste Tyres',       icon: Disc,      img: '/waste/tyre.webp',       blurb: t('land.cat.tyreBlurb') },
+    { key: 'cnd',     name: t('land.cat.cnd'),     rule: 'C&D Waste Rules, 2016',     icon: Building2, img: '/waste/cnd.webp',        blurb: t('land.cat.cndBlurb') },
+    { key: 'hazard',  name: t('land.cat.hazard'),  rule: 'Hazardous Waste Rules, 2016', icon: AlertTriangle, img: '/waste/hazardous.webp', blurb: t('land.cat.hazardBlurb') },
+    { key: 'metal',   name: t('land.cat.metal'),   rule: 'Metal Recycling Compliance', icon: Layers,   img: '/waste/nonferrous.webp', blurb: t('land.cat.metalBlurb') },
   ];
 
   const GOALS = [
