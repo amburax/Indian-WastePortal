@@ -4,7 +4,7 @@ import Link from 'next/link';
 import {
   ShieldCheck, ArrowRight, Lock, Recycle, Package, Cpu, Syringe,
   Battery, Droplet, Disc, Building2, Repeat, ClipboardCheck,
-  Target, Trophy, Globe, Phone, Mail, Sparkles,
+  Target, Trophy, Globe, Phone, Mail, Sparkles, AlertTriangle, Layers,
 } from 'lucide-react';
 import { useI18n } from '../lib/i18n';
 import LanguageSwitcher from './LanguageSwitcher';
@@ -42,13 +42,15 @@ export default function LandingClient() {
   // appear automatically; until then a clean icon circle shows.
   const CATEGORIES = [
     { key: 'solid',   name: t('land.cat.solid'),   rule: 'SWM Rules, 2016 / 2026',    icon: Recycle,   href: '/solid-waste', live: true, img: '/mosaic/mrf.webp',   blurb: t('land.cat.solidBlurb') },
-    { key: 'plastic', name: t('land.cat.plastic'), rule: 'Plastic Waste Rules · EPR', icon: Package,   img: '/waste/plastic.jpg',    blurb: t('land.cat.plasticBlurb') },
-    { key: 'ewaste',  name: t('land.cat.ewaste'),  rule: 'E-Waste Rules · EPR',       icon: Cpu,       img: '/waste/ewaste.jpg',     blurb: t('land.cat.ewasteBlurb') },
-    { key: 'biomed',  name: t('land.cat.biomed'),  rule: 'BMW Rules, 2016',           icon: Syringe,   img: '/waste/biomedical.jpg', blurb: t('land.cat.biomedBlurb') },
-    { key: 'battery', name: t('land.cat.battery'), rule: 'Battery Waste Rules · EPR', icon: Battery,   img: '/waste/battery.jpg',    blurb: t('land.cat.batteryBlurb') },
-    { key: 'oil',     name: t('land.cat.oil'),     rule: 'Hazardous Waste Rules',     icon: Droplet,   img: '/waste/oil.jpg',        blurb: t('land.cat.oilBlurb') },
-    { key: 'tyre',    name: t('land.cat.tyre'),    rule: 'EPR for Waste Tyres',       icon: Disc,      img: '/waste/tyre.jpg',       blurb: t('land.cat.tyreBlurb') },
-    { key: 'cnd',     name: t('land.cat.cnd'),     rule: 'C&D Waste Rules, 2016',     icon: Building2, img: '/waste/cnd.jpg',        blurb: t('land.cat.cndBlurb') },
+    { key: 'plastic', name: t('land.cat.plastic'), rule: 'Plastic Waste Rules · EPR', icon: Package,   img: '/waste/plastic.png',    blurb: t('land.cat.plasticBlurb') },
+    { key: 'ewaste',  name: t('land.cat.ewaste'),  rule: 'E-Waste Rules · EPR',       icon: Cpu,       img: '/waste/ewaste.png',     blurb: t('land.cat.ewasteBlurb') },
+    { key: 'biomed',  name: t('land.cat.biomed'),  rule: 'BMW Rules, 2016',           icon: Syringe,   img: '/waste/biomedical.png', blurb: t('land.cat.biomedBlurb') },
+    { key: 'battery', name: t('land.cat.battery'), rule: 'Battery Waste Rules · EPR', icon: Battery,   img: '/waste/battery.png',    blurb: t('land.cat.batteryBlurb') },
+    { key: 'oil',     name: t('land.cat.oil'),     rule: 'Hazardous Waste Rules',     icon: Droplet,   img: '/waste/oil.png',        blurb: t('land.cat.oilBlurb') },
+    { key: 'tyre',    name: t('land.cat.tyre'),    rule: 'EPR for Waste Tyres',       icon: Disc,      img: '/waste/tyre.png',       blurb: t('land.cat.tyreBlurb') },
+    { key: 'cnd',     name: t('land.cat.cnd'),     rule: 'C&D Waste Rules, 2016',     icon: Building2, img: '/waste/cnd.png',        blurb: t('land.cat.cndBlurb') },
+    { key: 'hazard',  name: t('land.cat.hazard'),  rule: 'Hazardous Waste Rules, 2016', icon: AlertTriangle, img: '/waste/hazardous.png', blurb: t('land.cat.hazardBlurb') },
+    { key: 'metal',   name: t('land.cat.metal'),   rule: 'Metal Recycling Compliance', icon: Layers,   img: '/waste/nonferrous.png', blurb: t('land.cat.metalBlurb') },
   ];
 
   const GOALS = [
@@ -273,7 +275,7 @@ export default function LandingClient() {
             <ul className="space-y-2 text-sm">
               <li><Link href="/legal/terms" className="hover:text-white">{t('land.foot.terms')}</Link></li>
               <li><Link href="/legal/privacy" className="hover:text-white">{t('land.foot.privacy')}</Link></li>
-              <li><a href="mailto:indianwasteportal@gmail.com" className="inline-flex items-center gap-1.5 hover:text-white"><Mail size={13} /> {t('land.foot.email')}</a></li>
+              <li><a href="mailto:indianwasteportal@gmail.com" className="inline-flex items-center gap-1.5 hover:text-white break-all"><Mail size={13} className="shrink-0" /> indianwasteportal@gmail.com</a></li>
               <li><a href="tel:+919054047272" className="inline-flex items-center gap-1.5 hover:text-white"><Phone size={13} /> +91 90540 47272</a></li>
             </ul>
           </div>
